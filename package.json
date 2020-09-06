@@ -31,10 +31,30 @@
     "eject": "react-scripts eject"
   },
   "build": {
+    "appId": "com.myappid",
     "extends": null,
     "files": [
       "build/**/*"
     ],
+    "win": {
+      "target": [{
+        "target": "nsis",
+        "arch": [
+          "x64",
+          "ia32"
+        ]
+      }],
+      "icon": "나의소중한아이콘경로.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "allowToChangeInstallationDirectory": true,
+      "language": 1042,
+      "shortcutName": "단축아이콘 이름 my app"
+    },
+
+    
     "directories": {
       "buildResources": "assets"
     }
