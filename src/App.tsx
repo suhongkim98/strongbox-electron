@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import CounterContainer from './containers/CounterContainer';
 
 
 const TotalWrapper = styled.div`
@@ -11,7 +12,7 @@ background-color:blue;
 const App: React.FC = () => {
   return (
     <TotalWrapper>
-      Hello Electron with react!
+      <CounterContainer />
     </TotalWrapper>
   );
 }
