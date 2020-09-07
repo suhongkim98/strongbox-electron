@@ -8,16 +8,20 @@ import theme from './styles/theme';
 import rootReducer from './modules';
 import { createStore } from 'redux';
 import { Provider } from 'react-redux';
+import { HashRouter } from 'react-router-dom';
 
 
 const store = createStore(rootReducer);
 
+//일반 react 프로젝트에는 라우터를 사용할 때 BrowserRouter를 사용했는데 electron에선 HashRouter을 사용해야 함
 ReactDOM.render(
         <Provider store={store}>
-        <GlobalStyle/>  
+        <GlobalStyle/>
+        <HashRouter>
         <ThemeProvider theme={theme}>
             <App />
         </ThemeProvider>
+        </HashRouter>
         </Provider>
         , document.getElementById('root'));
 
