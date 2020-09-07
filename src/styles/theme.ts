@@ -42,7 +42,8 @@ Object.keys(sizes).reduce((acc: Media, label: string) => {
 
 const colors = {
 	white: '#ffffff',
-	black: '#000000'
+	black: '#000000',
+	backgroundMainColor: '#000430'
 };
 
 const secondaryColors = {};
