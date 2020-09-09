@@ -41,17 +41,17 @@ ${({size}) =>
 }
 `;
 const UserSelectPage:React.FC = () =>{
-    ///////////////DB TEST///////////////////
-    const database = StrongboxDatabase.getInstance();
-    database.testCreateTable();
-    database.testInsert();
-    //받아오는 예시
-    database.testSelect().then((result)=>{
-        console.log(result);
-    }).catch((error)=>{
-        console.log(error);
-    });
-    /////////////////////////////////////
+    // ///////////////DB TEST///////////////////
+    // const database = StrongboxDatabase.getInstance();
+    // database.testCreateTable();
+    // database.testInsert();
+    // //받아오는 예시
+    // database.testSelect().then((result)=>{
+    //     console.log(result);
+    // }).catch((error)=>{
+    //     console.log(error);
+    // });
+    // /////////////////////////////////////
 
     return <TotalWrapper>
         <SpanWrapper><Span textColor="white" size="4rem">사용자 선택</Span></SpanWrapper>
