@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { StrongboxDatabase } from '../StrongboxDatabase';
+import UserSelect from '../components/UserSelect';
 
 
 const TotalWrapper = styled.div`
@@ -41,21 +41,10 @@ ${({size}) =>
 }
 `;
 const UserSelectPage:React.FC = () =>{
-    // ///////////////DB TEST///////////////////
-    // const database = StrongboxDatabase.getInstance();
-    // database.testCreateTable();
-    // database.testInsert();
-    // //받아오는 예시
-    // database.testSelect().then((result)=>{
-    //     console.log(result);
-    // }).catch((error)=>{
-    //     console.log(error);
-    // });
-    // /////////////////////////////////////
 
     return <TotalWrapper>
         <SpanWrapper><Span textColor="white" size="4rem">사용자 선택</Span></SpanWrapper>
-        <UserSelectWrapper></UserSelectWrapper>
+        <UserSelectWrapper><UserSelect/></UserSelectWrapper>
         <SpanWrapper><Span textColor="white" size="1.5rem">사용자 추가</Span></SpanWrapper>
         <SpanWrapper><Span textColor="white" size="1.5rem">로그인 상태 유지</Span></SpanWrapper>
     </TotalWrapper>;
