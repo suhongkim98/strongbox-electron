@@ -7,6 +7,7 @@
   "main": "build/electron/main.js",
   "private": true,
   "dependencies": {
+    "@types/crypto-js": "^3.1.47",
     "@types/electron-devtools-installer": "^2.2.0",
     "@types/faker": "^5.1.0",
     "@types/jest": "26.0.9",
@@ -19,6 +20,7 @@
     "@types/sqlite3": "^3.1.6",
     "@types/styled-components": "^5.1.3",
     "aws-sdk": "^2.747.0",
+    "crypto-js": "^4.0.0",
     "electron-devtools-installer": "^3.1.1",
     "electron-is-dev": "^1.2.0",
     "electron-reload": "^1.5.0",
