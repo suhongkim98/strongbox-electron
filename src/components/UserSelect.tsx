@@ -8,17 +8,16 @@ const UserSelect:React.FC = () =>{
     useEffect(()=>{
     ///////////////DB TEST///////////////////
     const database = StrongboxDatabase.getInstance();
-    database.testCreateTable();
-    database.testInsert();
     //받아오는 예시
     database.testSelect().then((result:any)=>{
         console.log(result);
-        const list =result.map((data:any)=>{return <div key={data.idx}>{data.name}</div>});
+        const list =result.map((data:any)=>{return <div key={data.IDX}>{data.NAME} 과 {data.PASSWORD}</div>});
         setUserList(list);
         
     }).catch((error)=>{
         console.log(error);
     });
+      
     /////////////////////////////////////
     },[]);//빈 배열을 넣어 재실행 될 필요가 읍다는걸 알림
 
