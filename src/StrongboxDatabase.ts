@@ -41,8 +41,42 @@ export class StrongboxDatabase{
         }
         StrongboxDatabase.db = null;
     }
-    
-
+    public async select(col: string, table: string){
+        // DB에서 SELECT 쿼리 실행하는 함수
+        // select할 땐 비동기 문제 땜시 이렇게 해야함
+        const fetch = () =>{
+            //Promise 이용하여 받아와주는 함수 만들어주고
+            return new Promise((succ, fail) =>{
+                const query = 'SELECT ' + col + ' FROM ' + table;
+                StrongboxDatabase.db.all(query, [], (err: any, arg: any) =>{
+                    if (err) {
+                        fail(err);
+                    } else {
+                        succ(arg);
+                    } 
+                });
+            });
+        }
+        if(this.connectDatabase()){
+            //연결 성공하면
+            try {
+                const result = await fetch ();
+                return result;
+            } catch (error) {
+                throw error;
+            }
+        }
+        this.disconnectDatabase();
+    }
+    public insert(table: string, col: string, val: string){
+        //insert 해주는 함수
+        //ex) insert('USER_TB','NAME,PASSWORD,SALT', '홍길동,처음,aa');
+        if(this.connectDatabase()){
+            const query = 'INSERT INTO ' + table + '(' + col + ') VALUES(' + val + ')'; 
+            StrongboxDatabase.db.run(query, (err:any,arg:any)=>{});
+            this.disconnectDatabase();
+        }
+    }
     public addUser(name: string, password: string){
         // 이름 중복 여부 확인
         // 비밀번호 6글자인지 확인
@@ -97,6 +131,8 @@ export class StrongboxDatabase{
         //서비스 idx를 얻음
         //해당 서비스에 해당하는 계정 리스트 출력
     }
+
+
 
     public testInsert(): boolean{
         if(this.connectDatabase()){

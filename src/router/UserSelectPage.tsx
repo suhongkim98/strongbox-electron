@@ -15,19 +15,19 @@ align-items:center;
 `;
 
 const SpanWrapper = styled.div `
-
+margin-bottom:50px;
 `;
 
 const UserSelectWrapper = styled.div `
 width:400px;
 height:150px;
-background-color:white;
-border-radius:10px;
+margin-bottom:40px;
 `;
 
 interface SpanProps {
     textColor?:any;
     size?:any;
+    fontWeight?:any;
 }
 const Span = styled.span<SpanProps>`
 ${({textColor}) => 
@@ -39,11 +39,15 @@ ${({size}) =>
     size &&
     `font-size:${size};`
 }
+${({fontWeight}) => 
+    fontWeight &&
+    `font-weight:${fontWeight};`
+}
 `;
 const UserSelectPage:React.FC = () =>{
 
     return <TotalWrapper>
-        <SpanWrapper><Span textColor="white" size="4rem">사용자 선택</Span></SpanWrapper>
+        <SpanWrapper><Span textColor="white" size="4rem" fontWeight="700">사용자 선택</Span></SpanWrapper>
         <UserSelectWrapper><UserSelect/></UserSelectWrapper>
         <SpanWrapper><Span textColor="white" size="1.5rem">사용자 추가</Span></SpanWrapper>
         <SpanWrapper><Span textColor="white" size="1.5rem">로그인 상태 유지</Span></SpanWrapper>
