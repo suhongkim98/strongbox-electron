@@ -7,17 +7,19 @@ import { NavLink } from 'react-router-dom';
 const TotalWrapper = styled.div`
 width:100%;
 height:100%;
-border-style:solid;
-border-color:grey;
-border-width:1px;
 background-color:${theme.colors.backgroundMainColor};
 `;
+const Row = styled.div`
+
+`;
 const Content = styled.div`
-padding:10px;
 border-style:solid;
 border-color:grey;
 border-bottom-width:1px;
 background-color:${theme.colors.backgroundMainColor};
+
+margin: 20px;
+padding-bottom:10px;
 `;
 const Span = styled.span`
 font-size:1.6rem;
@@ -40,8 +42,8 @@ const UserSelect:React.FC = () =>{
         // });
 
         /////////받아오는거 잘 되는데 가짜데이터 삽입해서 디자인좀////////////////////////
-        const fakeData: any = [{IDX: 1, NAME: '홍길동'},{IDX: 2, NAME: '김두식'},{IDX: 3, NAME: '두루미'},{IDX: 4, NAME: '갈매기'}];
-        setUserList(fakeData.map((data:any)=>{return <NavLink to = '/PasswordInputPage' key={data.IDX}><Content onClick={()=>onClickUser(data.IDX)}><Span>{data.NAME}</Span></Content></NavLink>}));
+        const fakeData: any = [{IDX: 1, NAME: '홍길동'},{IDX: 2, NAME: '김두식'},{IDX: 3, NAME: '두루미'},{IDX: 4, NAME: '갈매기'},{IDX: 5, NAME: '갈as기'},{IDX: 6, NAME: 'bbbb'}];
+        setUserList(fakeData.map((data:any)=>{return <NavLink to = '/PasswordInputPage' key={data.IDX}><Row onClick={()=>onClickUser(data.IDX)}><Content><Span>{data.NAME}</Span></Content></Row></NavLink>}));
         ////////////
 
 
