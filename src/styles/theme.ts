@@ -44,7 +44,8 @@ const colors = {
 	white: '#ffffff',
 	black: '#000000',
 	backgroundMainColor: '#000430',
-	lightPink: '#D98D8D'
+	lightPink: '#D98D8D',
+	containerMainColor: '#E6E6EB'
 };
 
 const secondaryColors = {};

@@ -1,4 +1,5 @@
 import React from 'react';
+import { NavLink } from 'react-router-dom';
 import styled from 'styled-components';
 import UserSelect from '../components/UserSelect';
 import theme from '../styles/theme';
@@ -62,7 +63,7 @@ const UserSelectPage:React.FC = () =>{
     return <TotalWrapper>
         <SpanWrapper><Span textColor="white" size="4rem" fontWeight="700">사용자 선택</Span></SpanWrapper>
         <UserSelectWrapper><Scroll><UserSelect/></Scroll></UserSelectWrapper>
-        <SpanWrapper><Span textColor={theme.colors.lightPink} size="1.5rem" >사용자 추가</Span></SpanWrapper>
+        <SpanWrapper><NavLink to="/UserAdd"><Span textColor={theme.colors.lightPink} size="1.5rem" >사용자 추가</Span></NavLink></SpanWrapper>
         <SpanWrapper><Span textColor="white" size="1.5rem">로그인 상태 유지</Span></SpanWrapper>
     </TotalWrapper>;
 }
