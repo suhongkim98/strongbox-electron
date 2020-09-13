@@ -10,7 +10,9 @@ height:100%;
 background-color:${theme.colors.backgroundMainColor};
 `;
 const Row = styled.div`
-
+:hover span{
+    color:aqua;
+}
 `;
 const Content = styled.div`
 border-style:solid;

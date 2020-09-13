@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import UserSelect from '../components/UserSelect';
+import theme from '../styles/theme';
 
 
 const TotalWrapper = styled.div`
@@ -24,7 +25,7 @@ height:150px;
 margin-bottom:40px;
 
 border-style:solid;
-border-color:grey;
+border-color:white;
 border-width:1px;
 `;
 const Scroll = styled.div`
@@ -33,14 +34,8 @@ height:100%;
 overflow: auto;
 ::-webkit-scrollbar{
     width:10px;
+    display:none;
 }
-::-webkit-scrollbar-thumb {
-  background: #888; 
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #555; 
-}
-
 `;
 interface SpanProps {
     textColor?:any;
@@ -67,7 +62,7 @@ const UserSelectPage:React.FC = () =>{
     return <TotalWrapper>
         <SpanWrapper><Span textColor="white" size="4rem" fontWeight="700">사용자 선택</Span></SpanWrapper>
         <UserSelectWrapper><Scroll><UserSelect/></Scroll></UserSelectWrapper>
-        <SpanWrapper><Span textColor="white" size="1.5rem">사용자 추가</Span></SpanWrapper>
+        <SpanWrapper><Span textColor={theme.colors.lightPink} size="1.5rem" >사용자 추가</Span></SpanWrapper>
         <SpanWrapper><Span textColor="white" size="1.5rem">로그인 상태 유지</Span></SpanWrapper>
     </TotalWrapper>;
 }
