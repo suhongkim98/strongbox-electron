@@ -25,23 +25,20 @@ border-color: black;
 const PinInputBox = ({count}:PinInputBoxProps) =>{
     const inputRef:any = useRef([]);
     const [result,setResult] = useState([]);
-    const [index,setIndex] = useState(0);
+    let index:number = 0;
 
-    const onClickEvent = (e:any) => {
+    const onClickEvent = () => {
         inputRef.current[index].focus();
     }
 
     const onKeyUpEvent = (e:any) =>{
         if(e.target.value.length >= 1){
-            setIndex(index + 1);
-            console.log('다음' + index);
+            index = (index + 1) % 6;
+            onClickEvent();
         }
         e.preventDefault();
     }
 
-    useEffect(()=>{
-        console.log("index바뀜"+index);
-    },[index]);
     useEffect(() => {
         const list:any = [];
         inputRef.current = new Array(count);
