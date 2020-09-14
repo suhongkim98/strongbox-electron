@@ -11,7 +11,7 @@ const TotalWrapper = styled.div`
 width:100%;
 height:100%;
 background-color:${theme.colors.containerMainColor};
-box-shadow: 5px 5px 5px;
+box-shadow: 0 15px 25px rgba(0,0,0,.6);
 border-radius: 10px;
 
 display:flex;
@@ -41,6 +41,7 @@ height:25px;
 const FloatDiv = ({children,title}:FloatDivProps) =>{
     const returnPage = () =>{
         //이전 페이지로 돌아가기
+        window.history.back();
     }
     return <TotalWrapper>
         <HeaderWrapper><HeaderContent><Span>{title}</Span><Img src={returnImg} alt="return" onClick={returnPage}></Img></HeaderContent></HeaderWrapper>
