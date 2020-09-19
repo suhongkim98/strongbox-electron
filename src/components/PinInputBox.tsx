@@ -27,23 +27,38 @@ const PinInputBox = ({count}:PinInputBoxProps) =>{
     const [result,setResult] = useState([]);
     let index:number = 0;
 
-    const onClickEvent = () => {
+    const focusNext = () => {
         inputRef.current[index].focus();
+        
     }
 
     const onKeyUpEvent = (e:any) =>{
         if(e.target.value.length >= 1){
-            index = (index + 1) % 6;
-            onClickEvent();
+            index += 1;
+            if(index > count - 1){
+                inputRef.current[index - 1].blur();
+                index = 0;
+            }
+            else focusNext();
         }
         e.preventDefault();
+    }
+
+    const onFocusEvent = () =>{
+        if(inputRef.current[index].value !== ''){
+            //이미 한번 입력한 상태에서 다시 입력할 경우 input 초기화
+            for(let i = 0 ; i < count ; i++){
+                inputRef.current[i].value = '';
+            }
+        }
+        else focusNext();
     }
 
     useEffect(() => {
         const list:any = [];
         inputRef.current = new Array(count);
-        for(let i = 0 ; i < count ; i++){
-            list.push(<Input type="password" maxLength={1} onClick={onClickEvent} onKeyUp={onKeyUpEvent} key={i} ref = {el => inputRef.current[i] = el}/>);
+        for(let i = 0 ; i < count ; i++){//ref배열
+            list.push(<Input type="text" required maxLength={1} onClick={focusNext} onKeyUp={onKeyUpEvent} onFocus={onFocusEvent} key={i} ref = {el => inputRef.current[i] = el}/>);
         }
         setResult(list);
     },[]);

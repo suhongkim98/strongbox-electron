@@ -28,6 +28,7 @@ border-bottom-width:1px;
 padding-bottom:14px;
 `;
 const BodyWrapper = styled.div`
+height:100%;
 margin:15px;
 `;
 const Span = styled.span`
