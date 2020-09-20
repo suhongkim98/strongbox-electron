@@ -41,13 +41,17 @@ export class StrongboxDatabase{
         }
         StrongboxDatabase.db = null;
     }
-    public async select(col: string, table: string){
+    public async select(col: string, table: string, where?: string){
         // DB에서 SELECT 쿼리 실행하는 함수
         // select할 땐 비동기 문제 땜시 이렇게 해야함
         const fetch = () =>{
             //Promise 이용하여 받아와주는 함수 만들어주고
             return new Promise((succ, fail) =>{
-                const query = 'SELECT ' + col + ' FROM ' + table;
+                let query = 'SELECT ' + col + ' FROM ' + table;
+                if(where){
+                    query += ' WHERE ' + where;
+                    console.log(query);
+                }
                 StrongboxDatabase.db.all(query, [], (err: any, arg: any) =>{
                     if (err) {
                         fail(err);

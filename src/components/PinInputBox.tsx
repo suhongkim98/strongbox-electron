@@ -4,6 +4,7 @@ import styled from 'styled-components';
 
 interface PinInputBoxProps{
     count:number;
+    getPinFunc: (pin:string)=> any;
 }
 
 const TotalWrapper = styled.div`
@@ -22,22 +23,24 @@ border-color: black;
 }
 `;
 //쓸떈 form 태그 안에 넣자
-const PinInputBox = ({count}:PinInputBoxProps) =>{
+const PinInputBox = ({count,getPinFunc}:PinInputBoxProps) =>{
     const inputRef:any = useRef([]);
     const [result,setResult] = useState([]);
     let index:number = 0;
+    let pin:string = "";
 
     const focusNext = () => {
         inputRef.current[index].focus();
-        
     }
 
     const onKeyUpEvent = (e:any) =>{
         if(e.target.value.length >= 1){
             index += 1;
-            if(index > count - 1){
+            pin = pin + e.target.value;
+            if(index > count - 1){ // 다 입력하면
                 inputRef.current[index - 1].blur();
                 index = 0;
+                getPinFunc(pin);
             }
             else focusNext();
         }
@@ -49,6 +52,7 @@ const PinInputBox = ({count}:PinInputBoxProps) =>{
             //이미 한번 입력한 상태에서 다시 입력할 경우 input 초기화
             for(let i = 0 ; i < count ; i++){
                 inputRef.current[i].value = '';
+                pin = "";
             }
         }
         else focusNext();
