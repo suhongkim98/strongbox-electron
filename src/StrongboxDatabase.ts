@@ -1,4 +1,5 @@
 import {DB_PATH} from './environment';
+import sha256 from 'crypto-js/sha256';
 const sqlite3 = window.require('sqlite3');
 
 // 이 클래스로만 db에 접근하도록 하자
@@ -41,30 +42,33 @@ export class StrongboxDatabase{
         }
         StrongboxDatabase.db = null;
     }
+
+    private fetchDatabase = (col: string, table: string, where?: string) =>{
+        //Promise 이용하여 DB에서 받아와주는 함수
+        return new Promise((succ, fail) =>{
+            let query = 'SELECT ' + col + ' FROM ' + table;
+            if(where){
+                query += ' WHERE ' + where;
+                console.log(query);
+            }
+            StrongboxDatabase.db.all(query, [], (err: any, arg: any) =>{
+                if (err) {
+                    fail(err);
+                } else {
+                    succ(arg);
+                } 
+            });
+        });
+    }
+
     public async select(col: string, table: string, where?: string){
         // DB에서 SELECT 쿼리 실행하는 함수
         // select할 땐 비동기 문제 땜시 이렇게 해야함
-        const fetch = () =>{
-            //Promise 이용하여 받아와주는 함수 만들어주고
-            return new Promise((succ, fail) =>{
-                let query = 'SELECT ' + col + ' FROM ' + table;
-                if(where){
-                    query += ' WHERE ' + where;
-                    console.log(query);
-                }
-                StrongboxDatabase.db.all(query, [], (err: any, arg: any) =>{
-                    if (err) {
-                        fail(err);
-                    } else {
-                        succ(arg);
-                    } 
-                });
-            });
-        }
+
         if(this.connectDatabase()){
             //연결 성공하면
             try {
-                const result = await fetch ();
+                let result = await this.fetchDatabase(col,table,where);
                 return result;
             } catch (error) {
                 throw error;
@@ -81,11 +85,30 @@ export class StrongboxDatabase{
             this.disconnectDatabase();
         }
     }
-    public addUser(name: string, password: string){
+    public async addUser(name: string, password: string){
         // 이름 중복 여부 확인
         // 비밀번호 6글자인지 확인
-        // salt 랜덤 생성 // 현재시간 기준 => sha256
+        // salt 랜덤 생성 // 현재년월일 => sha256
         // 패스워드 암호화 // 패스워드+salt => crypto-js 의 sha256 이용
+
+        const nickname = "'" + name + "'";
+
+        if(this.connectDatabase()){
+            let doubleCheck: any = await this.fetchDatabase('NAME','USERS_TB',"NAME = " + nickname); // 이름 겹치는거 꺼내오기
+            this.disconnectDatabase();
+            if(doubleCheck.length > 0) return false; // 이름이 중복됨
+            if(password.length !== 6) return false; // 비번이 6글자가 아님
+
+
+            const salt = sha256((new Date()).toUTCString()); // salt 생성
+            const encrypedPassword = sha256(password + salt); // e(pw+salt) 패스워드+솔트를 다시 sha256으로 암호화
+                
+            const val = "'" + name + "', '" + encrypedPassword + "', '" + salt + "'";
+            this.insert("USERS_TB","NAME,PASSWORD,SALT",val); // 테이블 삽입
+
+            return true;
+        }
+        return false;
     }
     public getUsersList(){
         //유저 닉네임 리스트 출력
