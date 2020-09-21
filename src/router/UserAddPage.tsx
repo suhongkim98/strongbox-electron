@@ -62,21 +62,19 @@ const UserAddPage:React.FC = () =>{
     let pin:string;
 
     const onSubmitEvent = (data:any) =>{
-        const nickname = "'" + data.nicknameInputBox + "'";
-
         const database = StrongboxDatabase.getInstance();
-        database.select('NAME','USERS_TB','NAME = ' + nickname).then((result: any)=>{
-            if(result.length === 0 && pin.length === 6){
-                //중복된 값이 없고 비밀번호가 6자리라면 등록
-                database.addUser(data.nicknameInputBox, pin);
-                // 몇 초 로딩 후 홈으로
-            }
-            else{
-                //중복된 값이 있거나 비밀번호가 6자리가 아니라서 등록이 안된다면 등록불가
+        database.addUser(data.nicknameInputBox, pin).then((result:any) =>{
+            if(result === true){
+                // 등록 성공
+                console.log("등록 성공");
+            }else{
+                // 등록 실패 닉네임 중복  /  패스워드 글자 수 문제
+                console.log("등록 실패");
             }
         }).catch((error)=>{
             console.log(error);
         });
+
     }
 
     const getPinNumber = (result:string) =>{
