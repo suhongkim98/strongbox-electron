@@ -122,6 +122,7 @@ const tableInit = () => {
 app.on('ready', ()=>{
   createWindow();
   databaseInit(); // app ready시 DB확인
+  win?.removeMenu();
 });
 
 app.on('window-all-closed', () => {
