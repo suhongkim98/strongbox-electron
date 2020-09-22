@@ -31,22 +31,17 @@ const UserSelect:React.FC = () =>{
     const [userList, setUserList] = useState([]);
     
     useEffect(()=>{
-        // //사용자 불러와서 뿌리자
-        // const database = StrongboxDatabase.getInstance();
-        // database.select('IDX,NAME','USERS_TB').then((result: any)=>{
-            //  const list =result.map((data:any)=>{
-            //      return <NavLink to = '/PasswordInputPage' key={data.IDX}>
-            //          <Content onClick={()=>onClickUser(data.IDX)}><Span>{data.NAME}</Span></Content>
-            //          </NavLink>});
-        //     setUserList(list);
-        // }).catch((error)=>{
-        //     console.log(error);
-        // });
-
-        /////////받아오는거 잘 되는데 가짜데이터 삽입해서 디자인좀////////////////////////
-        const fakeData: any = [{IDX: 1, NAME: '홍길동'},{IDX: 2, NAME: '김두식'},{IDX: 3, NAME: '두루미'},{IDX: 4, NAME: '갈매기'},{IDX: 5, NAME: '갈as기'},{IDX: 6, NAME: 'bbbb'}];
-        setUserList(fakeData.map((data:any)=>{return <NavLink to = '/PasswordInputPage' key={data.IDX}><Row onClick={()=>onClickUser(data.IDX)}><Content><Span>{data.NAME}</Span></Content></Row></NavLink>}));
-        ////////////
+        //사용자 불러와서 뿌리자
+        const database = StrongboxDatabase.getInstance();
+        database.select('IDX,NAME','USERS_TB').then((result: any)=>{
+             const list =result.map((data:any)=>{
+                 return <NavLink to = '/PasswordInputPage' key={data.IDX}>
+                     <Row onClick={()=>onClickUser(data.IDX)}><Content><Span>{data.NAME}</Span></Content></Row>
+                 </NavLink>});
+            setUserList(list);
+        }).catch((error)=>{
+            console.log(error);
+        });
 
 
     },[]);//빈 배열을 넣어 재실행 될 필요가 읍다는걸 알림
@@ -56,9 +51,6 @@ const UserSelect:React.FC = () =>{
         //유저 idx를 글로벌변수에 저장
         global.idx = idx;
     }
-
-
-    console.log(userList);
     return <TotalWrapper>{userList}</TotalWrapper>;
 }
 
