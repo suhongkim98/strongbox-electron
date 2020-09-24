@@ -8,6 +8,7 @@ interface PinInputBoxProps{
 }
 
 const TotalWrapper = styled.div`
+width:300px;
 display:flex;
 justify-content:space-evenly;
 `;
