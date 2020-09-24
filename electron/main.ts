@@ -2,7 +2,7 @@ import { app, BrowserWindow } from 'electron';
 import * as path from 'path';
 import * as isDev from 'electron-is-dev';
 import installExtension, { REACT_DEVELOPER_TOOLS } from "electron-devtools-installer";
-import {DB_PATH} from '../src/environment';
+import {DB_PATH, SETTING_PATH} from '../src/environment';
 
 const sqlite3 = require('sqlite3');
 const fs = require('fs');
@@ -46,6 +46,43 @@ function createWindow() {
     win.webContents.openDevTools();
   }
 }
+
+app.on('ready', ()=>{
+  createWindow();
+  databaseInit(); // app ready시 DB확인
+  environmentSettingInit();
+  win?.removeMenu();
+});
+
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
+});
+
+app.on('activate', () => {
+  if (win === null) {
+    createWindow();
+  }
+});
+
+const environmentSettingInit = () =>{
+  //환경설정 텍스트파일 없으면 파일 생성, 및 초기화
+  fs.readFile(SETTING_PATH,(err:any,data:any) => {
+    if(err){
+      if(err.code === 'ENOENT'){
+        fs.writeFile(SETTING_PATH, "keepLogin=false\nkeepLoginName=", (err:any) => { // 파일 생성하기
+          if(err) throw err;
+          //파일 생성 성공
+        });
+        return;
+      }
+      throw err;
+    }
+    //파일이 정상적으로 존재
+  });
+}
+
 const databaseInit = () =>{
   //db 있는지 검사하고 없으면 inittable 함수호출
   fs.readFile(DB_PATH,(err:any,data:any) => {       //DB경로에 파일이 있는지 검사를 하는데
@@ -56,7 +93,7 @@ const databaseInit = () =>{
           }
           throw err;
       }
-      console.log("DB파일이 정상적으로 존재합니다");
+      //파일이 정상적으로 존재
   });
 }
 const tableInit = () => {
@@ -119,20 +156,3 @@ const tableInit = () => {
         console.log('DB연결 종료 성공');
     });  
 }
-app.on('ready', ()=>{
-  createWindow();
-  databaseInit(); // app ready시 DB확인
-  win?.removeMenu();
-});
-
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
-});
-
-app.on('activate', () => {
-  if (win === null) {
-    createWindow();
-  }
-});

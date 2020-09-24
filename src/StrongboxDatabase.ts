@@ -158,43 +158,4 @@ export class StrongboxDatabase{
         //서비스 idx를 얻음
         //해당 서비스에 해당하는 계정 리스트 출력
     }
-
-
-
-    public testInsert(): boolean{
-        if(this.connectDatabase()){
-            StrongboxDatabase.db.run('INSERT INTO USERS_TB(NAME,PASSWORD,SALT) VALUES(?,?,?)',['홍길동', '처음','aa'], (err:any,arg:any)=>{});
-            StrongboxDatabase.db.run('INSERT INTO USERS_TB(NAME,PASSWORD,SALT) VALUES(?,?,?)',['김두식', 'asdsdsd','aa'], (err:any,arg:any)=>{});
-            StrongboxDatabase.db.run('INSERT INTO USERS_TB(NAME,PASSWORD,SALT) VALUES(?,?,?)',['두루미', 'sdasdsdsdsds음','aa'], (err:any,arg:any)=>{});
-            this.disconnectDatabase();
-            return true;
-        }
-        return false;
-    }
-    public async testSelect(){
-        // select할 땐 비동기 문제 땜시 이렇게 해야함
-        function fetch () {
-            //Promise 이용하여 받아와주는 함수 만들어주고
-            return new Promise ((succ, fail) => {
-                StrongboxDatabase.db.all('SELECT * FROM "USERS_TB" ', [], ( err: any, arg: any ) => {
-                    if (err) {
-                        fail(err);
-                    } else {
-                        succ(arg);
-                    }
-                });
-            });
-        }
-
-        if(this.connectDatabase()){
-            //연결 성공하면
-            try {
-                const result = await fetch ();
-                return result;
-            } catch (error) {
-                throw error;
-            }
-        }
-        this.disconnectDatabase();
-    }
 }
