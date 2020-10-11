@@ -4,6 +4,7 @@ import FloatDiv from '../components/FloatDiv';
 import PinInputBox from '../components/PinInputBox';
 import { StrongboxDatabase } from '../StrongboxDatabase';
 import sha256 from 'crypto-js/sha256';
+import { Redirect } from 'react-router-dom';
 
 const TotalWrapper = styled.div`
 height: 100vh;
@@ -44,6 +45,7 @@ const PasswordInputPage:React.FC = () =>{
     const [name,setName] = useState(''); // name은 리렌더링이 필요하니 useState, 나머지는 리렌더링 필요없으므로 useRef사용
     const answer = useRef('');
     const salt = useRef('');
+    const [redirect, setRedirect] = useState(false);
     
     useEffect(() => {
         const database = StrongboxDatabase.getInstance();
@@ -66,12 +68,14 @@ const PasswordInputPage:React.FC = () =>{
             // 맞게 입력 했다면 리다이렉트하기
             console.log(" 로그인 성공");
             global.key = val; // 키값 따로 저장 -> 대칭키암호 키로 사용
+            setRedirect(true);
         }else{
             //틀렸다면
             console.log("로그인 실패");
         }
     }
 
+    if(redirect) return <Redirect to='/Main'/>
     return <TotalWrapper>
         <FloatDivWrapper><FloatDiv title={name} returnURL="/">
             <InnerWrapper>
