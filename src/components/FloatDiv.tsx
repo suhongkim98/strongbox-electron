@@ -7,7 +7,7 @@ import { NavLink } from 'react-router-dom';
 interface FloatDivProps {
     children?:any;
     title:string;
-    returnURL:string;
+    returnURL?:string;
 }
 const TotalWrapper = styled.div`
 width:100%;
@@ -44,7 +44,12 @@ height:25px;
 
 const FloatDiv = ({children,title,returnURL}:FloatDivProps) =>{
     return <TotalWrapper>
-        <HeaderWrapper><HeaderContent><Span>{title}</Span><NavLink to={returnURL}><Img src={returnImg} alt="return"></Img></NavLink></HeaderContent></HeaderWrapper>
+        <HeaderWrapper><HeaderContent>
+            <Span>{title}</Span>
+            {
+                returnURL && <NavLink to={returnURL}><Img src={returnImg} alt="return"></Img></NavLink>
+            }
+            </HeaderContent></HeaderWrapper>
         <BodyWrapper>{children}</BodyWrapper>
     </TotalWrapper>
 }
