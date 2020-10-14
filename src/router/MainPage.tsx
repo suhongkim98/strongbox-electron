@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Redirect } from 'react-router-dom';
 import styled from 'styled-components';
 import FloatDiv from '../components/FloatDiv';
+import GroupFolder from '../components/GroupFolder';
 import LogoutSVG from '../images/LogoutSVG';
 import SettingSVG from '../images/SettingSVG';
 import { StrongboxDatabase } from '../StrongboxDatabase';
@@ -70,6 +71,25 @@ position:relative;
 border-style:solid;
 border-width:1px;
 border-color:gray;
+
+overflow: hidden;
+`;
+const NavBarGroupWrapper = styled.div`
+width:100%;
+height:calc(100% - 50px);
+
+padding:10px 15px 0 15px;
+`;
+const NavBarGroupInnerWrapper = styled.div`
+margin-bottom:10px;
+`;
+const NavBarFooterWrapper = styled.div`
+width:100%;
+height:50px;
+
+display: flex;
+justify-content:center;
+align-items:center;
 `;
 const MainWrapper = styled.div`
 width:100%;
@@ -89,10 +109,6 @@ height:97%;
 `;
 
 const AddFolderBtn = styled.button`
-position: absolute;
-bottom:20px;
-left:50%;
-transform:translateX(-50%); // absolute 중앙정렬 방법
 
 border-style:solid;
 border-width:1px;
@@ -100,7 +116,15 @@ border-radius:5px;
 border-color:gray;
 padding:5px 50px;
 `;
-
+const Scroll = styled.div`
+width:100%;
+height:100%;
+overflow: auto;
+::-webkit-scrollbar{
+    width:10px;
+    display:none;
+}
+`;
 // global idx = 대상 유저 idx, global key = 대칭키 암호키
 const MainPage:React.FC = () =>{
     const [redirect, setRedirect] = useState("");
@@ -128,7 +152,21 @@ const MainPage:React.FC = () =>{
     return <TotalWrapper>
         <SearchHeaderWrapper></SearchHeaderWrapper>
         <NameHeaderWrapper><NameHeaderInnerWrapper><Span textColor="white" size="3rem">{name}</Span><div onClick={onLogoutButtonClicked}><LogoutSVG width="30px" height="30px" color="white"/></div></NameHeaderInnerWrapper><NameHeaderInnerWrapper><div onClick={onSettingButtonClicked}><SettingSVG width="30px" height="30px" color="white"/></div></NameHeaderInnerWrapper></NameHeaderWrapper>
-        <NavBarWrapper><AddFolderBtn><Span textColor="white" size="1.6rem">폴더 추가하기</Span></AddFolderBtn></NavBarWrapper>
+        <NavBarWrapper>
+            <NavBarGroupWrapper><Scroll>
+                <NavBarGroupInnerWrapper><GroupFolder groupIdx={1}></GroupFolder></NavBarGroupInnerWrapper>
+                <NavBarGroupInnerWrapper><GroupFolder groupIdx={2}></GroupFolder></NavBarGroupInnerWrapper>
+                <NavBarGroupInnerWrapper><GroupFolder groupIdx={3}></GroupFolder></NavBarGroupInnerWrapper>
+                <NavBarGroupInnerWrapper><GroupFolder groupIdx={4}></GroupFolder></NavBarGroupInnerWrapper>
+                <NavBarGroupInnerWrapper><GroupFolder groupIdx={5}></GroupFolder></NavBarGroupInnerWrapper>
+                <NavBarGroupInnerWrapper><GroupFolder groupIdx={6}></GroupFolder></NavBarGroupInnerWrapper>
+                <NavBarGroupInnerWrapper><GroupFolder groupIdx={7}></GroupFolder></NavBarGroupInnerWrapper>
+                <NavBarGroupInnerWrapper><GroupFolder groupIdx={8}></GroupFolder></NavBarGroupInnerWrapper>
+            </Scroll></NavBarGroupWrapper>
+            <NavBarFooterWrapper>
+            <AddFolderBtn><Span textColor="white" size="1.6rem">폴더 추가하기</Span></AddFolderBtn>
+            </NavBarFooterWrapper>
+        </NavBarWrapper>
         <MainWrapper><FloatDivWrapper><FloatDiv title="test" /></FloatDivWrapper></MainWrapper>
     </TotalWrapper>
 }
