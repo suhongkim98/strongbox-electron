@@ -6,18 +6,21 @@ import { NavLink } from 'react-router-dom';
 
 interface FloatDivProps {
     width:any;
-    height:any;
+    height?:any;
     children?:any;
     title:string;
     returnURL?:string;
 }
 interface TotalWrapperProps{
     width:any;
-    height:any;
+    height?:any;
 }
 const TotalWrapper = styled.div<TotalWrapperProps>`
 width:${props=>props.width};
-height:${props=>props.height};
+${({height}) => 
+    height &&
+    `height:${height};`
+}
 background-color:${theme.colors.containerMainColor};
 box-shadow: 0 15px 25px rgba(0,0,0,.6);
 
