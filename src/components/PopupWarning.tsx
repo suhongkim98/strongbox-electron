@@ -31,6 +31,7 @@ position: absolute;
 width:450px;
 min-height:180px; //높이는 메세지 길이에 따라 늘어날 수 있어야 함
 background-color:${theme.colors.containerMainColor};
+box-shadow: 0 15px 25px rgba(0,0,0,.6);
 
 display:flex;
 flex-direction:column;
