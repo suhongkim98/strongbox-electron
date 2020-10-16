@@ -12,10 +12,6 @@ display:flex;
 justify-content:center;
 align-items:center;
 `;
-const FloatDivWrapper = styled.div`
-width:500px;
-height:220px;
-`;
 const InnerWrapper = styled.div`
 height:100%;
 display:flex;
@@ -77,12 +73,12 @@ const PasswordInputPage:React.FC = () =>{
 
     if(redirect) return <Redirect to='/Main'/>
     return <TotalWrapper>
-        <FloatDivWrapper><FloatDiv title={name} returnURL="/">
+        <FloatDiv width="500px" height="220px" title={name} returnURL="/">
             <InnerWrapper>
             <SpanWrapper><Span fontSize="3rem" fontColor="darkred" fontWeight={700}>PIN 입력</Span></SpanWrapper>
             <PinInputBox count={6} getPinFunc={getPinNumber} />
             </InnerWrapper>
-        </FloatDiv></FloatDivWrapper>
+        </FloatDiv>
         </TotalWrapper>
 }
 

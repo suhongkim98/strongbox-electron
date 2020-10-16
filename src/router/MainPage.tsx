@@ -103,11 +103,6 @@ justify-content: center;
 align-items: center;
 `;
 
-const FloatDivWrapper = styled.div`
-width:97%;
-height:97%;
-`;
-
 const AddFolderBtn = styled.button`
 
 border-style:solid;
@@ -167,7 +162,7 @@ const MainPage:React.FC = () =>{
             <AddFolderBtn><Span textColor="white" size="1.6rem">폴더 추가하기</Span></AddFolderBtn>
             </NavBarFooterWrapper>
         </NavBarWrapper>
-        <MainWrapper><FloatDivWrapper><FloatDiv title="test" /></FloatDivWrapper></MainWrapper>
+        <MainWrapper><FloatDiv width="97%" height="97%" title="test" /></MainWrapper>
     </TotalWrapper>
 }
 

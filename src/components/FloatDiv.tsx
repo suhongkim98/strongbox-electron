@@ -5,13 +5,19 @@ import returnImg from '../images/return.svg';
 import { NavLink } from 'react-router-dom';
 
 interface FloatDivProps {
+    width:any;
+    height:any;
     children?:any;
     title:string;
     returnURL?:string;
 }
-const TotalWrapper = styled.div`
-width:100%;
-height:100%;
+interface TotalWrapperProps{
+    width:any;
+    height:any;
+}
+const TotalWrapper = styled.div<TotalWrapperProps>`
+width:${props=>props.width};
+height:${props=>props.height};
 background-color:${theme.colors.containerMainColor};
 box-shadow: 0 15px 25px rgba(0,0,0,.6);
 
@@ -41,8 +47,8 @@ width:25px;
 height:25px;
 `;
 
-const FloatDiv = ({children,title,returnURL}:FloatDivProps) =>{
-    return <TotalWrapper>
+const FloatDiv = ({children,title,returnURL,width,height}:FloatDivProps) =>{
+    return <TotalWrapper width={width} height={height}>
         <HeaderWrapper><HeaderContent>
             <Span>{title}</Span>
             {

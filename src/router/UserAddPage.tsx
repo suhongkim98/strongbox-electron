@@ -13,10 +13,6 @@ display:flex;
 justify-content:center;
 align-items:center;
 `;
-const FloatDivWrapper = styled.div`
-width:500px;
-height:440px;
-`;
 const Form = styled.form`
 width:100%;
 height:100%;
@@ -102,7 +98,7 @@ const UserAddPage:React.FC = () =>{
     if(redirect) return <Redirect to='/'/> // 등록성공 시 홈으로 리다이렉트
 
     return <TotalWrapper>
-        <FloatDivWrapper><FloatDiv title="사용자 추가" returnURL="/">
+        <FloatDiv width="500px" height="440px" title="사용자 추가" returnURL="/">
             <Form onSubmit={handleSubmit(onSubmitEvent)} noValidate>
             <RowWrapper>
                 <InputBoxWrapper><AnimInputBox inputType="text" label="닉네임" name="nicknameInputBox" hookFormRef={register({required: true, maxLength: 10})}/></InputBoxWrapper>
@@ -121,7 +117,7 @@ const UserAddPage:React.FC = () =>{
             <RowWrapper><SubmitBtn type="submit" value="등록" /></RowWrapper>
 
             </Form>
-            </FloatDiv></FloatDivWrapper>
+            </FloatDiv>
     </TotalWrapper>
 
 }
