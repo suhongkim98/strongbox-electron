@@ -14,7 +14,7 @@ width:100%;
 border-style: solid;
 border-width: 1px;
 border-color: gray;
-overflow: hidden;
+border-collapse: hidden;
 `;
 const HeaderWrapper =styled.div`
 height:40px;
