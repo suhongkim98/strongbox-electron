@@ -14,7 +14,6 @@ width:100%;
 height:100%;
 background-color:${theme.colors.containerMainColor};
 box-shadow: 0 15px 25px rgba(0,0,0,.6);
-border-radius: 10px;
 
 display:flex;
 flex-direction:column;

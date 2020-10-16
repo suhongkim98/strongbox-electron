@@ -78,10 +78,10 @@ const NavBarGroupWrapper = styled.div`
 width:100%;
 height:calc(100% - 50px);
 
-padding:10px 15px 0 15px;
+padding:10px 0 0 0;
 `;
 const NavBarGroupInnerWrapper = styled.div`
-margin-bottom:10px;
+margin-bottom:5px;
 `;
 const NavBarFooterWrapper = styled.div`
 width:100%;

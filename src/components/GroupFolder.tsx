@@ -13,8 +13,8 @@ width:100%;
 
 border-style: solid;
 border-width: 1px;
-border-radius: 5px;
 border-color: gray;
+overflow: hidden;
 `;
 const HeaderWrapper =styled.div`
 height:40px;
