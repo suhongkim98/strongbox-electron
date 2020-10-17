@@ -110,14 +110,17 @@ export class StrongboxDatabase{
         }
         return false;
     }
-    public getUsersList(){
-        //유저 닉네임 리스트 출력
-    }
-    public addGroup(){
-        //매개변수로 유저, 그룹이름 받음
-        //유저 idx를 얻음
+    public async addGroup(userIDX:number, groupName:string){ // 동기식 위해 async 사용
+        //매개변수로 유저idx, 그룹이름 받음
+        //그룹이름 중복여부 확인필요X
         //owner_idx에 idx 넣고 그룹생성
-
+        if(this.connectDatabase()){
+            const val = "'" + userIDX + "', '" + groupName + "'";
+            this.insert("GROUPS_TB", "OWNER-IDX,GRPNAME", val);
+            this.disconnectDatabase();
+            return true;
+        }
+        return false;
     }
     public getGroupsList(){
         //매개변수로 유저
