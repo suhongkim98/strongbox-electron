@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Redirect } from 'react-router-dom';
 import styled from 'styled-components';
+import AddFolderPopup from '../components/AddFolderPopup';
 import FloatDiv from '../components/FloatDiv';
 import GroupFolder from '../components/GroupFolder';
 import LogoutSVG from '../images/LogoutSVG';
@@ -110,6 +111,8 @@ border-width:1px;
 border-radius:5px;
 border-color:gray;
 padding:5px 50px;
+
+cursor: pointer;
 `;
 const Scroll = styled.div`
 width:100%;
@@ -124,6 +127,7 @@ overflow: auto;
 const MainPage:React.FC = () =>{
     const [redirect, setRedirect] = useState("");
     const [name,setName] = useState("null");
+    const [addFolderPopup,setAddFolderPopup] = useState(false);
 
     useEffect(() =>{
         const database = StrongboxDatabase.getInstance();
@@ -142,9 +146,17 @@ const MainPage:React.FC = () =>{
     const onSettingButtonClicked = () =>{
 
     }
+    const onClickAddFolderBtn = () =>{
+        setAddFolderPopup(true);
+    }
 
     if(redirect !== "") return <Redirect to={redirect}/>
     return <TotalWrapper>
+        {
+            //각종 fixed 컴포넌트들
+            addFolderPopup && <AddFolderPopup onBackgroundClicked={()=>{setAddFolderPopup(false)}} />
+
+        }
         <SearchHeaderWrapper></SearchHeaderWrapper>
         <NameHeaderWrapper><NameHeaderInnerWrapper><Span textColor="white" size="3rem">{name}</Span><div onClick={onLogoutButtonClicked}><LogoutSVG width="30px" height="30px" color="white"/></div></NameHeaderInnerWrapper><NameHeaderInnerWrapper><div onClick={onSettingButtonClicked}><SettingSVG width="30px" height="30px" color="white"/></div></NameHeaderInnerWrapper></NameHeaderWrapper>
         <NavBarWrapper>
@@ -159,7 +171,7 @@ const MainPage:React.FC = () =>{
                 <NavBarGroupInnerWrapper><GroupFolder groupIdx={8}></GroupFolder></NavBarGroupInnerWrapper>
             </Scroll></NavBarGroupWrapper>
             <NavBarFooterWrapper>
-            <AddFolderBtn><Span textColor="white" size="1.6rem">폴더 추가하기</Span></AddFolderBtn>
+            <AddFolderBtn onClick={onClickAddFolderBtn}><Span textColor="white" size="1.6rem">폴더 추가하기</Span></AddFolderBtn>
             </NavBarFooterWrapper>
         </NavBarWrapper>
         <MainWrapper><FloatDiv width="97%" height="97%" title="test" /></MainWrapper>

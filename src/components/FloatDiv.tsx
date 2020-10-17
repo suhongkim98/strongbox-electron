@@ -10,6 +10,7 @@ interface FloatDivProps {
     children?:any;
     title:string;
     returnURL?:string;
+    returnFunc?:any;
 }
 interface TotalWrapperProps{
     width:any;
@@ -50,13 +51,12 @@ width:25px;
 height:25px;
 `;
 
-const FloatDiv = ({children,title,returnURL,width,height}:FloatDivProps) =>{
+const FloatDiv = ({children,title,returnURL,returnFunc,width,height}:FloatDivProps) =>{
     return <TotalWrapper width={width} height={height}>
         <HeaderWrapper><HeaderContent>
             <Span>{title}</Span>
-            {
-                returnURL && <NavLink to={returnURL}><Img src={returnImg} alt="return"></Img></NavLink>
-            }
+            { returnURL && <NavLink to={returnURL}><Img src={returnImg} alt="return"></Img></NavLink> }
+            { returnFunc && <div onClick={returnFunc}><Img src={returnImg} alt="return"></Img></div> }
             </HeaderContent></HeaderWrapper>
         <BodyWrapper>{children}</BodyWrapper>
     </TotalWrapper>
