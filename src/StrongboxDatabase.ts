@@ -147,7 +147,7 @@ export class StrongboxDatabase{
         // select로 그룹idx이용해 서비스 리스트 받아와 json 형태로 리턴
         if(this.connectDatabase()){
             try {
-                const promiseList = await this.fetchDatabase("IDX,SERVICE_NAME","SERVICES_TB","OWNER_IDX = " + groupIDX);
+                const promiseList = await this.fetchDatabase("IDX,SERVICE_NAME","SERVICES_TB","GRP_IDX = " + groupIDX);
                 this.disconnectDatabase();
                 return promiseList;
             }catch(error){
