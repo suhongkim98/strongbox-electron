@@ -115,17 +115,25 @@ export class StrongboxDatabase{
         //그룹이름 중복여부 확인필요X
         //owner_idx에 idx 넣고 그룹생성
         if(this.connectDatabase()){
-            const val = "'" + userIDX + "', '" + groupName + "'";
-            this.insert("GROUPS_TB", "OWNER-IDX,GRPNAME", val);
+            const val = userIDX + ", '" + groupName + "'";
+            this.insert("GROUPS_TB", "OWNER_IDX,GRP_NAME", val);
             this.disconnectDatabase();
             return true;
         }
         return false;
     }
-    public getGroupsList(){
-        //매개변수로 유저
-        // 유저idx를 얻음
-        // select로 유저idx이용해 그룹 리스트 받아옴
+    public async getGroupList(userIDX:number){
+        //매개변수로 유저idx
+        // 유저idx이용해 그룹 리스트 받아와 json 형태로 리턴
+        if(this.connectDatabase()){
+            try {
+                const promiseList = await this.fetchDatabase("IDX,GRP_NAME","GROUPS_TB","OWNER_IDX = " + userIDX);
+                this.disconnectDatabase();
+                return promiseList;
+            }catch(error){
+                return error;
+            }
+        }
 
     }
     public addService(){
@@ -134,11 +142,18 @@ export class StrongboxDatabase{
         //grp_idx에 그룹idx넣고 서비스 생성
 
     }
-    public getServicesList(){
-        //매개변수로 그룹
-        // 그룹idx를 얻음
-        // select로 그룹idx이용해 서비스 리스트 받아옴
-
+    public async getServiceList(groupIDX:number){
+        //매개변수로 그룹idx
+        // select로 그룹idx이용해 서비스 리스트 받아와 json 형태로 리턴
+        if(this.connectDatabase()){
+            try {
+                const promiseList = await this.fetchDatabase("IDX,SERVICE_NAME","SERVICES_TB","OWNER_IDX = " + groupIDX);
+                this.disconnectDatabase();
+                return promiseList;
+            }catch(error){
+                return error;
+            }
+        }
     }
     public addAccountFromSNSLogin(){
         //SNS로그인 연동 시
