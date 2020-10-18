@@ -29,6 +29,7 @@ margin-left:5px;
 margin-right:5px;
 `;
 const BodyWrapper =styled.div`
+height:0;
 background-color: #E6E6EB;
 
 transition: height 0.3s ease;
@@ -42,7 +43,7 @@ const ServiceItem = styled.div`
 margin-bottom:5px;
 `;
 const GroupFolder = ({groupIdx,groupName}:GroupFolderProps) =>{
-    const [toggle,setToggle] = useState(true); // true면 폴더 연 상태 false면 닫은 상태
+    const [toggle,setToggle] = useState(false); // true면 폴더 연 상태 false면 닫은 상태
     const [services, setServices] = useState([]);
     const bodyRef = useRef<HTMLDivElement>(null);
     const listRef = useRef<HTMLDivElement>(null);
@@ -51,28 +52,28 @@ const GroupFolder = ({groupIdx,groupName}:GroupFolderProps) =>{
         //그룹idx 받으면 그거로 서비스목록,이름 뽑아 출력
         const database = StrongboxDatabase.getInstance();
         database.getServiceList(groupIdx).then((result)=>{
-            setServices(result.map((data:any)=>{return <ServiceItem key={data.IDX}><Span textColor="black" size="2rem">{data.SERVICE_NAME}</Span></ServiceItem> }));
+            if(result.length > 0) { // 서비스 목록이 있을 때만 리스트 업데이트
+                setServices(result.map((data:any)=>{return <ServiceItem key={data.IDX}><Span textColor="black" size="2rem">{data.SERVICE_NAME}</Span></ServiceItem> }));
+                show();
+            }
         }).catch((error)=>{
             console.log(error);
         });
     },[]);
 
-    useEffect(()=>{
-        show();
-    },[services]);
-
     const onClickToggleBtn = () =>{
-        setToggle(!toggle);
         if(toggle) hide();
         else show();
     }
     const show = () =>{
+        setToggle(true);
         if(bodyRef.current) {
             //리스트 길이 계산해서 바디 길이 설정
             bodyRef.current.style.height = listRef.current?.offsetHeight+"px";
         }
     }
     const hide = () =>{
+        setToggle(false);
         if(bodyRef.current) {
             bodyRef.current.style.height = "0px";
         }
