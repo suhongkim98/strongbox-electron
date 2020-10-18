@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../modules';
 import { Redirect } from 'react-router-dom';
 import styled from 'styled-components';
 import AddFolderPopup from '../components/AddFolderPopup';
@@ -8,6 +10,7 @@ import LogoutSVG from '../images/LogoutSVG';
 import SettingSVG from '../images/SettingSVG';
 import { StrongboxDatabase } from '../StrongboxDatabase';
 import theme from '../styles/theme';
+import { update } from '../modules/groupList';
 
 interface SpanProps {
     textColor?:any;
@@ -128,11 +131,24 @@ const MainPage:React.FC = () =>{
     const [redirect, setRedirect] = useState("");
     const [name,setName] = useState("null");
     const [addFolderPopup,setAddFolderPopup] = useState(false);
+    const dispatch = useDispatch(); 
 
+    const groupList = useSelector((state: RootState) => state.groupList.list); // 그룹리스트 redux
+
+    const updateGroupList = (newList: any) =>{
+        //updateGroupList함수를 실행하면 dispatch를 호출해서 redux 상태변화를 일으킴
+        dispatch(update(newList));
+    }
     useEffect(() =>{
         const database = StrongboxDatabase.getInstance();
         database.select("NAME","USERS_TB","IDX = " + global.idx).then((result:any) =>{
             setName(result[0].NAME);
+        }).catch((error)=>{
+            console.log(error);
+        });
+
+        database.getGroupList(global.idx).then((result)=>{
+            updateGroupList(result);
         }).catch((error)=>{
             console.log(error);
         });
@@ -161,14 +177,7 @@ const MainPage:React.FC = () =>{
         <NameHeaderWrapper><NameHeaderInnerWrapper><Span textColor="white" size="3rem">{name}</Span><div onClick={onLogoutButtonClicked}><LogoutSVG width="30px" height="30px" color="white"/></div></NameHeaderInnerWrapper><NameHeaderInnerWrapper><div onClick={onSettingButtonClicked}><SettingSVG width="30px" height="30px" color="white"/></div></NameHeaderInnerWrapper></NameHeaderWrapper>
         <NavBarWrapper>
             <NavBarGroupWrapper><Scroll>
-                <NavBarGroupInnerWrapper><GroupFolder groupIdx={1}></GroupFolder></NavBarGroupInnerWrapper>
-                <NavBarGroupInnerWrapper><GroupFolder groupIdx={2}></GroupFolder></NavBarGroupInnerWrapper>
-                <NavBarGroupInnerWrapper><GroupFolder groupIdx={3}></GroupFolder></NavBarGroupInnerWrapper>
-                <NavBarGroupInnerWrapper><GroupFolder groupIdx={4}></GroupFolder></NavBarGroupInnerWrapper>
-                <NavBarGroupInnerWrapper><GroupFolder groupIdx={5}></GroupFolder></NavBarGroupInnerWrapper>
-                <NavBarGroupInnerWrapper><GroupFolder groupIdx={6}></GroupFolder></NavBarGroupInnerWrapper>
-                <NavBarGroupInnerWrapper><GroupFolder groupIdx={7}></GroupFolder></NavBarGroupInnerWrapper>
-                <NavBarGroupInnerWrapper><GroupFolder groupIdx={8}></GroupFolder></NavBarGroupInnerWrapper>
+                {groupList.map((data:any)=>{return <NavBarGroupInnerWrapper><GroupFolder groupIdx={data.IDX} groupName={data.GRP_NAME}/></NavBarGroupInnerWrapper>})}
             </Scroll></NavBarGroupWrapper>
             <NavBarFooterWrapper>
             <AddFolderBtn onClick={onClickAddFolderBtn}><Span textColor="white" size="1.6rem">폴더 추가하기</Span></AddFolderBtn>

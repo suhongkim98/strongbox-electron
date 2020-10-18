@@ -2,11 +2,12 @@ import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import MinusSVG from '../images/MinusSVG';
 import PlusSVG from '../images/PlusSVG';
+import { StrongboxDatabase } from '../StrongboxDatabase';
 import Span from './Span';
 
 interface GroupFolderProps{
     groupIdx:number;
-
+    groupName:string;
 }
 const TotalWrapper = styled.div`
 width:100%;
@@ -40,8 +41,7 @@ padding: 5px 10px 10px 5px;
 const ServiceItem = styled.div`
 margin-bottom:5px;
 `;
-const GroupFolder = ({groupIdx}:GroupFolderProps) =>{
-    const fakeServiceData:any = ["롤","배그","치킨"];
+const GroupFolder = ({groupIdx,groupName}:GroupFolderProps) =>{
     const [toggle,setToggle] = useState(true); // true면 폴더 연 상태 false면 닫은 상태
     const [services, setServices] = useState([]);
     const bodyRef = useRef<HTMLDivElement>(null);
@@ -49,8 +49,12 @@ const GroupFolder = ({groupIdx}:GroupFolderProps) =>{
 
     useEffect(()=>{
         //그룹idx 받으면 그거로 서비스목록,이름 뽑아 출력
-        setServices(fakeServiceData);
-        
+        const database = StrongboxDatabase.getInstance();
+        database.getServiceList(groupIdx).then((result)=>{
+            setServices(result.map((data:any)=>{return <ServiceItem key={data.IDX}><Span textColor="black" size="2rem">{data.SERVICE_NAME}</Span></ServiceItem> }));
+        }).catch((error)=>{
+            console.log(error);
+        });
     },[]);
 
     useEffect(()=>{
@@ -75,7 +79,7 @@ const GroupFolder = ({groupIdx}:GroupFolderProps) =>{
     }
     return <TotalWrapper>
         <HeaderWrapper>
-            <HeaderInnerWrapper><Span size="2rem" textColor="gray">test</Span></HeaderInnerWrapper>
+            <HeaderInnerWrapper><Span size="2rem" textColor="gray">{groupName}</Span></HeaderInnerWrapper>
             <HeaderInnerWrapper onClick={onClickToggleBtn}>
                 {
                     toggle ? <MinusSVG width="20px" height="20px" color="white" /> : <PlusSVG width="20px" height="20px" color="white" />
@@ -84,7 +88,7 @@ const GroupFolder = ({groupIdx}:GroupFolderProps) =>{
         </HeaderWrapper>
         <BodyWrapper ref={bodyRef}>
             <ServiceList ref={listRef}>
-            {services.map((data:any)=>{return <ServiceItem><Span textColor="black" size="2rem">{data}</Span></ServiceItem>})}
+            {services}
             </ServiceList>
         </BodyWrapper>
     </TotalWrapper>

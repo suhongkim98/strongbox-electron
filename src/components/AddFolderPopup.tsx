@@ -1,5 +1,7 @@
 import React from 'react';
+import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
+import { update } from '../modules/groupList';
 import { StrongboxDatabase } from '../StrongboxDatabase';
 import AnimInputBox from './AnimInputBox';
 import PopupFloatDiv from './PopupFloatDiv';
@@ -25,8 +27,15 @@ border-width:1px;
 border-color:black;
 border-radius:5px;
 `;
+
 const AddFolderPopup = ({onBackgroundClicked}:AddFolderPopupProps) =>{
+    const dispatch = useDispatch(); // groupList redux에 상태변화를 주기 위해
     
+    const updateGroupList = (newList: any) =>{
+        //updateGroupList함수를 실행하면 dispatch를 호출해서 redux 상태변화를 일으킴
+        dispatch(update(newList));
+    }
+
     const onButtonClicked = (event:any) =>{
         event.preventDefault();
         const folderName = event.target.folderName.value;
@@ -36,7 +45,11 @@ const AddFolderPopup = ({onBackgroundClicked}:AddFolderPopupProps) =>{
             if(result === true){
             //데이터 넣기 성공 시
             //redux 이용해 mainPage 폴더리스트 리렌더링
-
+            database.getGroupList(global.idx).then((result)=>{
+                updateGroupList(result);
+            }).catch((error)=>{
+                console.log(error);
+            });
             }else{
                 //실패 시
                 console.log("DB연결 실패");
