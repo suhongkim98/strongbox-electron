@@ -11,6 +11,8 @@ import SettingSVG from '../images/SettingSVG';
 import { StrongboxDatabase } from '../StrongboxDatabase';
 import theme from '../styles/theme';
 import { update } from '../modules/groupList';
+import PlusSVG from '../images/PlusSVG';
+import AddServcePopup from '../components/AddServicePopup';
 
 interface SpanProps {
     textColor?:any;
@@ -96,6 +98,7 @@ justify-content:center;
 align-items:center;
 `;
 const MainWrapper = styled.div`
+position:relative;
 width:100%;
 height:100%;
 border-style:solid;
@@ -126,11 +129,30 @@ overflow: auto;
     display:none;
 }
 `;
+const ServiceAddBtn = styled.div`
+width:90px;
+height:90px;
+background-color:darkred;
+position:absolute;
+bottom: 60px;
+right: 60px;
+
+border-width:1px;
+border-style:solid;
+border-color:black;
+border-radius:50%;
+
+display:flex;
+justify-content:center;
+align-items:center;
+cursor: pointer;
+`;
 // global idx = 대상 유저 idx, global key = 대칭키 암호키
 const MainPage:React.FC = () =>{
     const [redirect, setRedirect] = useState("");
     const [name,setName] = useState("null");
     const [addFolderPopup,setAddFolderPopup] = useState(false);
+    const [addServicePopup,setAddServicePopup] = useState(false);
     const dispatch = useDispatch(); 
 
     const groupList = useSelector((state: RootState) => state.groupList.list); // 그룹리스트 redux
@@ -162,16 +184,15 @@ const MainPage:React.FC = () =>{
     const onSettingButtonClicked = () =>{
 
     }
-    const onClickAddFolderBtn = () =>{
-        setAddFolderPopup(true);
-    }
 
     if(redirect !== "") return <Redirect to={redirect}/>
     return <TotalWrapper>
         {
             //각종 fixed 컴포넌트들
             addFolderPopup && <AddFolderPopup onBackgroundClicked={()=>{setAddFolderPopup(false)}} />
-
+        }
+        {
+            addServicePopup && <AddServcePopup onBackgroundClicked={()=>{setAddServicePopup(false)}} />
         }
         <SearchHeaderWrapper></SearchHeaderWrapper>
         <NameHeaderWrapper><NameHeaderInnerWrapper><Span textColor="white" size="3rem">{name}</Span><div onClick={onLogoutButtonClicked}><LogoutSVG width="30px" height="30px" color="white"/></div></NameHeaderInnerWrapper><NameHeaderInnerWrapper><div onClick={onSettingButtonClicked}><SettingSVG width="30px" height="30px" color="white"/></div></NameHeaderInnerWrapper></NameHeaderWrapper>
@@ -180,10 +201,10 @@ const MainPage:React.FC = () =>{
                 {groupList.map((data:any)=>{return <NavBarGroupInnerWrapper><GroupFolder groupIdx={data.IDX} groupName={data.GRP_NAME}/></NavBarGroupInnerWrapper>})}
             </Scroll></NavBarGroupWrapper>
             <NavBarFooterWrapper>
-            <AddFolderBtn onClick={onClickAddFolderBtn}><Span textColor="white" size="1.6rem">폴더 추가하기</Span></AddFolderBtn>
+            <AddFolderBtn onClick={()=>{setAddFolderPopup(true)}}><Span textColor="white" size="1.6rem">폴더 추가하기</Span></AddFolderBtn>
             </NavBarFooterWrapper>
         </NavBarWrapper>
-        <MainWrapper><FloatDiv width="97%" height="97%" title="test" /></MainWrapper>
+        <MainWrapper><FloatDiv width="97%" height="97%" title="test" ><ServiceAddBtn onClick={()=>{setAddServicePopup(true)}}><PlusSVG width="40px" height="40px" color="white"/></ServiceAddBtn></FloatDiv></MainWrapper>
     </TotalWrapper>
 }
 
