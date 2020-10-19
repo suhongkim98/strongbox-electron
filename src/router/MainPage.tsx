@@ -44,7 +44,6 @@ grid-template-rows: 74px 1fr;
 const SearchHeaderWrapper = styled.div `
 width:100%;
 height:100%;
-background-color:${theme.colors.headerBackgroundColor};
 border-style:solid;
 border-width:1px;
 border-color:gray;
@@ -52,7 +51,6 @@ border-color:gray;
 const NameHeaderWrapper = styled.div`
 width:100%;
 height:100%;
-background-color:${theme.colors.headerBackgroundColor};
 border-style:solid;
 border-width:1px;
 border-color:gray;
@@ -204,7 +202,7 @@ const MainPage:React.FC = () =>{
             <AddFolderBtn onClick={()=>{setAddFolderPopup(true)}}><Span textColor="white" size="1.6rem">폴더 추가하기</Span></AddFolderBtn>
             </NavBarFooterWrapper>
         </NavBarWrapper>
-        <MainWrapper><FloatDiv width="97%" height="97%" title="test" ><ServiceAddBtn onClick={()=>{setAddServicePopup(true)}}><PlusSVG width="40px" height="40px" color="white"/></ServiceAddBtn></FloatDiv></MainWrapper>
+        <MainWrapper><FloatDiv width="100%" height="100%" title="test" ><ServiceAddBtn onClick={()=>{setAddServicePopup(true)}}><PlusSVG width="40px" height="40px" color="white"/></ServiceAddBtn></FloatDiv></MainWrapper>
     </TotalWrapper>
 }
 
