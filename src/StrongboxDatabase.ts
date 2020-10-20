@@ -136,11 +136,16 @@ export class StrongboxDatabase{
         }
 
     }
-    public addService(){
-        //매개변수로 그룹, 서비스 이름
-        //그룹idx를 얻음
+    public async addService(groupIDX:number, serviceName:string){
+        //매개변수로 그룹idx, 서비스 이름
         //grp_idx에 그룹idx넣고 서비스 생성
-
+        if(this.connectDatabase()){
+            const val = groupIDX + ", '" + serviceName + "'";
+            this.insert("SERVICES_TB", "GRP_IDX,SERVICE_NAME", val);
+            this.disconnectDatabase();
+            return true;
+        }
+        return false;
     }
     public async getServiceList(groupIDX:number){
         //매개변수로 그룹idx
