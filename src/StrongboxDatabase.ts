@@ -160,6 +160,30 @@ export class StrongboxDatabase{
             }
         }
     }
+    public async getServiceListByUserIDX(userIDX:number){
+        const fetch = (userIDX:number) =>{
+            //Promise 이용하여 DB에서 받아와주는 함수
+            return new Promise((succ, fail) =>{
+                let query = 'SELECT * FROM GROUPS_TB JOIN SERVICES_TB ON GROUPS_TB.IDX = SERVICES_TB.GRP_IDX WHERE OWNER_IDX = ' + userIDX;
+                StrongboxDatabase.db.all(query, [], (err: any, arg: any) =>{
+                    if (err) {
+                        fail(err);
+                    } else {
+                        succ(arg);
+                    } 
+                });
+            });
+        }        
+        if(this.connectDatabase()){
+            try {
+                const promiseList = await fetch(userIDX);
+                this.disconnectDatabase();
+                return promiseList;
+            }catch(error){
+                return error;
+            }
+        }       
+    }
     public addAccountFromSNSLogin(){
         //SNS로그인 연동 시
         //매개변수로 서비스, 계정 이름, SNS로그인 대상 계정이름 을 받음
