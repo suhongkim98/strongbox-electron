@@ -1,5 +1,6 @@
 import {DB_PATH} from './environment';
 import sha256 from 'crypto-js/sha256';
+import { group } from 'console';
 const sqlite3 = window.require('sqlite3');
 
 // 이 클래스로만 db에 접근하도록 하자
@@ -21,12 +22,11 @@ export class StrongboxDatabase{
         if(!StrongboxDatabase.db){
             StrongboxDatabase.db = new sqlite3.Database(DB_PATH, (err:any) =>{
                 if(err){
-                    console.log("에러발생: " + err);
+                    console.error(err.message);
                     return false;
                 }
             });
         }
-        console.log("db연결 성공");
         return true;
     }
 
@@ -37,7 +37,6 @@ export class StrongboxDatabase{
                 if (err) {
                     return console.error(err.message);
                 }
-                console.log('DB연결 종료 성공');
             });
         }
         StrongboxDatabase.db = null;
@@ -114,13 +113,28 @@ export class StrongboxDatabase{
         //매개변수로 유저idx, 그룹이름 받음
         //그룹이름 중복여부 확인필요X
         //owner_idx에 idx 넣고 그룹생성
-        if(this.connectDatabase()){
+        const getRowIDFromInsertGroup = () =>{
+            //Promise 이용하여 DB에 그룹 추가하고 rowid 받아오는 함수
             const val = userIDX + ", '" + groupName + "'";
-            this.insert("GROUPS_TB", "OWNER_IDX,GRP_NAME", val);
-            this.disconnectDatabase();
-            return true;
+            const query = 'INSERT INTO GROUPS_TB(OWNER_IDX,GRP_NAME) VALUES(' + val + ')'; 
+
+            return new Promise((succ, fail) =>{
+                StrongboxDatabase.db.run(query, function(this:typeof sqlite3, err:any,arg:any){ // 클래스 안의 함수 안에서 this를 쓰면 생기는 문제 this 정의해서 드디어 해결!!!!!
+                    if(err){
+                        fail(err);
+                    }else{
+                        console.log(`A row has been inserted with rowid ${this.lastID}`);//rowid 받아내기
+                        succ(this.lastID);
+                    }
+                });
+            });
         }
-        return false;
+
+        if(this.connectDatabase()){
+            const rowid = await getRowIDFromInsertGroup();
+            this.disconnectDatabase();
+            return [rowid, groupName];
+        }
     }
     public async getGroupList(userIDX:number){
         //매개변수로 유저idx

@@ -1,17 +1,23 @@
 //그룹 리스트 상태관리 redux
 
 const UPDATE = 'groupList/UPDATE' as const;
+const ADD = 'groupList/ADD' as const;
 
 export const update = (newList: any) => ({
   type: UPDATE,
   payload: newList
 });
+export const add = (item: any) => ({
+  type: ADD,
+  payload: item
+});
 
 type groupListAction =
-  | ReturnType<typeof update>;
+  | ReturnType<typeof update>
+  | ReturnType<typeof add>;
 
   type groupListState = {
-    list: any; // JSON으로다가 받아 뿌리는 곳에서 컴포넌트 만들어 뿌리자
+    list: any; // 
   }
   
   const initialState: groupListState = {
@@ -21,7 +27,9 @@ type groupListAction =
   const groupList = (state: groupListState = initialState, action: groupListAction) => {
     switch (action.type) {
       case UPDATE:
-        return { list: action.payload }; // 새로운 JSON로 교체
+        return { list: action.payload }; // 새로운 배열로 교체
+      case ADD:
+        return { list: [...state.list, action.payload]}; // 새로운 아이템 추가
       default:
         return state;
     }

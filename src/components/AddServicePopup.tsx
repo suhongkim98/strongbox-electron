@@ -89,11 +89,13 @@ const AddServcePopup = ({onBackgroundClicked}:AddServcePopupProps) =>{
             const database = StrongboxDatabase.getInstance();
             database.addService(Number(groupIDX),serviceName).then((result)=>{
                 if(result === true){
-                    database.getGroupList(global.idx).then((result)=>{
-                        updateGroupList(result);
-                    }).catch((error)=>{
-                        console.log(error);
-                    });
+                    //데이터베이스에 서비스 추가 성공한다면 redux 건들기
+                    // 다른방법 찾아보기
+                    // database.getGroupList(global.idx).then((result)=>{
+                    //     updateGroupList(result);
+                    // }).catch((error)=>{
+                    //     console.log(error);
+                    // });
                     onBackgroundClicked();
                 }
             }).catch((error)=>{

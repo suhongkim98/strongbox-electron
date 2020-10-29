@@ -9,7 +9,6 @@ import GroupFolder from '../components/GroupFolder';
 import LogoutSVG from '../images/LogoutSVG';
 import SettingSVG from '../images/SettingSVG';
 import { StrongboxDatabase } from '../StrongboxDatabase';
-import theme from '../styles/theme';
 import { update } from '../modules/groupList';
 import PlusSVG from '../images/PlusSVG';
 import AddServcePopup from '../components/AddServicePopup';
@@ -168,7 +167,7 @@ const MainPage:React.FC = () =>{
         });
 
         database.getGroupList(global.idx).then((result)=>{
-            updateGroupList(result);
+            updateGroupList(result.map((data:any)=>{return <GroupFolder groupIdx={data.IDX} groupName={data.GRP_NAME}/>}));
         }).catch((error)=>{
             console.log(error);
         });
@@ -196,7 +195,7 @@ const MainPage:React.FC = () =>{
         <NameHeaderWrapper><NameHeaderInnerWrapper><Span textColor="white" size="3rem">{name}</Span><div onClick={onLogoutButtonClicked}><LogoutSVG width="30px" height="30px" color="white"/></div></NameHeaderInnerWrapper><NameHeaderInnerWrapper><div onClick={onSettingButtonClicked}><SettingSVG width="30px" height="30px" color="white"/></div></NameHeaderInnerWrapper></NameHeaderWrapper>
         <NavBarWrapper>
             <NavBarGroupWrapper><Scroll>
-                {groupList.map((data:any)=>{return <NavBarGroupInnerWrapper><GroupFolder groupIdx={data.IDX} groupName={data.GRP_NAME}/></NavBarGroupInnerWrapper>})}
+                {groupList.map((row:any)=>{return <NavBarGroupInnerWrapper>{row}</NavBarGroupInnerWrapper>})}
             </Scroll></NavBarGroupWrapper>
             <NavBarFooterWrapper>
             <AddFolderBtn onClick={()=>{setAddFolderPopup(true)}}><Span textColor="white" size="1.6rem">폴더 추가하기</Span></AddFolderBtn>
