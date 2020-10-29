@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import MinusSVG from '../images/MinusSVG';
@@ -49,6 +49,19 @@ const GroupFolder = ({groupIdx,groupName}:GroupFolderProps) =>{
     const bodyRef = useRef<HTMLDivElement>(null);
     const listRef = useRef<HTMLDivElement>(null);
     const serviceList = useSelector((state: RootState) => state.serviceList.list);
+
+    useEffect(()=>{
+        if(Number(listRef.current?.childElementCount) > 0){
+            console.log(Number(listRef.current?.childElementCount));
+            show();
+        }
+    },[]);
+
+    useEffect(()=>{
+        if(toggle){
+            updateBodyHeight(listRef.current?.offsetHeight);
+        }
+    });
 
     const onClickToggleBtn = () =>{
         if(toggle) hide();
