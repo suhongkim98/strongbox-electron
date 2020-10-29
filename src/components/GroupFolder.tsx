@@ -1,8 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
+import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import MinusSVG from '../images/MinusSVG';
 import PlusSVG from '../images/PlusSVG';
-import { StrongboxDatabase } from '../StrongboxDatabase';
+import { RootState } from '../modules';
 import Span from './Span';
 
 interface GroupFolderProps{
@@ -11,6 +12,7 @@ interface GroupFolderProps{
 }
 const TotalWrapper = styled.div`
 width:100%;
+margin-bottom:5px;
 
 border-style: solid;
 border-width: 1px;
@@ -44,40 +46,31 @@ margin-bottom:5px;
 `;
 const GroupFolder = ({groupIdx,groupName}:GroupFolderProps) =>{
     const [toggle,setToggle] = useState(false); // true면 폴더 연 상태 false면 닫은 상태
-    const [services, setServices] = useState([]);
     const bodyRef = useRef<HTMLDivElement>(null);
     const listRef = useRef<HTMLDivElement>(null);
-
-    useEffect(()=>{
-        //그룹idx 받으면 그거로 서비스목록,이름 뽑아 출력
-        const database = StrongboxDatabase.getInstance();
-        database.getServiceList(groupIdx).then((result)=>{
-            if(result.length > 0) { // 서비스 목록이 있을 때만 리스트 업데이트
-                setServices(result.map((data:any)=>{return <ServiceItem key={data.IDX}><Span textColor="black" size="2rem">{data.SERVICE_NAME}</Span></ServiceItem> }));
-                show();
-            }
-        }).catch((error)=>{
-            console.log(error);
-        });
-    },[]);
+    const serviceList = useSelector((state: RootState) => state.serviceList.list);
 
     const onClickToggleBtn = () =>{
         if(toggle) hide();
         else show();
     }
-    const show = () =>{
-        setToggle(true);
+    const updateBodyHeight = (height: any) =>{
         if(bodyRef.current) {
             //리스트 길이 계산해서 바디 길이 설정
-            bodyRef.current.style.height = listRef.current?.offsetHeight+"px";
+            bodyRef.current.style.height = height+"px";
         }
     }
+
+    const show = () =>{
+        setToggle(true);
+        updateBodyHeight(listRef.current?.offsetHeight);
+    }
+
     const hide = () =>{
         setToggle(false);
-        if(bodyRef.current) {
-            bodyRef.current.style.height = "0px";
-        }
+        updateBodyHeight(0);
     }
+
     return <TotalWrapper>
         <HeaderWrapper>
             <HeaderInnerWrapper><Span size="2rem" textColor="gray">{groupName}</Span></HeaderInnerWrapper>
@@ -89,7 +82,12 @@ const GroupFolder = ({groupIdx,groupName}:GroupFolderProps) =>{
         </HeaderWrapper>
         <BodyWrapper ref={bodyRef}>
             <ServiceList ref={listRef}>
-            {services}
+            {serviceList.map((data:any)=>
+            {
+                if(data.GRP_IDX !== groupIdx) return null;
+                return <ServiceItem key={data.SERVICE_IDX}><Span textColor="black" size="2rem">{data.SERVICE_NAME}</Span></ServiceItem>
+            }
+        )}
             </ServiceList>
         </BodyWrapper>
     </TotalWrapper>

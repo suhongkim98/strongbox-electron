@@ -4,10 +4,9 @@ import { StrongboxDatabase } from '../StrongboxDatabase';
 import AnimInputBox from './AnimInputBox';
 import PopupFloatDiv from './PopupFloatDiv';
 import { useForm } from "react-hook-form";
-import { useDispatch } from 'react-redux';
-import { update } from '../modules/groupList';
 import Span from './Span';
-
+import { useDispatch } from 'react-redux';
+import { addService } from '../modules/serviceList';
 
 interface AddServcePopupProps{
     onBackgroundClicked:any;
@@ -53,14 +52,14 @@ interface AddServiceUseFormProps{
     groupSelect:string;
 }
 const AddServcePopup = ({onBackgroundClicked}:AddServcePopupProps) =>{
-    const [serviceList, setServiceList] = useState([]);
+    const [groupList, setGroupList] = useState([]);
     const { register, errors, handleSubmit,setError } = useForm<AddServiceUseFormProps>();
-    const dispatch = useDispatch(); // groupList redux에 상태변화를 주기 위해
+    const dispatch = useDispatch(); 
 
     useEffect(()=>{
         const database = StrongboxDatabase.getInstance();
         database.getGroupList(global.idx).then((result)=>{
-            setServiceList(result.map((data:any)=>{
+            setGroupList(result.map((data:any)=>{
                 return <option value={data.IDX} key={data.IDX}>{data.GRP_NAME}</option>
             }));
         }).catch((error)=>{
@@ -68,9 +67,8 @@ const AddServcePopup = ({onBackgroundClicked}:AddServcePopupProps) =>{
         });
     },[]);
 
-    const updateGroupList = (newList: any) =>{
-        //updateGroupList함수를 실행하면 dispatch를 호출해서 redux 상태변화를 일으킴
-        dispatch(update(newList));
+    const addServiceList = (item: any) =>{
+        dispatch(addService(item));
     }
 
     const onButtonClicked = (data:any) =>{
@@ -88,15 +86,12 @@ const AddServcePopup = ({onBackgroundClicked}:AddServcePopupProps) =>{
             //서비스 등록 후 그룹리덕스 건들기
             const database = StrongboxDatabase.getInstance();
             database.addService(Number(groupIDX),serviceName).then((result)=>{
-                if(result === true){
-                    //데이터베이스에 서비스 추가 성공한다면 redux 건들기
-                    // 다른방법 찾아보기
-                    // database.getGroupList(global.idx).then((result)=>{
-                    //     updateGroupList(result);
-                    // }).catch((error)=>{
-                    //     console.log(error);
-                    // });
+                if(result){
+                    addServiceList({GRP_IDX: Number(groupIDX), SERVICE_IDX: result[0], SERVICE_NAME: result[1]});
                     onBackgroundClicked();
+                }else{
+                    //실패 시
+                    console.log("서비스추가 실패");
                 }
             }).catch((error)=>{
                 console.log(error);
@@ -112,7 +107,7 @@ const AddServcePopup = ({onBackgroundClicked}:AddServcePopupProps) =>{
             <option value="" hidden>
             폴더 선택
             </option>
-            {serviceList}
+            {groupList}
             </Select>
             {errors.groupSelect?.type === "required" && <Span size="1.5rem" textColor="red" fontWeight={600}>그룹을 선택해주세요</Span>}
             {errors.groupSelect?.type === "nullIDX" && <Span size="1.5rem" textColor="red" fontWeight={600}>{errors.groupSelect.message}</Span>}

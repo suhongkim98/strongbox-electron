@@ -9,9 +9,10 @@ import GroupFolder from '../components/GroupFolder';
 import LogoutSVG from '../images/LogoutSVG';
 import SettingSVG from '../images/SettingSVG';
 import { StrongboxDatabase } from '../StrongboxDatabase';
-import { update } from '../modules/groupList';
+import { updateGroup } from '../modules/groupList';
 import PlusSVG from '../images/PlusSVG';
 import AddServcePopup from '../components/AddServicePopup';
+import { updateService } from '../modules/serviceList';
 
 interface SpanProps {
     textColor?:any;
@@ -83,9 +84,7 @@ height:calc(100% - 50px);
 
 padding:10px 0 0 0;
 `;
-const NavBarGroupInnerWrapper = styled.div`
-margin-bottom:5px;
-`;
+
 const NavBarFooterWrapper = styled.div`
 width:100%;
 height:50px;
@@ -156,8 +155,12 @@ const MainPage:React.FC = () =>{
 
     const updateGroupList = (newList: any) =>{
         //updateGroupList함수를 실행하면 dispatch를 호출해서 redux 상태변화를 일으킴
-        dispatch(update(newList));
+        dispatch(updateGroup(newList));
     }
+    const updateServiceList = (newList: any) =>{
+        dispatch(updateService(newList));
+    }
+
     useEffect(() =>{
         const database = StrongboxDatabase.getInstance();
         database.select("NAME","USERS_TB","IDX = " + global.idx).then((result:any) =>{
@@ -167,7 +170,13 @@ const MainPage:React.FC = () =>{
         });
 
         database.getGroupList(global.idx).then((result)=>{
-            updateGroupList(result.map((data:any)=>{return <GroupFolder groupIdx={data.IDX} groupName={data.GRP_NAME}/>}));
+            updateGroupList(result.map((data:any)=>{return <GroupFolder key={data.IDX} groupIdx={data.IDX} groupName={data.GRP_NAME}/>}));
+        }).catch((error)=>{
+            console.log(error);
+        });
+
+        database.getServiceListByUserIDX(global.idx).then((result)=>{
+            updateServiceList(result.map((data:any)=>{return {GRP_IDX: data.GRP_IDX, SERVICE_IDX: data.SERVICE_IDX, SERVICE_NAME: data.SERVICE_NAME}}));
         }).catch((error)=>{
             console.log(error);
         });
@@ -195,7 +204,7 @@ const MainPage:React.FC = () =>{
         <NameHeaderWrapper><NameHeaderInnerWrapper><Span textColor="white" size="3rem">{name}</Span><div onClick={onLogoutButtonClicked}><LogoutSVG width="30px" height="30px" color="white"/></div></NameHeaderInnerWrapper><NameHeaderInnerWrapper><div onClick={onSettingButtonClicked}><SettingSVG width="30px" height="30px" color="white"/></div></NameHeaderInnerWrapper></NameHeaderWrapper>
         <NavBarWrapper>
             <NavBarGroupWrapper><Scroll>
-                {groupList.map((row:any)=>{return <NavBarGroupInnerWrapper>{row}</NavBarGroupInnerWrapper>})}
+                {groupList}
             </Scroll></NavBarGroupWrapper>
             <NavBarFooterWrapper>
             <AddFolderBtn onClick={()=>{setAddFolderPopup(true)}}><Span textColor="white" size="1.6rem">폴더 추가하기</Span></AddFolderBtn>

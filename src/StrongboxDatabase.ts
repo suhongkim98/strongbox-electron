@@ -48,7 +48,6 @@ export class StrongboxDatabase{
             let query = 'SELECT ' + col + ' FROM ' + table;
             if(where){
                 query += ' WHERE ' + where;
-                console.log(query);
             }
             StrongboxDatabase.db.all(query, [], (err: any, arg: any) =>{
                 if (err) {
@@ -153,13 +152,28 @@ export class StrongboxDatabase{
     public async addService(groupIDX:number, serviceName:string){
         //매개변수로 그룹idx, 서비스 이름
         //grp_idx에 그룹idx넣고 서비스 생성
-        if(this.connectDatabase()){
+        const getRowIDFromInsertService = () =>{
+            //Promise 이용하여 DB에 서비스 추가하고 rowid 받아오는 함수
             const val = groupIDX + ", '" + serviceName + "'";
-            this.insert("SERVICES_TB", "GRP_IDX,SERVICE_NAME", val);
-            this.disconnectDatabase();
-            return true;
+            const query = 'INSERT INTO SERVICES_TB(GRP_IDX,SERVICE_NAME) VALUES(' + val + ')'; 
+
+            return new Promise((succ, fail) =>{
+                StrongboxDatabase.db.run(query, function(this:typeof sqlite3, err:any,arg:any){ 
+                    if(err){
+                        fail(err);
+                    }else{
+                        console.log(`A row has been inserted with rowid ${this.lastID}`);//rowid 받아내기
+                        succ(this.lastID);
+                    }
+                });
+            });
         }
-        return false;
+
+        if(this.connectDatabase()){
+            const rowid = await getRowIDFromInsertService();
+            this.disconnectDatabase();
+            return [rowid, serviceName];
+        }
     }
     public async getServiceList(groupIDX:number){
         //매개변수로 그룹idx
@@ -177,8 +191,9 @@ export class StrongboxDatabase{
     public async getServiceListByUserIDX(userIDX:number){
         const fetch = (userIDX:number) =>{
             //Promise 이용하여 DB에서 받아와주는 함수
-            return new Promise((succ, fail) =>{
-                let query = 'SELECT * FROM GROUPS_TB JOIN SERVICES_TB ON GROUPS_TB.IDX = SERVICES_TB.GRP_IDX WHERE OWNER_IDX = ' + userIDX;
+            return new Promise((succ, fail) =>{//SERVICES_TB.GRP_IDX,SERVICES_TB.IDX AS SERVICE_IDX,SERVICES_TB.SERVICE_NAME
+                let query = 'SELECT SERVICES_TB.GRP_IDX,SERVICES_TB.IDX AS SERVICE_IDX,SERVICES_TB.SERVICE_NAME FROM GROUPS_TB JOIN SERVICES_TB ON GROUPS_TB.IDX = SERVICES_TB.GRP_IDX WHERE OWNER_IDX = ' + userIDX;
+                //그룹IDX, 서비스IDX, 서비스이름
                 StrongboxDatabase.db.all(query, [], (err: any, arg: any) =>{
                     if (err) {
                         fail(err);
@@ -187,7 +202,7 @@ export class StrongboxDatabase{
                     } 
                 });
             });
-        }        
+        }
         if(this.connectDatabase()){
             try {
                 const promiseList = await fetch(userIDX);

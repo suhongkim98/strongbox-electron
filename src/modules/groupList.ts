@@ -3,18 +3,18 @@
 const UPDATE = 'groupList/UPDATE' as const;
 const ADD = 'groupList/ADD' as const;
 
-export const update = (newList: any) => ({
+export const updateGroup = (newList: any) => ({
   type: UPDATE,
   payload: newList
 });
-export const add = (item: any) => ({
+export const addGroup = (item: any) => ({
   type: ADD,
   payload: item
 });
 
 type groupListAction =
-  | ReturnType<typeof update>
-  | ReturnType<typeof add>;
+  | ReturnType<typeof updateGroup>
+  | ReturnType<typeof addGroup>;
 
   type groupListState = {
     list: any; // 
