@@ -1,6 +1,5 @@
 import {DB_PATH} from './environment';
 import sha256 from 'crypto-js/sha256';
-import { group } from 'console';
 const sqlite3 = window.require('sqlite3');
 
 // 이 클래스로만 db에 접근하도록 하자
