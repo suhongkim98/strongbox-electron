@@ -11,7 +11,6 @@ import SettingSVG from '../images/SettingSVG';
 import { StrongboxDatabase } from '../StrongboxDatabase';
 import { updateGroup } from '../modules/groupList';
 import PlusSVG from '../images/PlusSVG';
-import AddServcePopup from '../components/AddServicePopup';
 import { updateService } from '../modules/serviceList';
 
 interface SpanProps {
@@ -148,7 +147,6 @@ const MainPage:React.FC = () =>{
     const [redirect, setRedirect] = useState("");
     const [name,setName] = useState("null");
     const [addFolderPopup,setAddFolderPopup] = useState(false);
-    const [addServicePopup,setAddServicePopup] = useState(false);
     const dispatch = useDispatch(); 
 
     const groupList = useSelector((state: RootState) => state.groupList.list); // 그룹리스트 redux
@@ -197,9 +195,6 @@ const MainPage:React.FC = () =>{
             //각종 fixed 컴포넌트들
             addFolderPopup && <AddFolderPopup onBackgroundClicked={()=>{setAddFolderPopup(false)}} />
         }
-        {
-            addServicePopup && <AddServcePopup onBackgroundClicked={()=>{setAddServicePopup(false)}} />
-        }
         <SearchHeaderWrapper></SearchHeaderWrapper>
         <NameHeaderWrapper><NameHeaderInnerWrapper><Span textColor="white" size="3rem">{name}</Span><div onClick={onLogoutButtonClicked}><LogoutSVG width="30px" height="30px" color="white"/></div></NameHeaderInnerWrapper><NameHeaderInnerWrapper><div onClick={onSettingButtonClicked}><SettingSVG width="30px" height="30px" color="white"/></div></NameHeaderInnerWrapper></NameHeaderWrapper>
         <NavBarWrapper>
@@ -210,7 +205,7 @@ const MainPage:React.FC = () =>{
             <AddFolderBtn onClick={()=>{setAddFolderPopup(true)}}><Span textColor="white" size="1.6rem">폴더 추가하기</Span></AddFolderBtn>
             </NavBarFooterWrapper>
         </NavBarWrapper>
-        <MainWrapper><FloatDiv width="100%" height="100%" title="test" ><ServiceAddBtn onClick={()=>{setAddServicePopup(true)}}><PlusSVG width="40px" height="40px" color="white"/></ServiceAddBtn></FloatDiv></MainWrapper>
+        <MainWrapper><FloatDiv width="100%" height="100%" title="test" ><ServiceAddBtn><PlusSVG width="40px" height="40px" color="white"/></ServiceAddBtn></FloatDiv></MainWrapper>
     </TotalWrapper>
 }
 

@@ -1,10 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { ContextMenu, ContextMenuTrigger, MenuItem } from 'react-contextmenu';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import MinusSVG from '../images/MinusSVG';
 import PlusSVG from '../images/PlusSVG';
 import { RootState } from '../modules';
+import AddServcePopup from './AddServicePopup';
 import Span from './Span';
+
+import '../styles/css/react-contextmenu.css'; //contextmenu 사용 시 추가해야함
+import '../styles/css/custom.css'; // 
 
 interface GroupFolderProps{
     groupIdx:number;
@@ -49,6 +54,9 @@ const GroupFolder = ({groupIdx,groupName}:GroupFolderProps) =>{
     const bodyRef = useRef<HTMLDivElement>(null);
     const listRef = useRef<HTMLDivElement>(null);
     const serviceList = useSelector((state: RootState) => state.serviceList.list);
+    
+    const CONTEXT_ID = "context" + groupIdx; // 마우스 우클릭 통일아이디
+    const [addServicePopup,setAddServicePopup] = useState(false);
 
     useEffect(()=>{
         if(Number(listRef.current?.childElementCount) > 0){
@@ -84,7 +92,28 @@ const GroupFolder = ({groupIdx,groupName}:GroupFolderProps) =>{
         updateBodyHeight(0);
     }
 
+    const onClickMenu = (e:any, data:any) =>{
+        switch(data.action){
+            case 'addAccount':
+                setAddServicePopup(true);
+                break;
+            case 'editFolder':
+                break;
+            default:
+                break;
+        }
+    }
+
     return <TotalWrapper>
+        {
+            addServicePopup && <AddServcePopup onBackgroundClicked={()=>{setAddServicePopup(false)}} />
+        }
+        <ContextMenu id={CONTEXT_ID}>
+            <MenuItem onClick={onClickMenu} data={{ action: 'addAccount' }}>{groupName} 폴더에 계정 추가</MenuItem>
+            <MenuItem divider />
+            <MenuItem onClick={onClickMenu} data={{ action: 'editFolder' }}>편집</MenuItem>
+        </ContextMenu>
+            <ContextMenuTrigger id={CONTEXT_ID}>
         <HeaderWrapper>
             <HeaderInnerWrapper><Span size="2rem" textColor="gray">{groupName}</Span></HeaderInnerWrapper>
             <HeaderInnerWrapper onClick={onClickToggleBtn}>
@@ -93,6 +122,7 @@ const GroupFolder = ({groupIdx,groupName}:GroupFolderProps) =>{
                 }
             </HeaderInnerWrapper>
         </HeaderWrapper>
+            </ContextMenuTrigger>
         <BodyWrapper ref={bodyRef}>
             <ServiceList ref={listRef}>
             {serviceList.map((data:any)=>
