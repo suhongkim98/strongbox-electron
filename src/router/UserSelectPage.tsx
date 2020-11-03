@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import styled from 'styled-components';
+import Span from '../components/Span';
 import UserSelect from '../components/UserSelect';
 import theme from '../styles/theme';
 
@@ -38,26 +39,7 @@ overflow: auto;
     display:none;
 }
 `;
-interface SpanProps {
-    textColor?:any;
-    size?:any;
-    fontWeight?:any;
-}
-const Span = styled.span<SpanProps>`
-${({textColor}) => 
-//텍스트 컬러가 있다면
-    textColor &&
-    `color:${textColor};`
-}
-${({size}) => 
-    size &&
-    `font-size:${size};`
-}
-${({fontWeight}) => 
-    fontWeight &&
-    `font-weight:${fontWeight};`
-}
-`;
+
 const UserSelectPage:React.FC = () =>{
 
     return <TotalWrapper>

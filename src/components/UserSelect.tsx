@@ -3,6 +3,7 @@ import { StrongboxDatabase } from '../StrongboxDatabase';
 import styled from 'styled-components';
 import theme from '../styles/theme';
 import { NavLink } from 'react-router-dom';
+import Span from './Span';
 
 const TotalWrapper = styled.div`
 width:100%;
@@ -23,10 +24,7 @@ background-color:${theme.colors.backgroundMainColor};
 margin: 20px;
 padding-bottom:10px;
 `;
-const Span = styled.span`
-font-size:1.6rem;
-color: white;
-`;
+
 const UserSelect:React.FC = () =>{
     const [userList, setUserList] = useState([]);
     
@@ -36,7 +34,7 @@ const UserSelect:React.FC = () =>{
         database.select('IDX,NAME','USERS_TB').then((result: any)=>{
              const list =result.map((data:any)=>{
                  return <NavLink to = '/PasswordInputPage' key={data.IDX}>
-                     <Row onClick={()=>onClickUser(data.IDX)}><Content><Span>{data.NAME}</Span></Content></Row>
+                     <Row onClick={()=>onClickUser(data.IDX)}><Content><Span size="1.6rem" textColor="white">{data.NAME}</Span></Content></Row>
                  </NavLink>});
             setUserList(list);
         }).catch((error)=>{

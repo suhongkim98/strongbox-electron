@@ -5,6 +5,7 @@ import PinInputBox from '../components/PinInputBox';
 import { StrongboxDatabase } from '../StrongboxDatabase';
 import sha256 from 'crypto-js/sha256';
 import { Redirect } from 'react-router-dom';
+import Span from '../components/Span';
 
 const TotalWrapper = styled.div`
 height: 100vh;
@@ -18,22 +19,7 @@ display:flex;
 flex-direction:column;
 align-items:center;
 `;
-interface SpanProps{
-    fontSize:any;
-    fontWeight?:any;
-    fontColor:any;
-}
-const Span = styled.span<SpanProps>`
-${({fontSize})=>
-    fontSize && `font-size:${fontSize};`
-}
-${({fontWeight})=>
-    fontWeight && `font-weight:${fontWeight};`
-}
-${({fontColor})=>
-    fontColor && `color:${fontColor};`
-}
-`;
+
 const SpanWrapper = styled.div`
 margin-bottom:20px;
 `;
@@ -75,7 +61,7 @@ const PasswordInputPage:React.FC = () =>{
     return <TotalWrapper>
         <FloatDiv width="500px" height="220px" title={name} returnURL="/">
             <InnerWrapper>
-            <SpanWrapper><Span fontSize="3rem" fontColor="darkred" fontWeight={700}>PIN 입력</Span></SpanWrapper>
+            <SpanWrapper><Span size="3rem" textColor="darkred" fontWeight={700}>PIN 입력</Span></SpanWrapper>
             <PinInputBox count={6} getPinFunc={getPinNumber} />
             </InnerWrapper>
         </FloatDiv>

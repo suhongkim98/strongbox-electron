@@ -12,27 +12,9 @@ import { StrongboxDatabase } from '../StrongboxDatabase';
 import { updateGroup } from '../modules/groupList';
 import PlusSVG from '../images/PlusSVG';
 import { updateService } from '../modules/serviceList';
+import Span from '../components/Span';
 
-interface SpanProps {
-    textColor?:any;
-    size?:any;
-    fontWeight?:any;
-}
-const Span = styled.span<SpanProps>`
-${({textColor}) => 
-//텍스트 컬러가 있다면
-    textColor &&
-    `color:${textColor};`
-}
-${({size}) => 
-    size &&
-    `font-size:${size};`
-}
-${({fontWeight}) => 
-    fontWeight &&
-    `font-weight:${fontWeight};`
-}
-`;
+
 const TotalWrapper = styled.div `
 width:100%;
 height:100vh;

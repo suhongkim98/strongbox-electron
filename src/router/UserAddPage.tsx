@@ -6,6 +6,7 @@ import PinInputBox from '../components/PinInputBox';
 import { useForm } from "react-hook-form";
 import { StrongboxDatabase } from '../StrongboxDatabase';
 import { Redirect } from 'react-router-dom';
+import Span from '../components/Span';
 
 const TotalWrapper = styled.div`
 height: 100vh;
@@ -31,22 +32,7 @@ bottom:100px;
 const InputBoxWrapper = styled.div`
 flex-grow:5;
 `;
-interface SpanProps{
-    fontSize:any;
-    fontColor?:string;
-    weight?:number;
-}
-const Span = styled.span<SpanProps>`
-${({fontSize})=>
-    fontSize && `font-size:${fontSize};`
-}
-${({fontColor})=>
-    fontColor && `color:${fontColor};`
-}
-${({weight})=>
-    weight && `font-weight:${weight};`
-}
-`;
+
 
 const SubmitBtn = styled.input`
 border-style:solid;
@@ -103,15 +89,15 @@ const UserAddPage:React.FC = () =>{
             <RowWrapper>
                 <InputBoxWrapper><AnimInputBox inputType="text" label="닉네임" name="nicknameInputBox" hookFormRef={register({required: true, maxLength: 10})}/></InputBoxWrapper>
             </RowWrapper>
-            <RowWrapper><Span fontSize="1.5rem">핀번호 입력</Span><InputBoxWrapper><PinInputBox count={6} getPinFunc={getPinNumber}/></InputBoxWrapper></RowWrapper>
+            <RowWrapper><Span size="1.5rem">핀번호 입력</Span><InputBoxWrapper><PinInputBox count={6} getPinFunc={getPinNumber}/></InputBoxWrapper></RowWrapper>
 
             <RowWrapper>
-            {errors.nicknameInputBox?.type === "failedRegister" && <Span fontSize="1.5rem" fontColor="red" weight={600}><br/><br/>{errors.nicknameInputBox.message}</Span>}
-            {errors.nicknameInputBox?.type === "maxLength" && <Span fontSize="1.5rem" fontColor="red" weight={600}><br/><br/>닉네임은 10글자 이하로 입력해주세요</Span>}
+            {errors.nicknameInputBox?.type === "failedRegister" && <Span size="1.5rem" textColor="red" fontWeight={600}><br/><br/>{errors.nicknameInputBox.message}</Span>}
+            {errors.nicknameInputBox?.type === "maxLength" && <Span size="1.5rem" textColor="red" fontWeight={600}><br/><br/>닉네임은 10글자 이하로 입력해주세요</Span>}
             </RowWrapper>
 
             <TipRowWrapper>
-                <Span fontSize="1.2rem">( ! ) 사용자 정보는 컴퓨터 로컬DB에 암호화하여 저장됩니다.
+                <Span size="1.2rem">( ! ) 사용자 정보는 컴퓨터 로컬DB에 암호화하여 저장됩니다.
                 <br/><br/>핀번호는 데이터를 암호화하기 위한 중요한 암호입니다.<br/>분실하면 복구가 불가능하니 신중하게 설정해주세요.</Span>
             </TipRowWrapper>
             <RowWrapper><SubmitBtn type="submit" value="등록" /></RowWrapper>

@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import theme from '../styles/theme';
 import returnImg from '../images/return.svg';
 import { NavLink } from 'react-router-dom';
+import Span from './Span';
 
 interface FloatDivProps {
     width:any;
@@ -42,10 +43,6 @@ const BodyWrapper = styled.div`
 height:100%;
 margin:15px;
 `;
-const Span = styled.span`
-font-size:2.5rem;
-font-weight:600;
-`;
 const Img = styled.img`
 width:25px;
 height:25px;
@@ -54,7 +51,7 @@ height:25px;
 const FloatDiv = ({children,title,returnURL,returnFunc,width,height}:FloatDivProps) =>{
     return <TotalWrapper width={width} height={height}>
         <HeaderWrapper><HeaderContent>
-            <Span>{title}</Span>
+            <Span fontWeight={600} size="2.5rem">{title}</Span>
             { returnURL && <NavLink to={returnURL}><Img src={returnImg} alt="return"></Img></NavLink> }
             { returnFunc && <div onClick={returnFunc}><Img src={returnImg} alt="return"></Img></div> }
             </HeaderContent></HeaderWrapper>
