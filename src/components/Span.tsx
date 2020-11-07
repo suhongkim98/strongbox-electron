@@ -6,6 +6,7 @@ interface SpanProps {
     fontWeight?:any;
     children?:any;
     draggable?:boolean;
+    center?:boolean;
 }
 const Wrapper = styled.span<SpanProps>`
 ${({textColor}) => 
@@ -32,10 +33,15 @@ ${({draggable}) => // draggable true일 때만 드래그 가능하게
     -khtml-user-select: none; 
     user-select:none;`
 }
+
+${({center}) => 
+    center &&
+    `text-align: center;`
+}
 `;
 
-const Span = ({textColor,size,fontWeight,children,draggable}:SpanProps) =>{
-return <Wrapper textColor={textColor} size={size} fontWeight={fontWeight} draggable={draggable}>{children}</Wrapper>
+const Span = ({textColor,size,fontWeight,children,draggable, center}:SpanProps) =>{
+return <Wrapper textColor={textColor} size={size} fontWeight={fontWeight} draggable={draggable} center={center}>{children}</Wrapper>
 }
 
 export default Span;

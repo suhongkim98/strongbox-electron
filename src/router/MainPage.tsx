@@ -132,6 +132,7 @@ const MainPage:React.FC = () =>{
     const dispatch = useDispatch(); 
 
     const groupList = useSelector((state: RootState) => state.groupList.list); // 그룹리스트 redux
+    const selectedService = useSelector((state: RootState)=>state.selectedService.itemIndex);
 
     const updateGroupList = (newList: any) =>{
         //updateGroupList함수를 실행하면 dispatch를 호출해서 redux 상태변화를 일으킴
@@ -187,7 +188,10 @@ const MainPage:React.FC = () =>{
             <AddFolderBtn onClick={()=>{setAddFolderPopup(true)}}><Span textColor="white" size="1.6rem">폴더 추가하기</Span></AddFolderBtn>
             </NavBarFooterWrapper>
         </NavBarWrapper>
-        <MainWrapper><FloatDiv width="100%" height="100%" title="test" ><ServiceAddBtn><PlusSVG width="40px" height="40px" color="white"/></ServiceAddBtn></FloatDiv></MainWrapper>
+        <MainWrapper>{
+        selectedService['idx'] > 0 ? <FloatDiv width="100%" height="100%" title={selectedService['name']} ><ServiceAddBtn><PlusSVG width="40px" height="40px" color="white"/></ServiceAddBtn></FloatDiv>
+        : <Span textColor="white" size="2rem" fontWeight="700" center>환영합니다!<br/>계정을 추가하거나 선택해주세요.</Span>
+        }</MainWrapper>
     </TotalWrapper>
 }
 
