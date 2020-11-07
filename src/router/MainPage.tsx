@@ -13,6 +13,7 @@ import { updateGroup } from '../modules/groupList';
 import PlusSVG from '../images/PlusSVG';
 import { updateService } from '../modules/serviceList';
 import Span from '../components/Span';
+import { updateSelectedItemIndex } from '../modules/selectedService';
 
 
 const TotalWrapper = styled.div `
@@ -141,6 +142,9 @@ const MainPage:React.FC = () =>{
     const updateServiceList = (newList: any) =>{
         dispatch(updateService(newList));
     }
+    const resetSelectedServiceIndex = () =>{
+        dispatch(updateSelectedItemIndex({idx:-1,name:"no-name"}));
+    }
 
     useEffect(() =>{
         const database = StrongboxDatabase.getInstance();
@@ -163,9 +167,14 @@ const MainPage:React.FC = () =>{
         });
     },[]);
 
-    const onLogoutButtonClicked = () =>{
+    const resetInformation = () =>{
+        resetSelectedServiceIndex();
         global.idx = -1;
         global.key = "";
+    }
+
+    const onLogoutButtonClicked = () =>{
+        resetInformation();
         setRedirect("/");
     }
     const onSettingButtonClicked = () =>{
