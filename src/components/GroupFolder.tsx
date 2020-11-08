@@ -19,33 +19,27 @@ interface GroupFolderProps{
 const TotalWrapper = styled.div`
 width:100%;
 margin-bottom:5px;
-
-border-style: solid;
-border-width: 1px;
-border-color: gray;
-border-collapse: hidden;
+`;
+const HeaderInnerWrapper = styled.div`
+margin-left:10px;
+margin-right:10px;
 `;
 const HeaderWrapper =styled.div`
 height:40px;
 display:flex;
 justify-content:space-between;
 align-items:center;
-background-color: #1A1A2E;
-`;
-const HeaderInnerWrapper = styled.div`
-margin-left:5px;
-margin-right:5px;
+
 `;
 const BodyWrapper =styled.div`
 height:0;
-background-color: #E6E6EB;
 
 transition: height 0.3s ease;
 overflow: hidden;
 `;
 const ServiceList = styled.div`
 width:100%;
-padding: 5px 10px 10px 5px;
+padding: 20px 10px 0px 25px;
 `;
 const ServiceItem = styled.div`
 margin-bottom:5px;
@@ -128,7 +122,7 @@ const GroupFolder = ({groupIdx,groupName}:GroupFolderProps) =>{
             <HeaderInnerWrapper><Span size="2rem" textColor="gray">{groupName}</Span></HeaderInnerWrapper>
             <HeaderInnerWrapper onClick={onClickToggleBtn}>
                 {
-                    toggle ? <MinusSVG width="20px" height="20px" color="white" /> : <PlusSVG width="20px" height="20px" color="white" />
+                    toggle ? <MinusSVG width="20px" height="20px" color="gray" /> : <PlusSVG width="20px" height="20px" color="gray" />
                 }
             </HeaderInnerWrapper>
         </HeaderWrapper>
@@ -138,7 +132,7 @@ const GroupFolder = ({groupIdx,groupName}:GroupFolderProps) =>{
             {serviceList.map((data:any)=>
             {
                 if(data.GRP_IDX !== groupIdx) return null;
-                return <ServiceItem key={data.SERVICE_IDX} onClick={() => { updateSelectedItem({idx:data.SERVICE_IDX,name:data.SERVICE_NAME})}} ><Span textColor="black" size="2rem">{data.SERVICE_NAME}</Span></ServiceItem>
+                return <ServiceItem key={data.SERVICE_IDX} onClick={() => { updateSelectedItem({idx:data.SERVICE_IDX,name:data.SERVICE_NAME})}} ><Span textColor="white" size="2rem">{data.SERVICE_NAME}</Span></ServiceItem>
             }
         )}
             </ServiceList>

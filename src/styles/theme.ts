@@ -46,6 +46,7 @@ const colors = {
 	backgroundMainColor: '#000430',
 	lightPink: '#D98D8D',
 	headerBackgroundColor: '#0F3460',
+	navBackgroundColor: '#111333',
 	containerMainColor: '#E6E6EB'
 };
 

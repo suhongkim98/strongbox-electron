@@ -14,6 +14,7 @@ import PlusSVG from '../images/PlusSVG';
 import { updateService } from '../modules/serviceList';
 import Span from '../components/Span';
 import { updateSelectedItemIndex } from '../modules/selectedService';
+import theme from '../styles/theme';
 
 
 const TotalWrapper = styled.div `
@@ -26,6 +27,7 @@ grid-template-rows: 74px 1fr;
 const SearchHeaderWrapper = styled.div `
 width:100%;
 height:100%;
+background-color:${theme.colors.navBackgroundColor};
 border-style:solid;
 border-width:1px;
 border-color:gray;
@@ -53,6 +55,7 @@ align-items: center;
 const NavBarWrapper = styled.div`
 width:100%;
 height:100%;
+background-color:${theme.colors.navBackgroundColor};
 position:relative;
 border-style:solid;
 border-width:1px;
