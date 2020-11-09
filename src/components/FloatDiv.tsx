@@ -30,14 +30,19 @@ display:flex;
 flex-direction:column;
 `;
 const HeaderWrapper = styled.div`
-margin:15px;
-`;
-const HeaderContent = styled.div`
+height:50px;
+background-color:#F2F2F2;
+padding: 0 15px 0 15px;
 display:flex;
-justify-content:space-between;
+align-items:center;
+
 border-style:solid;
 border-bottom-width:1px;
-padding-bottom:14px;
+`;
+const HeaderContent = styled.div`
+width:100%;
+display:flex;
+justify-content:space-between;
 `;
 const BodyWrapper = styled.div`
 height:100%;
