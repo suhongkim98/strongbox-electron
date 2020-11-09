@@ -56,7 +56,7 @@ const GroupFolder = ({groupIdx,groupName}:GroupFolderProps) =>{
     const serviceList = useSelector((state: RootState) => state.serviceList.list);
     
     const CONTEXT_ID = "context" + groupIdx; // 마우스 우클릭 통일아이디
-    const [addServicePopup,setAddServicePopup] = useState(false);
+    const [addServicePopup,setAddServicePopup] = useState(-1);
 
     const dispatch = useDispatch(); 
     useEffect(()=>{
@@ -96,7 +96,7 @@ const GroupFolder = ({groupIdx,groupName}:GroupFolderProps) =>{
     const onClickMenu = (e:any, data:any) =>{
         switch(data.action){
             case 'addAccount':
-                setAddServicePopup(true);
+                setAddServicePopup(data.idx);
                 break;
             case 'editFolder':
                 break;
@@ -110,10 +110,10 @@ const GroupFolder = ({groupIdx,groupName}:GroupFolderProps) =>{
 
     return <TotalWrapper>
         {
-            addServicePopup && <AddServcePopup onBackgroundClicked={()=>{setAddServicePopup(false)}} />
+            addServicePopup >= 0 && <AddServcePopup groupIdx={addServicePopup} onBackgroundClicked={()=>{setAddServicePopup(-1)}} />
         }
         <ContextMenu id={CONTEXT_ID}>
-            <MenuItem onClick={onClickMenu} data={{ action: 'addAccount' }}>{groupName} 폴더에 계정 추가</MenuItem>
+            <MenuItem onClick={onClickMenu} data={{ action: 'addAccount', idx: groupIdx }}>{groupName} 폴더에 계정 추가</MenuItem>
             <MenuItem divider />
             <MenuItem onClick={onClickMenu} data={{ action: 'editFolder' }}>편집</MenuItem>
         </ContextMenu>
