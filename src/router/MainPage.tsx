@@ -4,17 +4,16 @@ import { RootState } from '../modules';
 import { Redirect } from 'react-router-dom';
 import styled from 'styled-components';
 import AddFolderPopup from '../components/AddFolderPopup';
-import FloatDiv from '../components/FloatDiv';
 import GroupFolder from '../components/GroupFolder';
 import LogoutSVG from '../images/LogoutSVG';
 import SettingSVG from '../images/SettingSVG';
 import { StrongboxDatabase } from '../StrongboxDatabase';
 import { updateGroup } from '../modules/groupList';
-import PlusSVG from '../images/PlusSVG';
 import { updateService } from '../modules/serviceList';
 import Span from '../components/Span';
 import { updateSelectedItemIndex } from '../modules/selectedService';
 import theme from '../styles/theme';
+import FolderSVG from '../images/FolderSVG';
 
 
 const TotalWrapper = styled.div `
@@ -22,36 +21,16 @@ width:100%;
 height:100vh;
 display: grid;
 grid-template-columns: 300px 1fr;
-grid-template-rows: 74px 1fr;
 `;
 const SearchHeaderWrapper = styled.div `
 width:100%;
-height:100%;
-background-color:${theme.colors.navBackgroundColor};
+height:70px;
+
 border-style:solid;
-border-width:1px;
+border-bottom-width:1px;
 border-color:gray;
 `;
-const NameHeaderWrapper = styled.div`
-width:100%;
-height:100%;
-border-style:solid;
-border-width:1px;
-border-color:gray;
 
-display: flex;
-justify-content: space-between;
-align-items: center;
-
-padding-left: 25px;
-padding-right: 25px;
-`;
-
-const NameHeaderInnerWrapper = styled.div`
-display: flex;
-justify-content: center;
-align-items: center;
-`;
 const NavBarWrapper = styled.div`
 width:100%;
 height:100%;
@@ -65,7 +44,7 @@ overflow: hidden;
 `;
 const NavBarGroupWrapper = styled.div`
 width:100%;
-height:calc(100% - 50px);
+height:calc(100% - 120px); // serach헤더, navbarfooter헤더 길이 뺴기
 
 padding:10px 0 0 0;
 `;
@@ -82,13 +61,34 @@ const MainWrapper = styled.div`
 position:relative;
 width:100%;
 height:100%;
-border-style:solid;
-border-width:1px;
-border-color:gray;
+`;
 
-display: flex;
-justify-content: center;
+const MainHeader = styled.div`
+width: 100%;
+height: 70px;
+background-color: #F2F2F2;
+padding: 0 30px 0 30px;
+
+display:flex;
+justify-content: space-between;
 align-items: center;
+
+border-style: solid;
+border-bottom-width: 1px;
+`;
+const MainHeaderInnerWrapper = styled.div`
+display:flex;
+`;
+const MainHeaderItem = styled.div`
+display: flex;
+justify-content:center;
+align-items:center;
+padding-left: 14px;
+`;
+const MainBody = styled.div`
+width:100%;
+height:calc(100% - 70px); //헤더길이 자르기
+background-color: ${theme.colors.containerMainColor};
 `;
 
 const AddFolderBtn = styled.button`
@@ -110,24 +110,14 @@ overflow: auto;
     display:none;
 }
 `;
-const ServiceAddBtn = styled.div`
-width:90px;
-height:90px;
-background-color:darkred;
-position:absolute;
-bottom: 60px;
-right: 60px;
-
-border-width:1px;
-border-style:solid;
-border-color:black;
-border-radius:50%;
-
-display:flex;
+const CenterContent = styled.div`
+width:100%;
+height:100%;
+display: flex;
 justify-content:center;
 align-items:center;
-cursor: pointer;
 `;
+
 // global idx = 대상 유저 idx, global key = 대칭키 암호키
 const MainPage:React.FC = () =>{
     const [redirect, setRedirect] = useState("");
@@ -180,6 +170,7 @@ const MainPage:React.FC = () =>{
         resetInformation();
         setRedirect("/");
     }
+
     const onSettingButtonClicked = () =>{
 
     }
@@ -190,9 +181,8 @@ const MainPage:React.FC = () =>{
             //각종 fixed 컴포넌트들
             addFolderPopup && <AddFolderPopup onBackgroundClicked={()=>{setAddFolderPopup(false)}} />
         }
-        <SearchHeaderWrapper></SearchHeaderWrapper>
-        <NameHeaderWrapper><NameHeaderInnerWrapper><Span textColor="white" size="3rem">{name}</Span><div onClick={onLogoutButtonClicked}><LogoutSVG width="30px" height="30px" color="white"/></div></NameHeaderInnerWrapper><NameHeaderInnerWrapper><div onClick={onSettingButtonClicked}><SettingSVG width="30px" height="30px" color="white"/></div></NameHeaderInnerWrapper></NameHeaderWrapper>
         <NavBarWrapper>
+            <SearchHeaderWrapper><Span textColor="white" size="1.6rem">아이디검색영역</Span></SearchHeaderWrapper>
             <NavBarGroupWrapper><Scroll>
                 {groupList}
             </Scroll></NavBarGroupWrapper>
@@ -200,10 +190,17 @@ const MainPage:React.FC = () =>{
             <AddFolderBtn onClick={()=>{setAddFolderPopup(true)}}><Span textColor="white" size="1.6rem">폴더 추가하기</Span></AddFolderBtn>
             </NavBarFooterWrapper>
         </NavBarWrapper>
-        <MainWrapper>{
-        selectedService['idx'] > 0 ? <FloatDiv width="100%" height="100%" title={selectedService['name']} ><ServiceAddBtn><PlusSVG width="40px" height="40px" color="white"/></ServiceAddBtn></FloatDiv>
-        : <Span textColor="white" size="2rem" fontWeight="700" center>환영합니다!<br/>계정을 추가하거나 선택해주세요.</Span>
-        }</MainWrapper>
+        <MainWrapper>
+        <MainHeader>
+        <MainHeaderInnerWrapper>{selectedService['idx'] > 0 && <CenterContent><FolderSVG width="40px" height="40px"/><MainHeaderItem><Span textColor="black" size="4rem">{selectedService['name']}</Span></MainHeaderItem></CenterContent>}  </MainHeaderInnerWrapper>  
+        <MainHeaderInnerWrapper>
+        <MainHeaderItem><Span textColor="black" size="2rem">{name}</Span></MainHeaderItem>
+        <MainHeaderItem><div onClick={onLogoutButtonClicked}><LogoutSVG width="30px" height="30px" color="black"/></div></MainHeaderItem>
+        <MainHeaderItem><div onClick={onSettingButtonClicked}><SettingSVG width="30px" height="30px" color="black"/></div></MainHeaderItem></MainHeaderInnerWrapper></MainHeader>
+        <MainBody>
+        {
+        selectedService['idx'] > 0 ? selectedService['name'] : <CenterContent><Span textColor="black" size="2rem" fontWeight="700" center>환영합니다!<br/>계정을 추가하거나 선택해주세요.</Span></CenterContent>
+        }</MainBody></MainWrapper>
     </TotalWrapper>
 }
 

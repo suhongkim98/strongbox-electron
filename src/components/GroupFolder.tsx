@@ -39,7 +39,7 @@ overflow: hidden;
 `;
 const ServiceList = styled.div`
 width:100%;
-padding: 20px 10px 0px 25px;
+padding: 0 10px 0 25px;
 `;
 const ServiceItem = styled.div`
 margin-bottom:5px;
