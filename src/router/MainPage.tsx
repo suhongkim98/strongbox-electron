@@ -5,7 +5,6 @@ import { Redirect } from 'react-router-dom';
 import styled from 'styled-components';
 import AddFolderPopup from '../components/AddFolderPopup';
 import GroupFolder from '../components/GroupFolder';
-import LogoutSVG from '../images/LogoutSVG';
 import SettingSVG from '../images/SettingSVG';
 import { StrongboxDatabase } from '../StrongboxDatabase';
 import { updateGroup } from '../modules/groupList';
@@ -14,6 +13,7 @@ import Span from '../components/Span';
 import { updateSelectedItemIndex } from '../modules/selectedService';
 import theme from '../styles/theme';
 import FolderSVG from '../images/FolderSVG';
+import { ContextMenu, ContextMenuTrigger, MenuItem } from 'react-contextmenu';
 
 
 const TotalWrapper = styled.div `
@@ -84,6 +84,13 @@ display: flex;
 justify-content:center;
 align-items:center;
 padding-left: 14px;
+`;
+const MainHeaderProfile = styled(MainHeaderItem)`
+:hover{
+    Span{
+        text-decoration:underline;
+    }
+}
 `;
 const MainBody = styled.div`
 width:100%;
@@ -181,6 +188,9 @@ const MainPage:React.FC = () =>{
             //각종 fixed 컴포넌트들
             addFolderPopup && <AddFolderPopup onBackgroundClicked={()=>{setAddFolderPopup(false)}} />
         }
+        <ContextMenu id="profile">
+            <MenuItem onClick={onLogoutButtonClicked}>로그아웃</MenuItem>
+        </ContextMenu>
         <NavBarWrapper>
             <SearchHeaderWrapper><Span textColor="white" size="1.6rem">아이디검색영역</Span></SearchHeaderWrapper>
             <NavBarGroupWrapper><Scroll>
@@ -194,8 +204,7 @@ const MainPage:React.FC = () =>{
         <MainHeader>
         <MainHeaderInnerWrapper>{selectedService['idx'] > 0 && <CenterContent><FolderSVG width="40px" height="40px"/><MainHeaderItem><Span textColor="black" size="4rem">{selectedService['name']}</Span></MainHeaderItem></CenterContent>}  </MainHeaderInnerWrapper>  
         <MainHeaderInnerWrapper>
-        <MainHeaderItem><Span textColor="black" size="2rem">{name}</Span></MainHeaderItem>
-        <MainHeaderItem><div onClick={onLogoutButtonClicked}><LogoutSVG width="30px" height="30px" color="black"/></div></MainHeaderItem>
+        <MainHeaderProfile><ContextMenuTrigger id="profile" holdToDisplay={0}><Span textColor="black" size="2rem">{name}</Span></ContextMenuTrigger></MainHeaderProfile>
         <MainHeaderItem><div onClick={onSettingButtonClicked}><SettingSVG width="30px" height="30px" color="black"/></div></MainHeaderItem></MainHeaderInnerWrapper></MainHeader>
         <MainBody>
         {
