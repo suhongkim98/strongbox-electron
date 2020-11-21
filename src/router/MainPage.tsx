@@ -155,13 +155,11 @@ const MainPage:React.FC = () =>{
         });
 
         database.getGroupList(global.idx).then((result)=>{
-            updateGroupList(result.map((data:any)=>{return <GroupFolder key={data.IDX} groupIdx={data.IDX} groupName={data.GRP_NAME}/>}));
-        }).catch((error)=>{
-            console.log(error);
+            updateGroupList(result.map((data:any)=>{return {GRP_IDX: data.IDX, GRP_NAME: data.GRP_NAME}}));
         });
 
         database.getServiceListByUserIDX(global.idx).then((result)=>{
-            updateServiceList(result.map((data:any)=>{return {GRP_IDX: data.GRP_IDX, SERVICE_IDX: data.SERVICE_IDX, SERVICE_NAME: data.SERVICE_NAME}}));
+            updateServiceList(result.map((data:any)=>{return {GRP_IDX: data.GRP_IDX,GRP_NAME: data.GRP_NAME, SERVICE_IDX: data.SERVICE_IDX, SERVICE_NAME: data.SERVICE_NAME}}));
         }).catch((error)=>{
             console.log(error);
         });
@@ -194,7 +192,7 @@ const MainPage:React.FC = () =>{
         <NavBarWrapper>
             <SearchHeaderWrapper><Span textColor="white" size="1.6rem">아이디검색영역</Span></SearchHeaderWrapper>
             <NavBarGroupWrapper><Scroll>
-                {groupList}
+                {groupList.map((data:any) =>{return <GroupFolder key={data.GRP_IDX} groupIdx={data.GRP_IDX} groupName={data.GRP_NAME} />})}
             </Scroll></NavBarGroupWrapper>
             <NavBarFooterWrapper>
             <AddFolderBtn onClick={()=>{setAddFolderPopup(true)}}><Span textColor="white" size="1.6rem">폴더 추가하기</Span></AddFolderBtn>
