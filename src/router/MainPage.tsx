@@ -14,6 +14,7 @@ import { updateSelectedItemIndex } from '../modules/selectedService';
 import theme from '../styles/theme';
 import FolderSVG from '../images/FolderSVG';
 import { ContextMenu, ContextMenuTrigger, MenuItem } from 'react-contextmenu';
+import SearchBar from '../components/SearchBar';
 
 
 const TotalWrapper = styled.div `
@@ -26,9 +27,15 @@ const SearchHeaderWrapper = styled.div `
 width:100%;
 height:70px;
 
+padding: 0 20px 0 20px;
+
 border-style:solid;
 border-bottom-width:1px;
 border-color:gray;
+
+display:flex;
+justify-content:center;
+align-items:center;
 `;
 
 const NavBarWrapper = styled.div`
@@ -134,6 +141,7 @@ const MainPage:React.FC = () =>{
 
     const groupList = useSelector((state: RootState) => state.groupList.list); // 그룹리스트 redux
     const selectedService = useSelector((state: RootState)=>state.selectedService.itemIndex);
+    const serviceList = useSelector((state: RootState)=>state.serviceList.list);
 
     const updateGroupList = (newList: any) =>{
         //updateGroupList함수를 실행하면 dispatch를 호출해서 redux 상태변화를 일으킴
@@ -190,7 +198,7 @@ const MainPage:React.FC = () =>{
             <MenuItem onClick={onLogoutButtonClicked}>로그아웃</MenuItem>
         </ContextMenu>
         <NavBarWrapper>
-            <SearchHeaderWrapper><Span textColor="white" size="1.6rem">아이디검색영역</Span></SearchHeaderWrapper>
+            <SearchHeaderWrapper><SearchBar width="100%" height="40px" source={serviceList}/></SearchHeaderWrapper>
             <NavBarGroupWrapper><Scroll>
                 {groupList.map((data:any) =>{return <GroupFolder key={data.GRP_IDX} groupIdx={data.GRP_IDX} groupName={data.GRP_NAME} />})}
             </Scroll></NavBarGroupWrapper>

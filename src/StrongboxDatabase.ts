@@ -190,8 +190,8 @@ export class StrongboxDatabase{
     public async getServiceListByUserIDX(userIDX:number){
         const fetch = (userIDX:number) =>{
             //Promise 이용하여 DB에서 받아와주는 함수
-            return new Promise((succ, fail) =>{//SERVICES_TB.GRP_IDX,SERVICES_TB.IDX AS SERVICE_IDX,SERVICES_TB.SERVICE_NAME
-                let query = 'SELECT SERVICES_TB.GRP_IDX,SERVICES_TB.IDX AS SERVICE_IDX,SERVICES_TB.SERVICE_NAME FROM GROUPS_TB JOIN SERVICES_TB ON GROUPS_TB.IDX = SERVICES_TB.GRP_IDX WHERE OWNER_IDX = ' + userIDX;
+            return new Promise((succ, fail) =>{//GROUPS_TB.GRP_NAME,SERVICES_TB.GRP_IDX,SERVICES_TB.IDX AS SERVICE_IDX,SERVICES_TB.SERVICE_NAME
+                let query = 'SELECT GROUPS_TB.GRP_NAME,SERVICES_TB.GRP_IDX,SERVICES_TB.IDX AS SERVICE_IDX,SERVICES_TB.SERVICE_NAME FROM GROUPS_TB JOIN SERVICES_TB ON GROUPS_TB.IDX = SERVICES_TB.GRP_IDX WHERE OWNER_IDX = ' + userIDX;
                 //그룹IDX, 서비스IDX, 서비스이름
                 StrongboxDatabase.db.all(query, [], (err: any, arg: any) =>{
                     if (err) {
