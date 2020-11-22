@@ -14,7 +14,7 @@ import { updateSelectedItemIndex } from '../modules/selectedService';
 import theme from '../styles/theme';
 import FolderSVG from '../images/FolderSVG';
 import { ContextMenu, ContextMenuTrigger, MenuItem } from 'react-contextmenu';
-import SearchBar from '../components/SearchBar';
+import ServiceSearchBar from '../components/ServiceSearchBar';
 
 
 const TotalWrapper = styled.div `
@@ -198,7 +198,7 @@ const MainPage:React.FC = () =>{
             <MenuItem onClick={onLogoutButtonClicked}>로그아웃</MenuItem>
         </ContextMenu>
         <NavBarWrapper>
-            <SearchHeaderWrapper><SearchBar width="100%" height="40px" source={serviceList}/></SearchHeaderWrapper>
+            <SearchHeaderWrapper><ServiceSearchBar width="100%" height="40px" source={serviceList}/></SearchHeaderWrapper>
             <NavBarGroupWrapper><Scroll>
                 {groupList.map((data:any) =>{return <GroupFolder key={data.GRP_IDX} groupIdx={data.GRP_IDX} groupName={data.GRP_NAME} />})}
             </Scroll></NavBarGroupWrapper>
