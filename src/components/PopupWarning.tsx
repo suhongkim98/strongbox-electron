@@ -16,6 +16,9 @@ position: fixed;
 z-index: 2;
 width:100%;
 height:100%;
+top:0px;
+left:0px;
+
 display:flex;
 justify-content:center;
 align-items:center;

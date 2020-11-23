@@ -75,7 +75,7 @@ const SearchBar = ({width,height,source,filterFunc,resultPrintFunc}:SearchBarPro
             loadingTimerID.current = -1;
         }
         inputValue.current = event.target.value;
-        loadingTimerID.current = setTimeout(onLoadingFinish,1000);
+        loadingTimerID.current = setTimeout(onLoadingFinish,500);
     }
     const updateBodyHeight = (height: any) =>{
         if(resultBoxRef.current) {

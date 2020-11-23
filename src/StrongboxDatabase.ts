@@ -134,6 +134,15 @@ export class StrongboxDatabase{
             return [rowid, groupName];
         }
     }
+    public deleteGroup(groupIDX:number){
+        if(this.connectDatabase()){
+            const query = 'DELETE FROM GROUPS_TB WHERE IDX = ' + groupIDX;
+            StrongboxDatabase.db.run(query);
+            this.disconnectDatabase();
+            return true;
+        }
+        return false;
+    }
     public async getGroupList(userIDX:number){
         //매개변수로 유저idx
         // 유저idx이용해 그룹 리스트 받아와 json 형태로 리턴

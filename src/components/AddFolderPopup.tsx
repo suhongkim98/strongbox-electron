@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import { addGroup } from '../modules/groupList';
 import { StrongboxDatabase } from '../StrongboxDatabase';
 import AnimInputBox from './AnimInputBox';
-import GroupFolder from './GroupFolder';
 import PopupFloatDiv from './PopupFloatDiv';
 
 interface AddFolderPopupProps{
