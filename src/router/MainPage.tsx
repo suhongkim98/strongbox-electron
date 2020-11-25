@@ -15,6 +15,7 @@ import theme from '../styles/theme';
 import FolderSVG from '../images/FolderSVG';
 import { ContextMenu, ContextMenuTrigger, MenuItem } from 'react-contextmenu';
 import ServiceSearchBar from '../components/ServiceSearchBar';
+import AccountView from '../components/AccountView';
 
 
 const TotalWrapper = styled.div `
@@ -101,7 +102,7 @@ const MainHeaderProfile = styled(MainHeaderItem)`
 `;
 const MainBody = styled.div`
 width:100%;
-height:calc(100% - 70px); //헤더길이 자르기
+height:calc(100vh - 70px); //헤더길이 자르기
 background-color: ${theme.colors.containerMainColor};
 `;
 
@@ -214,7 +215,7 @@ const MainPage:React.FC = () =>{
         <MainHeaderItem><div onClick={onSettingButtonClicked}><SettingSVG width="30px" height="30px" color="black"/></div></MainHeaderItem></MainHeaderInnerWrapper></MainHeader>
         <MainBody>
         {
-        selectedService['idx'] > 0 ? selectedService['name'] : <CenterContent><Span textColor="black" size="2rem" fontWeight="700" center>환영합니다!<br/>계정을 추가하거나 선택해주세요.</Span></CenterContent>
+        selectedService['idx'] > 0 ? <AccountView /> : <CenterContent><Span textColor="black" size="2rem" fontWeight="700" center>환영합니다!<br/>계정을 추가하거나 선택해주세요.</Span></CenterContent>
         }</MainBody></MainWrapper>
     </TotalWrapper>
 }
