@@ -137,13 +137,14 @@ const tableInit = () => {
 
       query = 'CREATE TABLE "ACCOUNTS_TB" (' +
           '"IDX"	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,' +
+          '"DATE"	DATETIME DEFAULT (datetime("now","localtime")),' +
           '"SERVICE_IDX"	INTEGER NOT NULL,' +
           '"ACCOUNT_NAME"	TEXT DEFAULT "no name",' +
-          '"SNS_LOGIN_IDX"	INTEGER,' +
+          '"OAUTH_LOGIN_IDX"	INTEGER,' +
           '"ID"	TEXT,' +
           '"PASSWORD"	TEXT NOT NULL,' +
           'FOREIGN KEY("SERVICE_IDX") REFERENCES "SERVICES_TB"("IDX") ON UPDATE CASCADE ON DELETE CASCADE,' +
-          'FOREIGN KEY("SNS_LOGIN_IDX") REFERENCES "ACCOUNTS_TB"("IDX") ON UPDATE CASCADE ON DELETE CASCADE' +
+          'FOREIGN KEY("OAUTH_LOGIN_IDX") REFERENCES "ACCOUNTS_TB"("IDX") ON UPDATE CASCADE ON DELETE CASCADE' +
       ');';
       db.run(query,[], (arg:any) =>{
           console.log('create init table ACCOUNTS_TB');
