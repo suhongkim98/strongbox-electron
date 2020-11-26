@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import PlusSVG from '../images/PlusSVG';
+import Span from './Span';
 
 const TotalWrapper = styled.div`
 width: 100%;
@@ -24,7 +25,7 @@ overflow-y:scroll;
     display:none;
 }
 `;
-const ViewCard = styled.div`
+const CardWrapper = styled.div`
 width:100%;
 height:100%;
 background-color:white;
@@ -33,19 +34,13 @@ border-style:solid;
 border-width:1px;
 border-color:black;
 `;
-const AddAccountBtn = styled(ViewCard)`
+
+const AddAccountBtn = styled(CardWrapper)`
 display:flex;
 justify-content:center;
 align-items:center;
 `;
-const AccountView = () => {
-    return <TotalWrapper><InnerWrapper><Account/><Account/><Account/><Account/><Account/><Account/><Account/><Account/><Account/><Account/><Account/><Account/><Account/><Account/>
-    <AddAccountBtn><PlusSVG width="50px" height="50px" color="gray" /></AddAccountBtn></InnerWrapper></TotalWrapper>
-}
 
-export default AccountView;
-
-//////////////
 interface AccountProps{
     accountName: string;
     date: string;
@@ -53,7 +48,59 @@ interface AccountProps{
     accountID: string;
     accountPassword: string;
 }
+const ViewCard = styled(CardWrapper)`
+padding: 10px 20px 0 20px;
+`;
+const CardHeader = styled.div`
+width:100%;
+height:40px;
+display: flex;
+justify-content:space-between;
+align-items:center;
 
-const Account = () => {
-    return <ViewCard></ViewCard>
+border-style: solid;
+border-color: gray;
+border-bottom-width: 1px;
+`;
+const CardBody = styled.div`
+width:100%;
+height:calc(100% - 40px); //헤더높이 빼기
+display:flex;
+flex-direction:column;
+justify-content:space-around;
+`;
+const CardBodyItem = styled.div`
+width:100%;
+height:25px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+`;
+
+const AccountView = () => {
+    return <TotalWrapper><InnerWrapper>
+        <Account accountName="본캐" date="2019-02-12" accountID="qazw12" accountPassword="1234"/>
+        <Account accountName="부캐" date="2019-02-12" OAuthServiceName="네이버" accountID="qaㅁㄴㅇ" accountPassword="1234"/>
+        <Account accountName="부캐2" date="2019-02-12" accountID="qaㄴ2" accountPassword="124242"/>
+        <Account accountName="부캐3" date="2019-02-12" accountID="qasda12" accountPassword="121232312"/>
+        <Account accountName="부캐4" date="2019-02-12" accountID="qwew2" accountPassword="123123"/>
+        <Account accountName="붘5" date="2019-02-12" accountID="qazasds" accountPassword="12212"/>
+        <Account accountName="부캐6" date="2019-02-12" accountID="qaaaa2" accountPassword="1212234"/>
+        <AddAccountBtn><PlusSVG width="50px" height="50px" color="gray" /></AddAccountBtn>
+    </InnerWrapper></TotalWrapper>
+}
+
+export default AccountView;
+
+//////////////
+
+const Account = ({accountName,date,OAuthServiceName,accountID,accountPassword}:AccountProps) => {
+    return <ViewCard>
+        <CardHeader><Span fontWeight="700" size="2.5rem" textColor="black">{accountName}</Span><Span fontWeight="500" size="1.5rem" textColor="black">수정일: {date}</Span></CardHeader>
+        <CardBody>
+            {OAuthServiceName && <CardBodyItem><Span fontWeight="700" size="1.4rem" textColor="darkred">(!) `{OAuthServiceName}`(으)로 소셜 로그인한 계정입니다.</Span></CardBodyItem>}
+            <CardBodyItem><Span fontWeight="700" size="2rem" textColor="black">{OAuthServiceName && OAuthServiceName + " "}아이디</Span><Span size="2rem" textColor="black">{accountID}</Span></CardBodyItem>
+            <CardBodyItem><Span fontWeight="700" size="2rem" textColor="black">{OAuthServiceName && OAuthServiceName + " "}비밀번호</Span><Span size="2rem" textColor="black">{accountPassword}</Span></CardBodyItem>
+        </CardBody>
+    </ViewCard>
 }
