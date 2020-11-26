@@ -1,5 +1,6 @@
 import {DB_PATH} from './environment';
 import sha256 from 'crypto-js/sha256';
+import { AES} from 'crypto-js';
 const sqlite3 = window.require('sqlite3');
 
 // 이 클래스로만 db에 접근하도록 하자
@@ -221,25 +222,79 @@ export class StrongboxDatabase{
             }
         }       
     }
-    public addAccountFromSNSLogin(){
-        //SNS로그인 연동 시
-        //매개변수로 서비스, 계정 이름, SNS로그인 대상 계정이름 을 받음
-        //서비스idx를 얻음
-        // sns로그인 대상 계정 idx를 얻음
-        //service_idx에 서비스idx넣고 sns_login_idx에 계정idx넣고 계정 추가
-    }
-    public addAccount(){
-        //일반 계정 추가 시
+    public async addAccount(serviceIDX:number, accountName:string, account: {OAuthAccountIDX?:number, id?:string, password?:string}){
 
-        //매개변수로 서비스, 계정 이름, id, password받음
-        //서비스idx를 얻음
-        //password를 글로벌 변수에 저장해둔 유저의 패스워드+salt를 키로 대칭키 AES 암호화 진행
-        //service_idx에 서비스idx넣고 계정 추가
+        //매개변수로 서비스, 계정 이름, id, password,OAuthAccountIDX받음
+        //OAuthAccountIDX가 매개변수로 들어왔는지 체크 후 OAuthAccountIDX가 존재하다면 accountName,serviceIDX, OAuthAccountIDX를 쿼리에 집어넣음
 
+        //OAuthAccountIDX가 존재하지 않다면
+        //password를 글로벌 변수에 저장해둔 유저의 패스워드+salt키로 대칭키 AES 암호화 진행
+        //service_idx에 서비스idx넣고 
+        //serviceIDX, accountName, id, password 를 쿼리에 집어넣음
+        
+        let encrypedPassword;
+        const getRowIDFromInsertAccount = () =>{
+            //Promise 이용하여 DB에 추가하고 rowid 받아오는 함수
+            let query:string;
+            if(account.OAuthAccountIDX){
+                const val = "'"+accountName + "', " + serviceIDX + ", " + account.OAuthAccountIDX;
+                query = 'INSERT INTO ACCOUNTS_TB(ACCOUNT_NAME,SERVICE_IDX,OAUTH_LOGIN_IDX) VALUES(' + val + ')'; 
+            }else{
+                const key = global.key;
+                encrypedPassword = AES.encrypt(account.password as string, key);
+                const val = serviceIDX + ", '" + accountName + "', '" + account.id +"', '" + encrypedPassword+"'";
+                query = 'INSERT INTO ACCOUNTS_TB(SERVICE_IDX,ACCOUNT_NAME,ID,PASSWORD) VALUES(' + val + ')'; 
+            }
+
+            console.log("계정추가 쿼리:" + query);
+
+            return new Promise((succ, fail) =>{
+                StrongboxDatabase.db.run(query, function(this:typeof sqlite3, err:any,arg:any){ 
+                    if(err){
+                        fail(err);
+                    }else{
+                        console.log(`A row has been inserted with rowid ${this.lastID}`);//rowid 받아내기
+                        succ(this.lastID);
+                    }
+                });
+            });
+        }
+
+        if(this.connectDatabase()){
+            const rowid = await getRowIDFromInsertAccount();
+            this.disconnectDatabase();
+            const result:any = [{rowid: rowid, name:accountName,serviceIDX:serviceIDX}];
+            if(account.OAuthAccountIDX) result.push({OAuthIDX:account.OAuthAccountIDX});
+            else result.push({id:account.id,password:encrypedPassword});
+            return result;
+        }
     }
-    public getAccountsList(){
-        //매개변수로 서비스 받음
-        //서비스 idx를 얻음
-        //해당 서비스에 해당하는 계정 리스트 출력
-    }
+
+    public async getAccountList(userIDX:number){
+        const fetch = (userIDX:number) =>{
+            //Promise 이용하여 DB에서 받아와주는 함수
+            return new Promise((succ, fail) =>{
+                let query = 'SELECT ACCOUNTS_TB.IDX,ACCOUNTS_TB.ACCOUNT_NAME,ACCOUNTS_TB.OAUTH_LOGIN_IDX,ACCOUNTS_TB.ID,ACCOUNTS_TB.PASSWORD FROM GROUPS_TB '
+                +'JOIN SERVICES_TB ON GROUPS_TB.IDX = SERVICES_TB.GRP_IDX '
+                +'JOIN ACCOUNTS_TB ON ACCOUNTS_TB.SERVICE_IDX = SERVICES_TB.IDX WHERE OWNER_IDX = ' + userIDX;
+                //그룹IDX, 서비스IDX, 서비스이름
+                StrongboxDatabase.db.all(query, [], (err: any, arg: any) =>{
+                    if (err) {
+                        fail(err);
+                    } else {
+                        succ(arg);
+                    } 
+                });
+            });
+        }
+        if(this.connectDatabase()){
+            try {
+                const promiseList:any = await fetch(userIDX);
+                this.disconnectDatabase();
+                return promiseList;
+            }catch(error){
+                return error;
+            }
+        }       
+    }    
 }

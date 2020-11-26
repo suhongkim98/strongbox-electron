@@ -16,6 +16,8 @@ import FolderSVG from '../images/FolderSVG';
 import { ContextMenu, ContextMenuTrigger, MenuItem } from 'react-contextmenu';
 import ServiceSearchBar from '../components/ServiceSearchBar';
 import AccountView from '../components/AccountView';
+import { updateAccount } from '../modules/accountList';
+import { AES, enc } from 'crypto-js';
 
 
 const TotalWrapper = styled.div `
@@ -151,6 +153,9 @@ const MainPage:React.FC = () =>{
     const updateServiceList = (newList: any) =>{
         dispatch(updateService(newList));
     }
+    const updateAccountList = (newList: any) =>{
+        dispatch(updateAccount(newList));
+    }
     const resetSelectedServiceIndex = () =>{
         dispatch(updateSelectedItemIndex({idx:-1,name:"no-name"}));
     }
@@ -169,6 +174,21 @@ const MainPage:React.FC = () =>{
 
         database.getServiceListByUserIDX(global.idx).then((result)=>{
             updateServiceList(result.map((data:any)=>{return {GRP_IDX: data.GRP_IDX,GRP_NAME: data.GRP_NAME, SERVICE_IDX: data.SERVICE_IDX, SERVICE_NAME: data.SERVICE_NAME}}));
+        }).catch((error)=>{
+            console.log(error);
+        });
+
+        database.getAccountList(global.idx).then((result)=>{
+            ///////////복호화 테스트///////////////
+            console.log("복호화 결과:"+result.map((data:any)=>{
+                let result="null"; 
+                if(data.PASSWORD){ // 비번있는거만 복호화
+                const decrypted = AES.decrypt(data.PASSWORD, global.key);
+                result = decrypted.toString(enc.Utf8);    
+            }
+                return result}));
+            /////////////////////////////////
+            //updateAccountList(result.map((data:any)=>{return{}});
         }).catch((error)=>{
             console.log(error);
         });
