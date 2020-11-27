@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import PlusSVG from '../images/PlusSVG';
-import { StrongboxDatabase } from '../StrongboxDatabase';
+import AddAccountPopup from './AddAccountPopup';
 import Span from './Span';
 
 const TotalWrapper = styled.div`
@@ -79,16 +79,14 @@ align-items:center;
 `;
 
 const AccountView = () => {
-    
+    const [addAccountPopup,setAddAccountPopup] = useState(false);
 
-    const onClickAddAccount = () =>{
-        //테스트 삽입
-        const database = StrongboxDatabase.getInstance();
-        database.addAccount(2,"본캐",{id:"qasds",password:"1232312"}); //id pw방식
-        database.addAccount(2,"부캐",{OAuthAccountIDX:2}); // oauth방식
-        ///////////
+    const onAddAccountClicked = () =>{
+        setAddAccountPopup(true);
     }
-    return <TotalWrapper><InnerWrapper>
+    return <TotalWrapper>
+        {addAccountPopup && <AddAccountPopup onBackgroundClicked={()=>{setAddAccountPopup(false)}} />}
+        <InnerWrapper>
         <Account accountName="본캐" date="2019-02-12" accountID="qazw12" accountPassword="1234"/>
         <Account accountName="부캐" date="2019-02-12" OAuthServiceName="네이버" accountID="qaㅁㄴㅇ" accountPassword="1234"/>
         <Account accountName="부캐2" date="2019-02-12" accountID="qaㄴ2" accountPassword="124242"/>
@@ -96,7 +94,7 @@ const AccountView = () => {
         <Account accountName="부캐4" date="2019-02-12" accountID="qwew2" accountPassword="123123"/>
         <Account accountName="붘5" date="2019-02-12" accountID="qazasds" accountPassword="12212"/>
         <Account accountName="부캐6" date="2019-02-12" accountID="qaaaa2" accountPassword="1212234"/>
-        <AddAccountBtn onClick={onClickAddAccount}><PlusSVG width="50px" height="50px" color="gray" /></AddAccountBtn>
+        <AddAccountBtn onClick={(onAddAccountClicked)}><PlusSVG width="50px" height="50px" color="gray" /></AddAccountBtn>
     </InnerWrapper></TotalWrapper>
 }
 
