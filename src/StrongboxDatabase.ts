@@ -274,7 +274,7 @@ export class StrongboxDatabase{
         const fetch = (userIDX:number) =>{
             //Promise 이용하여 DB에서 받아와주는 함수
             return new Promise((succ, fail) =>{
-                let query = 'SELECT ACCOUNTS_TB.IDX,ACCOUNTS_TB.ACCOUNT_NAME,ACCOUNTS_TB.OAUTH_LOGIN_IDX,ACCOUNTS_TB.ID,ACCOUNTS_TB.PASSWORD FROM GROUPS_TB '
+                let query = 'SELECT ACCOUNTS_TB.IDX,ACCOUNTS_TB.ACCOUNT_NAME,ACCOUNTS_TB.DATE,ACCOUNTS_TB.OAUTH_LOGIN_IDX,ACCOUNTS_TB.ID,ACCOUNTS_TB.PASSWORD FROM GROUPS_TB '
                 +'JOIN SERVICES_TB ON GROUPS_TB.IDX = SERVICES_TB.GRP_IDX '
                 +'JOIN ACCOUNTS_TB ON ACCOUNTS_TB.SERVICE_IDX = SERVICES_TB.IDX WHERE OWNER_IDX = ' + userIDX;
                 //그룹IDX, 서비스IDX, 서비스이름
