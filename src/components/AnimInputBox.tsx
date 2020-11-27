@@ -29,7 +29,7 @@ label{
   font-size: 16px;
   color: black;
   pointer-events: none;
-  transition: .5s;
+  transition: .2s;
 }
 input:focus ~ label, input:valid ~ label{
     top: -20px;

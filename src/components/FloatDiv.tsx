@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import theme from '../styles/theme';
 import returnImg from '../images/return.svg';
 import { NavLink } from 'react-router-dom';
 import Span from './Span';
@@ -23,7 +22,7 @@ ${({height}) =>
     height &&
     `height:${height};`
 }
-background-color:${theme.colors.containerMainColor};
+background-color:white;
 box-shadow: 0 15px 25px rgba(0,0,0,.6);
 
 display:flex;
