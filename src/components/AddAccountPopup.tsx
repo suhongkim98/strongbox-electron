@@ -41,6 +41,33 @@ width:100%;
 height:calc(100% - 40px); //버튼높이빼기
 padding: 20px 0 0 0;
 `;
+const Select = styled.select`
+  width: 100%;
+  height: 35px;
+  background: white;
+  color: gray;
+  font-size: 14px;
+  border: none;
+  
+  border-style:solid;
+  border-color:black;
+  border-width:1px;
+
+  option {
+    color: black;
+    background: white;
+    display: flex;
+    white-space: pre;
+    min-height: 20px;
+    padding: 0px 2px 1px;
+  }
+`;
+const SelectLabel = styled.div`
+width:100%;
+margin-bottom:15px;
+display:flex;
+flex-direction:column;
+`;
 interface AddAccountUseFormProps {
     accountName:string;
     id:string;
@@ -48,8 +75,11 @@ interface AddAccountUseFormProps {
 }
 const AddAccountPopup = ({onBackgroundClicked}:AddAccountPopupProps) =>{
     const selectedService = useSelector((state: RootState)=>state.selectedService.itemIndex);
+    const serviceList = useSelector((state: RootState)=>state.serviceList.list);
+    const accountList = useSelector((state: RootState)=>state.accountList.list);
     const { register, handleSubmit } = useForm<AddAccountUseFormProps>();
     const [isOAuth, setOAuth] = useState(false);
+    const [dropboxSelectedService,setDropboxSelectedService] = useState(-1);
     const dispatch = useDispatch(); 
 
 
@@ -67,9 +97,12 @@ const AddAccountPopup = ({onBackgroundClicked}:AddAccountPopupProps) =>{
     }
 
     const onSubmitOAuth = (data:any) =>{
-        //const database = StrongboxDatabase.getInstance();
-        //database.addAccount(selectedService['idx'],"부캐",{OAuthAccountIDX:2}); // oauth방식
-
+        const database = StrongboxDatabase.getInstance();
+        database.addAccount(selectedService['idx'],data.accountName,{OAuthAccountIDX:data.accountSelect}).then((result:any)=>{
+            addAccountList({ACCOUNT_IDX:result.ROWID,SERVICE_IDX:result.SERVICE_IDX,ACCOUNT_NAME:result.NAME,DATE:result.DATE,OAUTH_LOGIN:result.OAuthIDX,ID:result.ID,PASSWORD:result.PASSWORD});
+        }).catch((error)=>{
+            console.error(error);
+        }); // oauth방식
         onBackgroundClicked(); // 창닫기
     }
     return <PopupFloatDiv 
@@ -85,6 +118,21 @@ const AddAccountPopup = ({onBackgroundClicked}:AddAccountPopupProps) =>{
         </Form> :
         <Form onSubmit={handleSubmit(onSubmitOAuth)}>
         <AnimInputBox label="별명" inputType="text" name="accountName" hookFormRef={register}/>
+        <SelectLabel>
+            <Span size="1.5rem">서비스 선택</Span>
+            <Select name="serviceSelect" ref={register({required: true})} onChange={(e:any)=>{setDropboxSelectedService(e.target.value)}}>
+                {serviceList.map((data:any)=>{return <option value={data.SERVICE_IDX} key={data.SERVICE_IDX}>{data.SERVICE_NAME}</option>})}
+            </Select>
+        </SelectLabel>
+        <SelectLabel>
+            <Span size="1.5rem">계정 선택</Span>
+            <Select name="accountSelect" ref={register({required: true})}>
+                {dropboxSelectedService > 0 && accountList.map((data:any)=>{
+                    if(data.SERVICE_IDX !== Number(dropboxSelectedService)) return null;
+                    return <option value={data.ACCOUNT_IDX} key={data.ACCOUNT_IDX}>{data.ACCOUNT_NAME}</option>
+                })}
+            </Select>
+        </SelectLabel>
         <SubmitBtn><Span size="1.5rem" fontWeight="700">등록</Span></SubmitBtn>
         </Form>
         }

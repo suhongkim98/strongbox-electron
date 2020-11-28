@@ -245,9 +245,6 @@ export class StrongboxDatabase{
                 const val = serviceIDX + ", '" + accountName + "', '" + account.id +"', '" + encrypedPassword+"'";
                 query = 'INSERT INTO ACCOUNTS_TB(SERVICE_IDX,ACCOUNT_NAME,ID,PASSWORD) VALUES(' + val + ')'; 
             }
-
-            console.log("계정추가 쿼리:" + query);
-
             return new Promise((succ, fail) =>{
                 StrongboxDatabase.db.run(query, function(this:typeof sqlite3, err:any,arg:any){ 
                     if(err){
