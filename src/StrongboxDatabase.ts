@@ -263,9 +263,9 @@ export class StrongboxDatabase{
         if(this.connectDatabase()){
             const rowid = await getRowIDFromInsertAccount();
             this.disconnectDatabase();
-            const result:any = [{rowid: rowid, name:accountName,serviceIDX:serviceIDX}];
-            if(account.OAuthAccountIDX) result.push({OAuthIDX:account.OAuthAccountIDX});
-            else result.push({id:account.id,password:encrypedPassword});
+            const date = new Date();
+            const now = date.getFullYear() + "-" + date.getMonth() + "-" + date.getDate() + " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+            const result = {ROWID: rowid,DATE:now, NAME:accountName,SERVICE_IDX:serviceIDX,OAuthIDX:account.OAuthAccountIDX,ID:account.id,PASSWORD:account.password};
             return result;
         }
     }
@@ -274,12 +274,14 @@ export class StrongboxDatabase{
         const fetch = (userIDX:number) =>{
             //Promise 이용하여 DB에서 받아와주는 함수
             return new Promise((succ, fail) =>{
-                let query = 'SELECT ACCOUNTS_TB.IDX,ACCOUNTS_TB.ACCOUNT_NAME,ACCOUNTS_TB.DATE,ACCOUNTS_TB.OAUTH_LOGIN_IDX,ACCOUNTS_TB.ID,ACCOUNTS_TB.PASSWORD FROM GROUPS_TB '
-                +'JOIN SERVICES_TB ON GROUPS_TB.IDX = SERVICES_TB.GRP_IDX '
-                +'JOIN ACCOUNTS_TB ON ACCOUNTS_TB.SERVICE_IDX = SERVICES_TB.IDX WHERE OWNER_IDX = ' + userIDX;
-                //그룹IDX, 서비스IDX, 서비스이름
+                let query = 'SELECT ACCOUNTS_TB.IDX,SERVICE_IDX,ACCOUNT_NAME,DATE,OAUTH_LOGIN_IDX,ID,PASSWORD FROM ACCOUNTS_TB '
+                +'JOIN SERVICES_TB ON ACCOUNTS_TB.SERVICE_IDX = SERVICES_TB.IDX '
+                +'JOIN GROUPS_TB ON SERVICES_TB.GRP_IDX = GROUPS_TB.IDX '
+                +'WHERE GROUPS_TB.OWNER_IDX = ' + userIDX;
+
                 StrongboxDatabase.db.all(query, [], (err: any, arg: any) =>{
                     if (err) {
+                        console.log(err);
                         fail(err);
                     } else {
                         succ(arg);

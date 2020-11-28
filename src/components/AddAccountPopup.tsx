@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../modules';
+import { addAccount } from '../modules/accountList';
 import { StrongboxDatabase } from '../StrongboxDatabase';
 import styled from '../styles/theme-components';
 import AnimInputBox from './AnimInputBox';
@@ -49,10 +50,19 @@ const AddAccountPopup = ({onBackgroundClicked}:AddAccountPopupProps) =>{
     const selectedService = useSelector((state: RootState)=>state.selectedService.itemIndex);
     const { register, handleSubmit } = useForm<AddAccountUseFormProps>();
     const [isOAuth, setOAuth] = useState(false);
+    const dispatch = useDispatch(); 
 
+
+    const addAccountList =(item: any) =>{
+        dispatch(addAccount(item));
+    }
     const onSubmitIdPassword = (data:any) =>{
         const database = StrongboxDatabase.getInstance();
-        database.addAccount(selectedService['idx'],data.accountName,{id:data.id,password:data.pw}); //id pw방식
+        database.addAccount(selectedService['idx'],data.accountName,{id:data.id,password:data.pw}).then((result:any)=>{
+            addAccountList({ACCOUNT_IDX:result.ROWID,SERVICE_IDX:result.SERVICE_IDX,ACCOUNT_NAME:result.NAME,DATE:result.DATE,OAUTH_LOGIN:result.OAuthIDX,ID:result.ID,PASSWORD:result.PASSWORD});
+        }).catch((error)=>{
+            console.error(error);
+        }); //id pw방식
         onBackgroundClicked(); // 창닫기
     }
 

@@ -179,16 +179,15 @@ const MainPage:React.FC = () =>{
         });
 
         database.getAccountList(global.idx).then((result)=>{
-            ///////////복호화 테스트///////////////
-            console.log("복호화 결과:"+result.map((data:any)=>{
-                let result="null"; 
-                if(data.PASSWORD){ // 비번있는거만 복호화
-                const decrypted = AES.decrypt(data.PASSWORD, global.key);
-                result = decrypted.toString(enc.Utf8);    
-            }
-                return result}));
-            /////////////////////////////////
-            //updateAccountList(result.map((data:any)=>{return{}});
+            updateAccountList(result.map((data:any)=>{
+                let json:any = {ACCOUNT_IDX:data.IDX,SERVICE_IDX:data.SERVICE_IDX,ACCOUNT_NAME:data.ACCOUNT_NAME,DATE:data.DATE,OAUTH_LOGIN:data.OAUTH_LOGIN_IDX,ID:data.ID,PASSWORD:data.PASSWORD}; // 기본항목
+                if(data.PASSWORD){
+                    //패스워드가 존재하다면 복호화
+                const decrypted = (AES.decrypt(data.PASSWORD, global.key)).toString(enc.Utf8);
+                json['ID'] = data.ID;
+                json['PASSWORD'] = decrypted;
+                }
+                return json}));
         }).catch((error)=>{
             console.log(error);
         });

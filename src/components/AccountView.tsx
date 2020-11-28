@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import PlusSVG from '../images/PlusSVG';
+import { RootState } from '../modules';
 import AddAccountPopup from './AddAccountPopup';
 import Span from './Span';
 
@@ -80,6 +82,8 @@ align-items:center;
 
 const AccountView = () => {
     const [addAccountPopup,setAddAccountPopup] = useState(false);
+    const accountList = useSelector((state: RootState) => state.accountList.list);
+    const selectedService = useSelector((state: RootState) => state.selectedService.itemIndex);
 
     const onAddAccountClicked = () =>{
         setAddAccountPopup(true);
@@ -87,13 +91,14 @@ const AccountView = () => {
     return <TotalWrapper>
         {addAccountPopup && <AddAccountPopup onBackgroundClicked={()=>{setAddAccountPopup(false)}} />}
         <InnerWrapper>
-        <Account accountName="본캐" date="2019-02-12" accountID="qazw12" accountPassword="1234"/>
-        <Account accountName="부캐" date="2019-02-12" OAuthServiceName="네이버" accountID="qaㅁㄴㅇ" accountPassword="1234"/>
-        <Account accountName="부캐2" date="2019-02-12" accountID="qaㄴ2" accountPassword="124242"/>
-        <Account accountName="부캐3" date="2019-02-12" accountID="qasda12" accountPassword="121232312"/>
-        <Account accountName="부캐4" date="2019-02-12" accountID="qwew2" accountPassword="123123"/>
-        <Account accountName="붘5" date="2019-02-12" accountID="qazasds" accountPassword="12212"/>
-        <Account accountName="부캐6" date="2019-02-12" accountID="qaaaa2" accountPassword="1212234"/>
+        {accountList.map((data:any)=>{
+            if(data.SERVICE_IDX !== selectedService['idx']) return null;
+            if(data.OAUTH_IDX){
+                //OAUTH 로그인인 경우
+                return <Account key={data.ACCOUNT_IDX} accountName={data.ACCOUNT_NAME} date={data.DATE} OAuthServiceName="기능 추가 중" accountID="기능 추가 중" accountPassword="기능 추가 중"/>
+            }
+            return <Account key={data.ACCOUNT_IDX} accountName={data.ACCOUNT_NAME} date={data.DATE} accountID={data.ID} accountPassword={data.PASSWORD} />
+            })}
         <AddAccountBtn onClick={(onAddAccountClicked)}><PlusSVG width="50px" height="50px" color="gray" /></AddAccountBtn>
     </InnerWrapper></TotalWrapper>
 }
