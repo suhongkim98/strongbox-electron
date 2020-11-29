@@ -180,7 +180,7 @@ const MainPage:React.FC = () =>{
 
         database.getAccountList(global.idx).then((result)=>{
             updateAccountList(result.map((data:any)=>{
-                let json:any = {ACCOUNT_IDX:data.IDX,SERVICE_IDX:data.SERVICE_IDX,ACCOUNT_NAME:data.ACCOUNT_NAME,DATE:data.DATE,OAUTH_LOGIN:data.OAUTH_LOGIN_IDX,ID:data.ID,PASSWORD:data.PASSWORD}; // 기본항목
+                let json:any = {ACCOUNT_IDX:data.IDX,SERVICE_IDX:data.SERVICE_IDX,ACCOUNT_NAME:data.ACCOUNT_NAME,DATE:data.DATE,OAUTH_LOGIN_IDX:data.OAUTH_LOGIN_IDX,OAUTH_SERVICE_NAME:data.OAUTH_SERVICE_NAME,ID:data.ID,PASSWORD:data.PASSWORD}; // 기본항목
                 if(data.PASSWORD){
                     //패스워드가 존재하다면 복호화
                 const decrypted = (AES.decrypt(data.PASSWORD, global.key)).toString(enc.Utf8);

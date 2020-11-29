@@ -42,6 +42,21 @@ export class StrongboxDatabase{
         StrongboxDatabase.db = null;
     }
 
+    private connectDatabase2 = () =>{
+        return new sqlite3.Database(DB_PATH, (err:any) =>{
+            if(err){
+                console.error(err.message);
+            }
+        });
+    }
+    private disconnectDatabase2 = (db:any) =>{
+        db.close((err:any) => {
+            if (err) {
+                console.error(err.message);
+            }
+        });
+    }
+
     private fetchDatabase = (col: string, table: string, where?: string) =>{
         //Promise 이용하여 DB에서 받아와주는 함수
         return new Promise((succ, fail) =>{
@@ -268,7 +283,7 @@ export class StrongboxDatabase{
     }
 
     public async getAccountList(userIDX:number){
-        const fetch = (userIDX:number) =>{
+        const fetchAllAccount = (userIDX:number) =>{
             //Promise 이용하여 DB에서 받아와주는 함수
             return new Promise((succ, fail) =>{
                 let query = 'SELECT ACCOUNTS_TB.IDX,SERVICE_IDX,ACCOUNT_NAME,DATE,OAUTH_LOGIN_IDX,ID,PASSWORD FROM ACCOUNTS_TB '
@@ -286,11 +301,50 @@ export class StrongboxDatabase{
                 });
             });
         }
+        const fetchOAuthAccount = (oauthIDXArr:any) =>{
+            //oauthIDX를 넣으면 해당 idx의 계정이름, id, pw를 가져와서 json 업데이트를 하자
+            return new Promise((succ, fail) =>{
+                let idx = '(';
+                for(let i = 0; i < oauthIDXArr.length ; i++){
+                    idx += oauthIDXArr[i];
+                    if(i !== oauthIDXArr.length - 1) idx += ',';
+                    else idx += ')';
+                }
+                let query = 'SELECT ATB.IDX,STB.SERVICE_NAME,ATB.ACCOUNT_NAME,ATB.ID,ATB.PASSWORD FROM ACCOUNTS_TB ATB,SERVICES_TB STB '+
+                'WHERE ATB.IDX IN ' + idx + ' AND ATB.SERVICE_IDX = STB.IDX';
+                const db = this.connectDatabase2();
+                db.all(query, [], (err: any, arg: any) =>{
+                    if (err) {
+                        fail(err);
+                    } else {
+                        succ(arg);
+                    } 
+                });
+                this.disconnectDatabase2(db);
+            });
+        }
         if(this.connectDatabase()){
             try {
-                const promiseList:any = await fetch(userIDX);
+                const allAccountList:any = await fetchAllAccount(userIDX);
+                //
+                const list = [];
+                for(let i = 0 ; i < allAccountList.length ; i++){
+                    if(allAccountList[i].OAUTH_LOGIN_IDX) list.push(allAccountList[i].OAUTH_LOGIN_IDX);
+                }
+                const oauthAccountList:any = await fetchOAuthAccount(list);
+
+                for(let i = 0 ; i < allAccountList.length ; i++){
+                    for(let j = 0 ; j < oauthAccountList.length ; j++){ // 나중에 SQL문으로 한번에 뽑아보자
+                        if(allAccountList[i].OAUTH_LOGIN_IDX === oauthAccountList[j].IDX){
+                            allAccountList[i].OAUTH_SERVICE_NAME = oauthAccountList[j].SERVICE_NAME;
+                            allAccountList[i].ID = oauthAccountList[j].ID;
+                            allAccountList[i].PASSWORD = oauthAccountList[j].PASSWORD;
+                        }
+                    }
+                }
+                //
                 this.disconnectDatabase();
-                return promiseList;
+                return allAccountList;
             }catch(error){
                 return error;
             }

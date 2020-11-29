@@ -93,9 +93,9 @@ const AccountView = () => {
         <InnerWrapper>
         {accountList.map((data:any)=>{
             if(data.SERVICE_IDX !== selectedService['idx']) return null;
-            if(data.OAUTH_LOGIN){
+            if(data.OAUTH_LOGIN_IDX){
                 //OAUTH 로그인인 경우
-                return <Account key={data.ACCOUNT_IDX} accountName={data.ACCOUNT_NAME} date={data.DATE} OAuthServiceName="기능 추가 중" accountID="기능 추가 중" accountPassword="기능 추가 중"/>
+                return <Account key={data.ACCOUNT_IDX} accountName={data.ACCOUNT_NAME} date={data.DATE} OAuthServiceName={data.OAUTH_SERVICE_NAME} accountID={data.ID} accountPassword={data.PASSWORD}/>
             }
             return <Account key={data.ACCOUNT_IDX} accountName={data.ACCOUNT_NAME} date={data.DATE} accountID={data.ID} accountPassword={data.PASSWORD} />
             })}

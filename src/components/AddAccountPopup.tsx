@@ -99,7 +99,7 @@ const AddAccountPopup = ({onBackgroundClicked}:AddAccountPopupProps) =>{
     const onSubmitOAuth = (data:any) =>{
         const database = StrongboxDatabase.getInstance();
         database.addAccount(selectedService['idx'],data.accountName,{OAuthAccountIDX:data.accountSelect}).then((result:any)=>{
-            addAccountList({ACCOUNT_IDX:result.ROWID,SERVICE_IDX:result.SERVICE_IDX,ACCOUNT_NAME:result.NAME,DATE:result.DATE,OAUTH_LOGIN:result.OAuthIDX,ID:result.ID,PASSWORD:result.PASSWORD});
+            addAccountList({ACCOUNT_IDX:result.ROWID,SERVICE_IDX:result.SERVICE_IDX,ACCOUNT_NAME:result.NAME,DATE:result.DATE,OAUTH_LOGIN_IDX:result.OAuthIDX,OAUTH_SERVICE_NAME:data.serviceSelect.split(",")[1],ID:result.ID,PASSWORD:result.PASSWORD});
         }).catch((error)=>{
             console.error(error);
         }); // oauth방식
@@ -120,8 +120,8 @@ const AddAccountPopup = ({onBackgroundClicked}:AddAccountPopupProps) =>{
         <AnimInputBox label="별명" inputType="text" name="accountName" hookFormRef={register}/>
         <SelectLabel>
             <Span size="1.5rem">서비스 선택</Span>
-            <Select name="serviceSelect" ref={register({required: true})} onChange={(e:any)=>{setDropboxSelectedService(e.target.value)}}>
-                {serviceList.map((data:any)=>{return <option value={data.SERVICE_IDX} key={data.SERVICE_IDX}>{data.SERVICE_NAME}</option>})}
+            <Select name="serviceSelect" ref={register({required: true})} onChange={(e:any)=>{setDropboxSelectedService(e.target.value.split(",")[0])}}>
+                {serviceList.map((data:any)=>{return <option value={data.SERVICE_IDX + "," + data.SERVICE_NAME} key={data.SERVICE_IDX}>{data.SERVICE_NAME}</option>})}
             </Select>
         </SelectLabel>
         <SelectLabel>
