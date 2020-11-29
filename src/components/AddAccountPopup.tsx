@@ -129,6 +129,7 @@ const AddAccountPopup = ({onBackgroundClicked}:AddAccountPopupProps) =>{
             <Select name="accountSelect" ref={register({required: true})}>
                 {dropboxSelectedService > 0 && accountList.map((data:any)=>{
                     if(data.SERVICE_IDX !== Number(dropboxSelectedService)) return null;
+                    if(data.OAUTH_LOGIN_IDX) return null; // OAUTH계정은 선택 못하도록
                     return <option value={data.ACCOUNT_IDX} key={data.ACCOUNT_IDX}>{data.ACCOUNT_NAME}</option>
                 })}
             </Select>
