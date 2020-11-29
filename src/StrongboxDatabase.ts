@@ -16,14 +16,14 @@ export class StrongboxDatabase{
         return StrongboxDatabase.strongboxDatabase;
     }
 
-    private connectDatabase2 = () =>{
+    private connectDatabase = () =>{
         return new sqlite3.Database(DB_PATH, (err:any) =>{
             if(err){
                 console.error(err.message);
             }
         });
     }
-    private disconnectDatabase2 = (db:any) =>{
+    private disconnectDatabase = (db:any) =>{
         db.close((err:any) => {
             if (err) {
                 console.error(err.message);
@@ -38,7 +38,7 @@ export class StrongboxDatabase{
             if(where){
                 query += ' WHERE ' + where;
             }
-            const db = this.connectDatabase2();
+            const db = this.connectDatabase();
             db.all(query, [], (err: any, arg: any) =>{
                 if (err) {
                     fail(err);
@@ -46,7 +46,7 @@ export class StrongboxDatabase{
                     succ(arg);
                 } 
             });
-            this.disconnectDatabase2(db);
+            this.disconnectDatabase(db);
         });
     }
 
@@ -64,10 +64,10 @@ export class StrongboxDatabase{
     public insert(table: string, col: string, val: string){
         //insert 해주는 함수
         //ex) insert('USER_TB','NAME,PASSWORD,SALT', '홍길동,처음,aa');
-        const db = this.connectDatabase2();
+        const db = this.connectDatabase();
         const query = 'INSERT INTO ' + table + '(' + col + ') VALUES(' + val + ')'; 
         db.run(query, (err:any,arg:any)=>{});
-        this.disconnectDatabase2(db);
+        this.disconnectDatabase(db);
     }
     public async addUser(name: string, password: string){
         // 이름 중복 여부 확인
@@ -106,7 +106,7 @@ export class StrongboxDatabase{
             const query = 'INSERT INTO GROUPS_TB(OWNER_IDX,GRP_NAME) VALUES(' + val + ')'; 
 
             return new Promise((succ, fail) =>{
-                const db = this.connectDatabase2();
+                const db = this.connectDatabase();
                 db.run(query, function(this:typeof sqlite3, err:any,arg:any){ // 클래스 안의 함수 안에서 this를 쓰면 생기는 문제 this 정의해서 드디어 해결!!!!!
                     if(err){
                         fail(err);
@@ -115,7 +115,7 @@ export class StrongboxDatabase{
                         succ(this.lastID);
                     }
                 });
-                this.disconnectDatabase2(db);
+                this.disconnectDatabase(db);
             });
         }
 
@@ -124,10 +124,10 @@ export class StrongboxDatabase{
     }
     public deleteGroup(groupIDX:number){
         try{
-            const db = this.connectDatabase2();
+            const db = this.connectDatabase();
             const query = 'DELETE FROM GROUPS_TB WHERE IDX = ' + groupIDX;
             db.run(query);
-            this.disconnectDatabase2(db);
+            this.disconnectDatabase(db);
             return true;
         }catch(error){
             console.error(error);
@@ -154,7 +154,7 @@ export class StrongboxDatabase{
             const query = 'INSERT INTO SERVICES_TB(GRP_IDX,SERVICE_NAME) VALUES(' + val + ')'; 
 
             return new Promise((succ, fail) =>{
-                const db = this.connectDatabase2();
+                const db = this.connectDatabase();
                 db.run(query, function(this:typeof sqlite3, err:any,arg:any){ 
                     if(err){
                         fail(err);
@@ -163,7 +163,7 @@ export class StrongboxDatabase{
                         succ(this.lastID);
                     }
                 });
-                this.disconnectDatabase2(db);
+                this.disconnectDatabase(db);
             });
         }
 
@@ -184,7 +184,7 @@ export class StrongboxDatabase{
         const fetch = (userIDX:number) =>{
             //Promise 이용하여 DB에서 받아와주는 함수
             return new Promise((succ, fail) =>{//GROUPS_TB.GRP_NAME,SERVICES_TB.GRP_IDX,SERVICES_TB.IDX AS SERVICE_IDX,SERVICES_TB.SERVICE_NAME
-                const db = this.connectDatabase2();
+                const db = this.connectDatabase();
                 let query = 'SELECT GROUPS_TB.GRP_NAME,SERVICES_TB.GRP_IDX,SERVICES_TB.IDX AS SERVICE_IDX,SERVICES_TB.SERVICE_NAME FROM GROUPS_TB JOIN SERVICES_TB ON GROUPS_TB.IDX = SERVICES_TB.GRP_IDX WHERE OWNER_IDX = ' + userIDX;
                 //그룹IDX, 서비스IDX, 서비스이름
                 db.all(query, [], (err: any, arg: any) =>{
@@ -194,7 +194,7 @@ export class StrongboxDatabase{
                         succ(arg);
                     } 
                 });
-                this.disconnectDatabase2(db);
+                this.disconnectDatabase(db);
             });
         }
         try {
@@ -228,7 +228,7 @@ export class StrongboxDatabase{
                 query = 'INSERT INTO ACCOUNTS_TB(SERVICE_IDX,ACCOUNT_NAME,ID,PASSWORD) VALUES(' + val + ')'; 
             }
             return new Promise((succ, fail) =>{
-                const db = this.connectDatabase2();
+                const db = this.connectDatabase();
                 db.run(query, function(this:typeof sqlite3, err:any,arg:any){ 
                     if(err){
                         fail(err);
@@ -237,7 +237,7 @@ export class StrongboxDatabase{
                         succ(this.lastID);
                     }
                 });
-                this.disconnectDatabase2(db);
+                this.disconnectDatabase(db);
             });
         }
 
@@ -257,7 +257,7 @@ export class StrongboxDatabase{
                 +'JOIN GROUPS_TB ON SERVICES_TB.GRP_IDX = GROUPS_TB.IDX '
                 +'WHERE GROUPS_TB.OWNER_IDX = ' + userIDX;
 
-                const db = this.connectDatabase2();
+                const db = this.connectDatabase();
                 db.all(query, [], (err: any, arg: any) =>{
                     if (err) {
                         console.log(err);
@@ -266,7 +266,7 @@ export class StrongboxDatabase{
                         succ(arg);
                     } 
                 });
-                this.disconnectDatabase2(db);
+                this.disconnectDatabase(db);
             });
         }
         const fetchOAuthAccount = (oauthIDXArr:any) =>{
@@ -280,7 +280,7 @@ export class StrongboxDatabase{
                 }
                 let query = 'SELECT ATB.IDX,STB.SERVICE_NAME,ATB.ACCOUNT_NAME,ATB.ID,ATB.PASSWORD FROM ACCOUNTS_TB ATB,SERVICES_TB STB '+
                 'WHERE ATB.IDX IN ' + idx + ' AND ATB.SERVICE_IDX = STB.IDX';
-                const db = this.connectDatabase2();
+                const db = this.connectDatabase();
                 db.all(query, [], (err: any, arg: any) =>{
                     if (err) {
                         fail(err);
@@ -288,7 +288,7 @@ export class StrongboxDatabase{
                         succ(arg);
                     } 
                 });
-                this.disconnectDatabase2(db);
+                this.disconnectDatabase(db);
             });
         }
         try {
