@@ -6,7 +6,6 @@ const sqlite3 = window.require('sqlite3');
 // 이 클래스로만 db에 접근하도록 하자
 export class StrongboxDatabase{
     private static strongboxDatabase: StrongboxDatabase;
-    private static db: any;
 
 
     public static getInstance() {
@@ -15,31 +14,6 @@ export class StrongboxDatabase{
             StrongboxDatabase.strongboxDatabase = new StrongboxDatabase();
         }
         return StrongboxDatabase.strongboxDatabase;
-    }
-
-    private connectDatabase(): boolean{
-        //DB연결
-        if(!StrongboxDatabase.db){
-            StrongboxDatabase.db = new sqlite3.Database(DB_PATH, (err:any) =>{
-                if(err){
-                    console.error(err.message);
-                    return false;
-                }
-            });
-        }
-        return true;
-    }
-
-    private disconnectDatabase(){
-        //DB연결 해제
-        if(StrongboxDatabase.db){
-            StrongboxDatabase.db.close((err:any) => {
-                if (err) {
-                    return console.error(err.message);
-                }
-            });
-        }
-        StrongboxDatabase.db = null;
     }
 
     private connectDatabase2 = () =>{
@@ -64,13 +38,15 @@ export class StrongboxDatabase{
             if(where){
                 query += ' WHERE ' + where;
             }
-            StrongboxDatabase.db.all(query, [], (err: any, arg: any) =>{
+            const db = this.connectDatabase2();
+            db.all(query, [], (err: any, arg: any) =>{
                 if (err) {
                     fail(err);
                 } else {
                     succ(arg);
                 } 
             });
+            this.disconnectDatabase2(db);
         });
     }
 
@@ -78,25 +54,20 @@ export class StrongboxDatabase{
         // DB에서 SELECT 쿼리 실행하는 함수
         // select할 땐 비동기 문제 땜시 이렇게 해야함
 
-        if(this.connectDatabase()){
-            //연결 성공하면
-            try {
-                let result = await this.fetchDatabase(col,table,where);
-                return result;
-            } catch (error) {
-                throw error;
-            }
+        try {
+            let result = await this.fetchDatabase(col,table,where);
+            return result;
+        } catch (error) {
+            throw error;
         }
-        this.disconnectDatabase();
     }
     public insert(table: string, col: string, val: string){
         //insert 해주는 함수
         //ex) insert('USER_TB','NAME,PASSWORD,SALT', '홍길동,처음,aa');
-        if(this.connectDatabase()){
-            const query = 'INSERT INTO ' + table + '(' + col + ') VALUES(' + val + ')'; 
-            StrongboxDatabase.db.run(query, (err:any,arg:any)=>{});
-            this.disconnectDatabase();
-        }
+        const db = this.connectDatabase2();
+        const query = 'INSERT INTO ' + table + '(' + col + ') VALUES(' + val + ')'; 
+        db.run(query, (err:any,arg:any)=>{});
+        this.disconnectDatabase2(db);
     }
     public async addUser(name: string, password: string){
         // 이름 중복 여부 확인
@@ -105,23 +76,25 @@ export class StrongboxDatabase{
         // 패스워드 암호화 // 패스워드+salt => crypto-js 의 sha256 이용
 
         const nickname = "'" + name + "'";
-
-        if(this.connectDatabase()){
+        try{
             let doubleCheck: any = await this.fetchDatabase('NAME','USERS_TB',"NAME = " + nickname); // 이름 겹치는거 꺼내오기
-            this.disconnectDatabase();
+
             if(doubleCheck.length > 0) return false; // 이름이 중복됨
             if(password.length !== 6) return false; // 비번이 6글자가 아님
 
 
             const salt = sha256((new Date()).toUTCString()); // salt 생성
             const encrypedPassword = sha256(password + salt); // e(pw+salt) 패스워드+솔트를 다시 sha256으로 암호화
-                
+                    
             const val = "'" + name + "', '" + encrypedPassword + "', '" + salt + "'";
             this.insert("USERS_TB","NAME,PASSWORD,SALT",val); // 테이블 삽입
 
             return true;
         }
-        return false;
+        catch(error){
+            console.error(error);
+            return false;
+        }
     }
     public async addGroup(userIDX:number, groupName:string){ // 동기식 위해 async 사용
         //매개변수로 유저idx, 그룹이름 받음
@@ -133,7 +106,8 @@ export class StrongboxDatabase{
             const query = 'INSERT INTO GROUPS_TB(OWNER_IDX,GRP_NAME) VALUES(' + val + ')'; 
 
             return new Promise((succ, fail) =>{
-                StrongboxDatabase.db.run(query, function(this:typeof sqlite3, err:any,arg:any){ // 클래스 안의 함수 안에서 this를 쓰면 생기는 문제 this 정의해서 드디어 해결!!!!!
+                const db = this.connectDatabase2();
+                db.run(query, function(this:typeof sqlite3, err:any,arg:any){ // 클래스 안의 함수 안에서 this를 쓰면 생기는 문제 this 정의해서 드디어 해결!!!!!
                     if(err){
                         fail(err);
                     }else{
@@ -141,35 +115,33 @@ export class StrongboxDatabase{
                         succ(this.lastID);
                     }
                 });
+                this.disconnectDatabase2(db);
             });
         }
 
-        if(this.connectDatabase()){
-            const rowid = await getRowIDFromInsertGroup();
-            this.disconnectDatabase();
-            return [rowid, groupName];
-        }
+        const rowid = await getRowIDFromInsertGroup();
+        return [rowid, groupName];
     }
     public deleteGroup(groupIDX:number){
-        if(this.connectDatabase()){
+        try{
+            const db = this.connectDatabase2();
             const query = 'DELETE FROM GROUPS_TB WHERE IDX = ' + groupIDX;
-            StrongboxDatabase.db.run(query);
-            this.disconnectDatabase();
+            db.run(query);
+            this.disconnectDatabase2(db);
             return true;
+        }catch(error){
+            console.error(error);
+            return false;
         }
-        return false;
     }
     public async getGroupList(userIDX:number){
         //매개변수로 유저idx
         // 유저idx이용해 그룹 리스트 받아와 json 형태로 리턴
-        if(this.connectDatabase()){
-            try {
-                const promiseList = await this.fetchDatabase("IDX,GRP_NAME","GROUPS_TB","OWNER_IDX = " + userIDX);
-                this.disconnectDatabase();
-                return promiseList;
-            }catch(error){
-                return error;
-            }
+        try {
+            const promiseList = await this.fetchDatabase("IDX,GRP_NAME","GROUPS_TB","OWNER_IDX = " + userIDX);
+            return promiseList;
+        }catch(error){
+            return error;
         }
 
     }
@@ -182,7 +154,8 @@ export class StrongboxDatabase{
             const query = 'INSERT INTO SERVICES_TB(GRP_IDX,SERVICE_NAME) VALUES(' + val + ')'; 
 
             return new Promise((succ, fail) =>{
-                StrongboxDatabase.db.run(query, function(this:typeof sqlite3, err:any,arg:any){ 
+                const db = this.connectDatabase2();
+                db.run(query, function(this:typeof sqlite3, err:any,arg:any){ 
                     if(err){
                         fail(err);
                     }else{
@@ -190,52 +163,46 @@ export class StrongboxDatabase{
                         succ(this.lastID);
                     }
                 });
+                this.disconnectDatabase2(db);
             });
         }
 
-        if(this.connectDatabase()){
-            const rowid = await getRowIDFromInsertService();
-            this.disconnectDatabase();
-            return [rowid, serviceName];
-        }
+        const rowid = await getRowIDFromInsertService();
+        return [rowid, serviceName];
     }
     public async getServiceList(groupIDX:number){
         //매개변수로 그룹idx
         // select로 그룹idx이용해 서비스 리스트 받아와 json 형태로 리턴
-        if(this.connectDatabase()){
-            try {
-                const promiseList = await this.fetchDatabase("IDX,SERVICE_NAME","SERVICES_TB","GRP_IDX = " + groupIDX);
-                this.disconnectDatabase();
-                return promiseList;
-            }catch(error){
-                return error;
-            }
+        try {
+            const promiseList = await this.fetchDatabase("IDX,SERVICE_NAME","SERVICES_TB","GRP_IDX = " + groupIDX);
+            return promiseList;
+        }catch(error){
+            return error;
         }
     }
     public async getServiceListByUserIDX(userIDX:number){
         const fetch = (userIDX:number) =>{
             //Promise 이용하여 DB에서 받아와주는 함수
             return new Promise((succ, fail) =>{//GROUPS_TB.GRP_NAME,SERVICES_TB.GRP_IDX,SERVICES_TB.IDX AS SERVICE_IDX,SERVICES_TB.SERVICE_NAME
+                const db = this.connectDatabase2();
                 let query = 'SELECT GROUPS_TB.GRP_NAME,SERVICES_TB.GRP_IDX,SERVICES_TB.IDX AS SERVICE_IDX,SERVICES_TB.SERVICE_NAME FROM GROUPS_TB JOIN SERVICES_TB ON GROUPS_TB.IDX = SERVICES_TB.GRP_IDX WHERE OWNER_IDX = ' + userIDX;
                 //그룹IDX, 서비스IDX, 서비스이름
-                StrongboxDatabase.db.all(query, [], (err: any, arg: any) =>{
+                db.all(query, [], (err: any, arg: any) =>{
                     if (err) {
                         fail(err);
                     } else {
                         succ(arg);
                     } 
                 });
+                this.disconnectDatabase2(db);
             });
         }
-        if(this.connectDatabase()){
-            try {
-                const promiseList = await fetch(userIDX);
-                this.disconnectDatabase();
-                return promiseList;
-            }catch(error){
-                return error;
-            }
-        }       
+        try {
+            const promiseList = await fetch(userIDX);
+            return promiseList;
+        }catch(error){
+            return error;
+        }    
     }
     public async addAccount(serviceIDX:number, accountName:string, account: {OAuthAccountIDX?:number, id?:string, password?:string}){
 
@@ -261,7 +228,8 @@ export class StrongboxDatabase{
                 query = 'INSERT INTO ACCOUNTS_TB(SERVICE_IDX,ACCOUNT_NAME,ID,PASSWORD) VALUES(' + val + ')'; 
             }
             return new Promise((succ, fail) =>{
-                StrongboxDatabase.db.run(query, function(this:typeof sqlite3, err:any,arg:any){ 
+                const db = this.connectDatabase2();
+                db.run(query, function(this:typeof sqlite3, err:any,arg:any){ 
                     if(err){
                         fail(err);
                     }else{
@@ -269,17 +237,15 @@ export class StrongboxDatabase{
                         succ(this.lastID);
                     }
                 });
+                this.disconnectDatabase2(db);
             });
         }
 
-        if(this.connectDatabase()){
-            const rowid = await getRowIDFromInsertAccount();
-            this.disconnectDatabase();
-            const date = new Date();
-            const now = date.getFullYear() + "-" + date.getMonth() + "-" + date.getDate() + " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
-            const result = {ROWID: rowid,DATE:now, NAME:accountName,SERVICE_IDX:serviceIDX,OAuthIDX:account.OAuthAccountIDX,ID:account.id,PASSWORD:account.password};
-            return result;
-        }
+        const rowid = await getRowIDFromInsertAccount();
+        const date = new Date();
+        const now = date.getFullYear() + "-" + date.getMonth() + "-" + date.getDate() + " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+        const result = {ROWID: rowid,DATE:now, NAME:accountName,SERVICE_IDX:serviceIDX,OAuthIDX:account.OAuthAccountIDX,ID:account.id,PASSWORD:account.password};
+        return result;
     }
 
     public async getAccountList(userIDX:number){
@@ -291,7 +257,8 @@ export class StrongboxDatabase{
                 +'JOIN GROUPS_TB ON SERVICES_TB.GRP_IDX = GROUPS_TB.IDX '
                 +'WHERE GROUPS_TB.OWNER_IDX = ' + userIDX;
 
-                StrongboxDatabase.db.all(query, [], (err: any, arg: any) =>{
+                const db = this.connectDatabase2();
+                db.all(query, [], (err: any, arg: any) =>{
                     if (err) {
                         console.log(err);
                         fail(err);
@@ -299,6 +266,7 @@ export class StrongboxDatabase{
                         succ(arg);
                     } 
                 });
+                this.disconnectDatabase2(db);
             });
         }
         const fetchOAuthAccount = (oauthIDXArr:any) =>{
@@ -323,14 +291,14 @@ export class StrongboxDatabase{
                 this.disconnectDatabase2(db);
             });
         }
-        if(this.connectDatabase()){
-            try {
-                const allAccountList:any = await fetchAllAccount(userIDX);
-                //
-                const list = [];
-                for(let i = 0 ; i < allAccountList.length ; i++){
-                    if(allAccountList[i].OAUTH_LOGIN_IDX) list.push(allAccountList[i].OAUTH_LOGIN_IDX);
-                }
+        try {
+            const allAccountList:any = await fetchAllAccount(userIDX);
+            
+            const list = [];
+            for(let i = 0 ; i < allAccountList.length ; i++){
+                if(allAccountList[i].OAUTH_LOGIN_IDX) list.push(allAccountList[i].OAUTH_LOGIN_IDX);
+            }
+            if(list.length > 0){
                 const oauthAccountList:any = await fetchOAuthAccount(list);
 
                 for(let i = 0 ; i < allAccountList.length ; i++){
@@ -342,12 +310,10 @@ export class StrongboxDatabase{
                         }
                     }
                 }
-                //
-                this.disconnectDatabase();
-                return allAccountList;
-            }catch(error){
-                return error;
             }
-        }       
+            return allAccountList;
+        }catch(error){
+            return error;
+        }  
     }    
 }
