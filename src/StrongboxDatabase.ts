@@ -316,4 +316,16 @@ export class StrongboxDatabase{
             return error;
         }  
     }    
+    public deleteAccount(accountIDX:number){
+        try{
+            const db = this.connectDatabase();
+            const query = 'DELETE FROM ACCOUNTS_TB WHERE IDX = ' + accountIDX;
+            db.run(query);
+            this.disconnectDatabase(db);
+            return true;
+        }catch(error){
+            console.error(error);
+            return false;
+        }
+    }
 }
