@@ -164,6 +164,7 @@ interface ServiceItemProps{
     serviceName:string;
 }
 const ServiceItem = ({serviceIDX,serviceName}:ServiceItemProps) =>{
+    const [deleteServicePopup, setDeleteServicePopup] = useState(false);
     const dispatch = useDispatch(); 
     const CONTEXT_ID = "serviceItemContext" + serviceIDX;
     const selectedService = useSelector((state: RootState)=>state.selectedService.itemIndex);
@@ -182,23 +183,30 @@ const ServiceItem = ({serviceIDX,serviceName}:ServiceItemProps) =>{
     const onClickMenu = (e:any, data:any) =>{
         switch(data.action){
             case 'deleteService':
-                //만약 삭제하고자 하는 서비스가 선택 중인 서비스라면 selectedService 초기화
-                if(selectedService.idx === serviceIDX) updateSelectedItem({idx:-1,name:"no-name"});
-
-                //삭제하고자 하는 서비스idx에 해당하는 accountList redux 삭제 // filter로 거른 후 update
-                updateAccountList(accountList.filter((row:any)=>{return row.SERVICE_IDX !== serviceIDX}));
-
-                //DB 및 service리스트에서 삭제
-                const database = StrongboxDatabase.getInstance();
-                database.deleteService(serviceIDX);
-                deleteServiceList(serviceIDX);
+                setDeleteServicePopup(true);
                 break;
             default:
                 break;
         }
     }
 
+    const deleteServiceByIDX = (idx:number) =>{
+        //만약 삭제하고자 하는 서비스가 선택 중인 서비스라면 selectedService 초기화
+        if(selectedService.idx === serviceIDX) updateSelectedItem({idx:-1,name:"no-name"});
+
+        //삭제하고자 하는 서비스idx에 해당하는 accountList redux 삭제 // filter로 거른 후 update
+        updateAccountList(accountList.filter((row:any)=>{return row.SERVICE_IDX !== serviceIDX}));
+
+        //DB 및 service리스트에서 삭제
+        const database = StrongboxDatabase.getInstance();
+        database.deleteService(serviceIDX);
+        deleteServiceList(serviceIDX);
+    }
+
     return <div>
+        {
+            deleteServicePopup === true && <PopupWarning message="정말 해당 계정을 삭제하시겠습니까?" onAgree={deleteServiceByIDX} onDeny={()=>{setDeleteServicePopup(false)}} onBackgroundClicked={()=>{setDeleteServicePopup(false)}} />
+        }
         <ContextMenu id={CONTEXT_ID}>
             <MenuItem onClick={onClickMenu} data={{ action: 'deleteService', idx: serviceIDX }}>'{serviceName}' 계정 삭제</MenuItem>
         </ContextMenu>
