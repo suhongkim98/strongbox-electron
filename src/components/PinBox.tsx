@@ -53,7 +53,7 @@ const PinBox = ({getPinFunc}:PinBoxProps) =>{
         setPinNumber(e.target.value);
     }
 
-    return <TotalWrapper><InputBox type="text" onChange={onChangeInput} />
+    return <TotalWrapper><InputBox type="text" onChange={onChangeInput} maxLength={PIN_LENGTH} />
     <Box isChecked={checked[0]}/><Box isChecked={checked[1]}/><Box isChecked={checked[2]}/>
     <Box isChecked={checked[3]}/><Box isChecked={checked[4]}/><Box isChecked={checked[5]}/>
     </TotalWrapper>
