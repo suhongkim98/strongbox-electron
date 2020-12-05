@@ -8,12 +8,14 @@ import { RootState } from '../modules';
 import AddServcePopup from './AddServicePopup';
 import Span from './Span';
 import { updateSelectedItemIndex } from '../modules/selectedService';
+import {updateAccount} from '../modules/accountList';
 import { deleteGroup } from '../modules/groupList';
 
 import '../styles/css/react-contextmenu.css'; //contextmenu 사용 시 추가해야함
 import '../styles/css/custom.css'; // 
 import { StrongboxDatabase } from '../StrongboxDatabase';
 import PopupWarning from './PopupWarning';
+import { deleteService } from '../modules/serviceList';
 
 interface GroupFolderProps{
     groupIdx:number;
@@ -44,7 +46,7 @@ const ServiceList = styled.div`
 width:100%;
 padding: 0 10px 5px 25px;
 `;
-const ServiceItem = styled.div`
+const ServiceItemWrapper = styled.div`
 margin-bottom:5px;
 :hover{
     Span{
@@ -111,9 +113,7 @@ const GroupFolder = ({groupIdx,groupName}:GroupFolderProps) =>{
                 break;
         }
     }
-    const updateSelectedItem = (newItem: any) =>{
-        dispatch(updateSelectedItemIndex(newItem));
-    }
+
     const deleteGroupByIDX = () =>{
         const database = StrongboxDatabase.getInstance();
         if(database.deleteGroup(groupIdx) === true){
@@ -151,12 +151,63 @@ const GroupFolder = ({groupIdx,groupName}:GroupFolderProps) =>{
             {serviceList.map((data:any)=>
             {
                 if(data.GRP_IDX !== groupIdx) return null;
-                return <ServiceItem key={data.SERVICE_IDX} onClick={() => { updateSelectedItem({idx:data.SERVICE_IDX,name:data.SERVICE_NAME})}} ><Span textColor="white" size="2rem">{data.SERVICE_NAME}</Span></ServiceItem>
+                return <ServiceItem key={data.SERVICE_IDX} serviceIDX={data.SERVICE_IDX} serviceName={data.SERVICE_NAME}/>
             }
         )}
             </ServiceList>
         </BodyWrapper>
     </TotalWrapper>
+}
+
+interface ServiceItemProps{
+    serviceIDX:number;
+    serviceName:string;
+}
+const ServiceItem = ({serviceIDX,serviceName}:ServiceItemProps) =>{
+    const dispatch = useDispatch(); 
+    const CONTEXT_ID = "serviceItemContext" + serviceIDX;
+    const selectedService = useSelector((state: RootState)=>state.selectedService.itemIndex);
+    const accountList = useSelector((state: RootState)=>state.accountList.list);
+
+    const updateSelectedItem = (newItem: any) =>{
+        dispatch(updateSelectedItemIndex(newItem));
+    }
+    const updateAccountList = (newList: any) =>{
+        dispatch(updateAccount(newList));
+    }
+    const deleteServiceList = (item: any) =>{
+        dispatch(deleteService(item));
+    }
+
+    const onClickMenu = (e:any, data:any) =>{
+        switch(data.action){
+            case 'deleteService':
+                //만약 삭제하고자 하는 서비스가 선택 중인 서비스라면 selectedService 초기화
+                if(selectedService.idx === serviceIDX) updateSelectedItem({idx:-1,name:"no-name"});
+
+                //삭제하고자 하는 서비스idx에 해당하는 accountList redux 삭제 // filter로 거른 후 update
+                updateAccountList(accountList.filter((row:any)=>{return row.SERVICE_IDX !== serviceIDX}));
+
+                //DB 및 service리스트에서 삭제
+                const database = StrongboxDatabase.getInstance();
+                database.deleteService(serviceIDX);
+                deleteServiceList(serviceIDX);
+                break;
+            default:
+                break;
+        }
+    }
+
+    return <div>
+        <ContextMenu id={CONTEXT_ID}>
+            <MenuItem onClick={onClickMenu} data={{ action: 'deleteService', idx: serviceIDX }}>'{serviceName}' 계정 삭제</MenuItem>
+        </ContextMenu>
+        <ContextMenuTrigger id={CONTEXT_ID}>
+            <ServiceItemWrapper onClick={() => { updateSelectedItem({idx:serviceIDX,name:serviceName})}} >
+                <Span textColor="white" size="2rem">{serviceName}</Span>
+            </ServiceItemWrapper>
+        </ContextMenuTrigger>
+    </div>
 }
 
 export default GroupFolder;

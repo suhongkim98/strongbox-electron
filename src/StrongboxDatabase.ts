@@ -170,6 +170,19 @@ export class StrongboxDatabase{
         const rowid = await getRowIDFromInsertService();
         return [rowid, serviceName];
     }
+        
+    public deleteService(serviceIDX:number){
+        try{
+            const db = this.connectDatabase();
+            const query = 'DELETE FROM SERVICES_TB WHERE IDX = ' + serviceIDX;
+            db.run(query);
+            this.disconnectDatabase(db);
+            return true;
+        }catch(error){
+            console.error(error);
+            return false;
+        }
+    }
     public async getServiceList(groupIDX:number){
         //매개변수로 그룹idx
         // select로 그룹idx이용해 서비스 리스트 받아와 json 형태로 리턴
