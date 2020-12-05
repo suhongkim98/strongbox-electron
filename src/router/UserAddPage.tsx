@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import AnimInputBox from '../components/AnimInputBox';
 import FloatDiv from '../components/FloatDiv';
-import PinInputBox from '../components/PinInputBox';
 import { useForm } from "react-hook-form";
 import { StrongboxDatabase } from '../StrongboxDatabase';
 import { Redirect } from 'react-router-dom';
 import Span from '../components/Span';
+import PinBox from '../components/PinBox';
 
 const TotalWrapper = styled.div`
 height: 100vh;
@@ -89,7 +89,7 @@ const UserAddPage:React.FC = () =>{
             <RowWrapper>
                 <InputBoxWrapper><AnimInputBox inputType="text" label="닉네임" name="nicknameInputBox" hookFormRef={register({required: true, maxLength: 10})}/></InputBoxWrapper>
             </RowWrapper>
-            <RowWrapper><Span size="1.5rem">핀번호 입력</Span><InputBoxWrapper><PinInputBox count={6} getPinFunc={getPinNumber}/></InputBoxWrapper></RowWrapper>
+            <RowWrapper><Span size="1.5rem">핀번호 입력</Span><InputBoxWrapper><PinBox getPinFunc={getPinNumber}/></InputBoxWrapper></RowWrapper>
 
             <RowWrapper>
             {errors.nicknameInputBox?.type === "failedRegister" && <Span size="1.5rem" textColor="red" fontWeight={600}><br/><br/>{errors.nicknameInputBox.message}</Span>}

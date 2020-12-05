@@ -1,11 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import FloatDiv from '../components/FloatDiv';
-import PinInputBox from '../components/PinInputBox';
 import { StrongboxDatabase } from '../StrongboxDatabase';
 import sha256 from 'crypto-js/sha256';
 import { Redirect } from 'react-router-dom';
 import Span from '../components/Span';
+import PinBox from '../components/PinBox';
 
 const TotalWrapper = styled.div`
 height: 100vh;
@@ -63,7 +63,7 @@ const PasswordInputPage:React.FC = () =>{
         <FloatDiv width="500px" height="220px" title={name} returnURL="/">
             <InnerWrapper>
             <SpanWrapper><Span size="3rem" textColor="darkred" fontWeight={700}>PIN 입력</Span></SpanWrapper>
-            <PinInputBox count={6} getPinFunc={getPinNumber} />
+            <PinBox getPinFunc={getPinNumber}/>
             </InnerWrapper>
         </FloatDiv>
         </TotalWrapper>
