@@ -63,7 +63,7 @@ const PasswordInputPage:React.FC = () =>{
         <FloatDiv width="500px" height="220px" title={name} returnURL="/">
             <InnerWrapper>
             <SpanWrapper><Span size="3rem" textColor="darkred" fontWeight={700}>PIN 입력</Span></SpanWrapper>
-            <PinBox getPinFunc={getPinNumber}/>
+            <PinBox getPinFunc={getPinNumber} autoFocusing={true}/>
             </InnerWrapper>
         </FloatDiv>
         </TotalWrapper>

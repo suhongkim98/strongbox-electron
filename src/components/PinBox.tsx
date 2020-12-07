@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 interface PinBoxProps{
     getPinFunc: (pin:string)=> any;
+    autoFocusing?: boolean;
 }
 
 const TotalWrapper = styled.div`
@@ -33,7 +34,7 @@ border-radius:50%;
 background-color: ${props=>props.isChecked ? '#565666' : 'white'};
 `;
 
-const PinBox = ({getPinFunc}:PinBoxProps) =>{
+const PinBox = ({getPinFunc, autoFocusing}:PinBoxProps) =>{
     const PIN_LENGTH = 6; // pin번호 길이
     const [pinNumber, setPinNumber] = useState('');
     const [checked,setChecked] = useState([false, false, false, false, false, false])
@@ -53,7 +54,7 @@ const PinBox = ({getPinFunc}:PinBoxProps) =>{
         setPinNumber(e.target.value);
     }
 
-    return <TotalWrapper><InputBox type="text" onChange={onChangeInput} maxLength={PIN_LENGTH} />
+    return <TotalWrapper><InputBox type="text" onChange={onChangeInput} maxLength={PIN_LENGTH} autoFocus={autoFocusing} />
     <Box isChecked={checked[0]}/><Box isChecked={checked[1]}/><Box isChecked={checked[2]}/>
     <Box isChecked={checked[3]}/><Box isChecked={checked[4]}/><Box isChecked={checked[5]}/>
     </TotalWrapper>

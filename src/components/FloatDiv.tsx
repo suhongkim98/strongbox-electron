@@ -23,7 +23,7 @@ ${({height}) =>
     `height:${height};`
 }
 background-color:white;
-box-shadow: 0 15px 25px rgba(0,0,0,.6);
+box-shadow: 0 6px 12px rgba(0,0,0,.175);
 
 display:flex;
 flex-direction:column;

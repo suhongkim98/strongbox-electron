@@ -157,9 +157,9 @@ const GroupFolder = ({groupIdx,groupName}:GroupFolderProps) =>{
             <MenuItem onClick={onClickMenu} data={{ action: 'editFolder' }}>편집</MenuItem>
         </ContextMenu>
             <ContextMenuTrigger id={CONTEXT_ID}>
-        <HeaderWrapper>
+        <HeaderWrapper onClick={onClickToggleBtn}>
             <HeaderInnerWrapper><Span size="2rem" textColor="gray">{groupName}</Span></HeaderInnerWrapper>
-            <HeaderInnerWrapper onClick={onClickToggleBtn}>
+            <HeaderInnerWrapper>
                 {
                     toggle ? <MinusSVG width="20px" height="20px" color="gray" /> : <PlusSVG width="20px" height="20px" color="gray" />
                 }

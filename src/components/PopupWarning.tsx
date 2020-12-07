@@ -27,14 +27,14 @@ const Background = styled.div`
 width:100%;
 height:100%;
 background-color:black;
-opacity:0.5;
+opacity:0.9;
 `;
 const FloatWrapper = styled.div`
 position: absolute;
 width:450px;
 min-height:180px; //높이는 메세지 길이에 따라 늘어날 수 있어야 함
 background-color:${theme.colors.containerMainColor};
-box-shadow: 0 15px 25px rgba(0,0,0,.6);
+box-shadow: 0 6px 12px rgba(0,0,0,.175);
 
 display:flex;
 flex-direction:column;
@@ -46,12 +46,13 @@ border-color:black;
 `;
 const HeaderWrapper = styled.div`
 width:100%;
-height:60px;
+height:40px;
 display:flex;
 justify-content:space-between;
+align-items:center;
 `;
 const HeaderInnerWrapper = styled.div`
-margin:15px;
+margin:0 15px 0 15px;
 `;
 const BodyWrapper = styled.div`
 width:100%;
@@ -88,8 +89,8 @@ cursor:pointer;
 margin: 4px 2px;
 `;
 const Img = styled.img`
-width:30px;
-height:30px;
+width:25px;
+height:25px;
 `;
 //모든 팝업창은 이 컨포넌트를 백그라운드로 사용하자
 const PopupWarning = ({onBackgroundClicked, message, onAgree, onDeny}:PopupWarningProps) =>{
