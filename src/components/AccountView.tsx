@@ -34,6 +34,7 @@ overflow-y:scroll;
 `;
 const CardWrapper = styled.div`
 width:100%;
+min-width: 400px;
 height:100%;
 background-color:white;
 

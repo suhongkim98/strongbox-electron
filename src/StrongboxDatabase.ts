@@ -1,6 +1,6 @@
 import {DB_PATH} from './environment';
 import sha256 from 'crypto-js/sha256';
-import { AES} from 'crypto-js';
+import { AES, enc } from 'crypto-js';
 const sqlite3 = window.require('sqlite3');
 
 // 이 클래스로만 db에 접근하도록 하자
@@ -255,9 +255,15 @@ export class StrongboxDatabase{
         }
 
         const rowid = await getRowIDFromInsertAccount();
+        let [id, password] = [account.id, account.password];
+        if(account.OAuthAccountIDX) { // oauth계정 추가한거라면 db에서 해당 id, pw를 꺼냄
+            const oauthRow: any = await this.fetchDatabase("ID, PASSWORD", "ACCOUNTS_TB", "IDX = " + account.OAuthAccountIDX);
+            const decryped = (AES.decrypt(oauthRow[0].PASSWORD, global.key)).toString(enc.Utf8);
+            [id, password] = [oauthRow[0].ID, decryped];
+        }
         const date = new Date();
         const now = date.getFullYear() + "-" + date.getMonth() + "-" + date.getDate() + " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
-        const result = {ROWID: rowid,DATE:now, NAME:accountName,SERVICE_IDX:serviceIDX,OAuthIDX:account.OAuthAccountIDX,ID:account.id,PASSWORD:account.password};
+        const result = {ROWID: rowid,DATE:now, NAME:accountName,SERVICE_IDX:serviceIDX,OAuthIDX:account.OAuthAccountIDX,ID:id,PASSWORD:password};
         return result;
     }
 
