@@ -117,26 +117,35 @@ const tableInit = () => {
 
       query = 'CREATE TABLE IF NOT EXISTS "GROUPS_TB" (' +
           '"IDX"	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,' +
+          '"SORT_ORDER" INTEGER DEFAULT -1,' +
           '"OWNER_IDX"	INTEGER NOT NULL,' +
           '"GRP_NAME"	TEXT DEFAULT "no-name",' +
           'FOREIGN KEY("OWNER_IDX") REFERENCES "USERS_TB"("IDX") ON UPDATE CASCADE ON DELETE CASCADE' +
       ');';
       db.run(query,[], (arg:any) =>{
+          if(arg) {
+            console.log(arg);
+          }
           console.log('create init table GROUPS_TB');
       });
 
       query = 'CREATE TABLE IF NOT EXISTS "SERVICES_TB" (' +
           '"IDX"	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,' +
+          '"SORT_ORDER" INTEGER DEFAULT -1,' +
           '"GRP_IDX"	INTEGER NOT NULL,' +
           '"SERVICE_NAME"	TEXT DEFAULT "no name",' +
           'FOREIGN KEY("GRP_IDX") REFERENCES "GROUPS_TB"("IDX") ON UPDATE CASCADE ON DELETE CASCADE' +
       ');';
       db.run(query,[], (arg:any) =>{
+        if(arg) {
+          console.log(arg);
+        }
           console.log('create init table SERVICES_TB');
       });
 
       query = 'CREATE TABLE "ACCOUNTS_TB" (' +
           '"IDX"	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,' +
+          '"SORT_ORDER" INTEGER DEFAULT -1,' +
           '"DATE"	DATETIME DEFAULT (datetime(\'now\',\'localtime\')),' +
           '"SERVICE_IDX"	INTEGER NOT NULL,' +
           '"ACCOUNT_NAME"	TEXT DEFAULT "no name",' +
@@ -147,6 +156,9 @@ const tableInit = () => {
           'FOREIGN KEY("OAUTH_LOGIN_IDX") REFERENCES "ACCOUNTS_TB"("IDX") ON UPDATE CASCADE ON DELETE CASCADE' +
       ');';
       db.run(query,[], (arg:any) =>{
+        if(arg) {
+          console.log(arg);
+        }
           console.log('create init table ACCOUNTS_TB');
       });
 

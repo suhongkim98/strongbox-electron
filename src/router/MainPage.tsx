@@ -169,18 +169,39 @@ const MainPage:React.FC = () =>{
         });
 
         database.getGroupList(global.idx).then((result)=>{
-            updateGroupList(result.map((data:any)=>{return {GRP_IDX: data.IDX, GRP_NAME: data.GRP_NAME}}));
+            updateGroupList(result.map((data:any)=>{return {
+                GRP_IDX: data.IDX, 
+                GRP_NAME: data.GRP_NAME, 
+                ORDER: data.SORT_ORDER
+            }}));
         });
 
         database.getServiceListByUserIDX(global.idx).then((result)=>{
-            updateServiceList(result.map((data:any)=>{return {GRP_IDX: data.GRP_IDX,GRP_NAME: data.GRP_NAME, SERVICE_IDX: data.SERVICE_IDX, SERVICE_NAME: data.SERVICE_NAME}}));
+            updateServiceList(result.map((data:any) => 
+            {return {
+                GRP_IDX: data.GRP_IDX,
+                ORDER: data.SERVICE_ORDER,
+                GRP_NAME: data.GRP_NAME, 
+                SERVICE_IDX: data.SERVICE_IDX, 
+                SERVICE_NAME: data.SERVICE_NAME
+            }}));
         }).catch((error)=>{
             console.log(error);
         });
 
         database.getAccountList(global.idx).then((result)=>{
             updateAccountList(result.map((data:any)=>{
-                let json:any = {ACCOUNT_IDX:data.IDX,SERVICE_IDX:data.SERVICE_IDX,ACCOUNT_NAME:data.ACCOUNT_NAME,DATE:data.DATE,OAUTH_LOGIN_IDX:data.OAUTH_LOGIN_IDX,OAUTH_SERVICE_NAME:data.OAUTH_SERVICE_NAME,ID:data.ID,PASSWORD:data.PASSWORD}; // 기본항목
+                let json:any = {
+                    ACCOUNT_IDX:data.IDX,
+                    ORDER: data.ACCOUNT_ORDER,
+                    SERVICE_IDX:data.SERVICE_IDX,
+                    ACCOUNT_NAME:data.ACCOUNT_NAME,
+                    DATE:data.DATE,
+                    OAUTH_LOGIN_IDX:data.OAUTH_LOGIN_IDX,
+                    OAUTH_SERVICE_NAME:data.OAUTH_SERVICE_NAME,
+                    ID:data.ID,
+                    PASSWORD:data.PASSWORD}; // 기본항목
+
                 if(data.PASSWORD){
                     //패스워드가 존재하다면 복호화
                 const decrypted = (AES.decrypt(data.PASSWORD, global.key)).toString(enc.Utf8);

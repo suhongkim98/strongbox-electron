@@ -30,13 +30,33 @@ export class StrongboxDatabase{
             }
         });
     }
+    private getColumnCount = (column: string, table: string) => {
+        return new Promise((succ, fail) =>{
+            let query = 'SELECT MAX(' + column +') AS COUNT FROM ' + table;
+            const db = this.connectDatabase();
+            db.all(query, [], (err: any, arg: any) =>{
+                if (err) {
+                    fail(err);
+                } else {
+                    succ(arg);
+                } 
+            });
+            this.disconnectDatabase(db);
+        });
+    }
 
-    private fetchDatabase = (col: string, table: string, where?: string) =>{
+    private fetchDatabase = (col: string, table: string, where?: string, orderBy?: string, orderType?: string) =>{
         //Promise 이용하여 DB에서 받아와주는 함수
         return new Promise((succ, fail) =>{
             let query = 'SELECT ' + col + ' FROM ' + table;
             if(where){
                 query += ' WHERE ' + where;
+            }
+            if(orderBy) {
+                query += ' ORDER BY ' + orderBy;
+            }
+            if(orderType) {
+                query += ' ' + orderType;
             }
             const db = this.connectDatabase();
             db.all(query, [], (err: any, arg: any) =>{
@@ -102,8 +122,8 @@ export class StrongboxDatabase{
         //owner_idx에 idx 넣고 그룹생성
         const getRowIDFromInsertGroup = () =>{
             //Promise 이용하여 DB에 그룹 추가하고 rowid 받아오는 함수
-            const val = userIDX + ", '" + groupName + "'";
-            const query = 'INSERT INTO GROUPS_TB(OWNER_IDX,GRP_NAME) VALUES(' + val + ')'; 
+            const val = userIDX + ", '" + groupName + "', (SELECT IFNULL(MAX(SORT_ORDER), 0) + 1 FROM GROUPS_TB)";
+            const query = 'INSERT INTO GROUPS_TB(OWNER_IDX,GRP_NAME,SORT_ORDER) VALUES(' + val + ')'; 
 
             return new Promise((succ, fail) =>{
                 const db = this.connectDatabase();
@@ -120,7 +140,9 @@ export class StrongboxDatabase{
         }
 
         const rowid = await getRowIDFromInsertGroup();
-        return [rowid, groupName];
+        const orderCount: any = await this.getColumnCount("SORT_ORDER","GROUPS_TB");
+        const result = {rowid: rowid, ORDER: orderCount[0].COUNT, groupName: groupName};
+        return result;
     }
     public deleteGroup(groupIDX:number){
         try{
@@ -138,7 +160,7 @@ export class StrongboxDatabase{
         //매개변수로 유저idx
         // 유저idx이용해 그룹 리스트 받아와 json 형태로 리턴
         try {
-            const promiseList = await this.fetchDatabase("IDX,GRP_NAME","GROUPS_TB","OWNER_IDX = " + userIDX);
+            const promiseList = await this.fetchDatabase("IDX,GRP_NAME,SORT_ORDER","GROUPS_TB","OWNER_IDX = " + userIDX, "SORT_ORDER", "ASC");
             return promiseList;
         }catch(error){
             return error;
@@ -150,8 +172,8 @@ export class StrongboxDatabase{
         //grp_idx에 그룹idx넣고 서비스 생성
         const getRowIDFromInsertService = () =>{
             //Promise 이용하여 DB에 서비스 추가하고 rowid 받아오는 함수
-            const val = groupIDX + ", '" + serviceName + "'";
-            const query = 'INSERT INTO SERVICES_TB(GRP_IDX,SERVICE_NAME) VALUES(' + val + ')'; 
+            const val = groupIDX + ", '" + serviceName + "', (SELECT IFNULL(MAX(SORT_ORDER), 0) + 1 FROM SERVICES_TB)";
+            const query = 'INSERT INTO SERVICES_TB(GRP_IDX,SERVICE_NAME,SORT_ORDER) VALUES(' + val + ')'; 
 
             return new Promise((succ, fail) =>{
                 const db = this.connectDatabase();
@@ -168,7 +190,9 @@ export class StrongboxDatabase{
         }
 
         const rowid = await getRowIDFromInsertService();
-        return [rowid, serviceName];
+        const orderCount: any = await this.getColumnCount("SORT_ORDER","SERVICES_TB");
+        const result = {rowid: rowid, ORDER: orderCount[0].COUNT, serviceName: serviceName};
+        return result;
     }
         
     public deleteService(serviceIDX:number){
@@ -187,7 +211,7 @@ export class StrongboxDatabase{
         //매개변수로 그룹idx
         // select로 그룹idx이용해 서비스 리스트 받아와 json 형태로 리턴
         try {
-            const promiseList = await this.fetchDatabase("IDX,SERVICE_NAME","SERVICES_TB","GRP_IDX = " + groupIDX);
+            const promiseList = await this.fetchDatabase("IDX,SERVICE_NAME,SORT_ORDER","SERVICES_TB","GRP_IDX = " + groupIDX, "SORT_ORDER", "ASC");
             return promiseList;
         }catch(error){
             return error;
@@ -196,9 +220,11 @@ export class StrongboxDatabase{
     public async getServiceListByUserIDX(userIDX:number){
         const fetch = (userIDX:number) =>{
             //Promise 이용하여 DB에서 받아와주는 함수
-            return new Promise((succ, fail) =>{//GROUPS_TB.GRP_NAME,SERVICES_TB.GRP_IDX,SERVICES_TB.IDX AS SERVICE_IDX,SERVICES_TB.SERVICE_NAME
+            return new Promise((succ, fail) =>{
                 const db = this.connectDatabase();
-                let query = 'SELECT GROUPS_TB.GRP_NAME,SERVICES_TB.GRP_IDX,SERVICES_TB.IDX AS SERVICE_IDX,SERVICES_TB.SERVICE_NAME FROM GROUPS_TB JOIN SERVICES_TB ON GROUPS_TB.IDX = SERVICES_TB.GRP_IDX WHERE OWNER_IDX = ' + userIDX;
+                let query = 'SELECT GROUPS_TB.GRP_NAME,SERVICES_TB.GRP_IDX,SERVICES_TB.IDX AS SERVICE_IDX,SERVICES_TB.SORT_ORDER AS SERVICE_ORDER,SERVICES_TB.SERVICE_NAME ' +
+                'FROM GROUPS_TB JOIN SERVICES_TB ON GROUPS_TB.IDX = SERVICES_TB.GRP_IDX WHERE OWNER_IDX = ' + userIDX +
+                ' ORDER BY SERVICES_TB.SORT_ORDER ASC';
                 //그룹IDX, 서비스IDX, 서비스이름
                 db.all(query, [], (err: any, arg: any) =>{
                     if (err) {
@@ -232,13 +258,13 @@ export class StrongboxDatabase{
             //Promise 이용하여 DB에 추가하고 rowid 받아오는 함수
             let query:string;
             if(account.OAuthAccountIDX){
-                const val = "'"+accountName + "', " + serviceIDX + ", " + account.OAuthAccountIDX;
-                query = 'INSERT INTO ACCOUNTS_TB(ACCOUNT_NAME,SERVICE_IDX,OAUTH_LOGIN_IDX) VALUES(' + val + ')'; 
+                const val = "'"+accountName + "', " + serviceIDX + ", " + account.OAuthAccountIDX + ", (SELECT IFNULL(MAX(SORT_ORDER), 0) + 1 FROM ACCOUNTS_TB)";
+                query = 'INSERT INTO ACCOUNTS_TB(ACCOUNT_NAME,SERVICE_IDX,OAUTH_LOGIN_IDX,SORT_ORDER) VALUES(' + val + ')'; 
             }else{
                 const key = global.key;
                 encrypedPassword = AES.encrypt(account.password as string, key);
-                const val = serviceIDX + ", '" + accountName + "', '" + account.id +"', '" + encrypedPassword+"'";
-                query = 'INSERT INTO ACCOUNTS_TB(SERVICE_IDX,ACCOUNT_NAME,ID,PASSWORD) VALUES(' + val + ')'; 
+                const val = serviceIDX + ", '" + accountName + "', '" + account.id +"', '" + encrypedPassword+"', (SELECT IFNULL(MAX(SORT_ORDER), 0) + 1 FROM ACCOUNTS_TB)";
+                query = 'INSERT INTO ACCOUNTS_TB(SERVICE_IDX,ACCOUNT_NAME,ID,PASSWORD,SORT_ORDER) VALUES(' + val + ')'; 
             }
             return new Promise((succ, fail) =>{
                 const db = this.connectDatabase();
@@ -255,6 +281,7 @@ export class StrongboxDatabase{
         }
 
         const rowid = await getRowIDFromInsertAccount();
+        const orderCount: any = await this.getColumnCount("SORT_ORDER","ACCOUNTS_TB");
         let [id, password] = [account.id, account.password];
         if(account.OAuthAccountIDX) { // oauth계정 추가한거라면 db에서 해당 id, pw를 꺼냄
             const oauthRow: any = await this.fetchDatabase("ID, PASSWORD", "ACCOUNTS_TB", "IDX = " + account.OAuthAccountIDX);
@@ -263,7 +290,15 @@ export class StrongboxDatabase{
         }
         const date = new Date();
         const now = date.getFullYear() + "-" + date.getMonth() + "-" + date.getDate() + " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
-        const result = {ROWID: rowid,DATE:now, NAME:accountName,SERVICE_IDX:serviceIDX,OAuthIDX:account.OAuthAccountIDX,ID:id,PASSWORD:password};
+        const result = {
+            ROWID: rowid,
+            ORDER: orderCount[0].COUNT,
+            DATE:now, 
+            NAME:accountName,
+            SERVICE_IDX:serviceIDX,
+            OAuthIDX:account.OAuthAccountIDX,
+            ID:id,
+            PASSWORD:password};
         return result;
     }
 
@@ -271,10 +306,11 @@ export class StrongboxDatabase{
         const fetchAllAccount = (userIDX:number) =>{
             //Promise 이용하여 DB에서 받아와주는 함수
             return new Promise((succ, fail) =>{
-                let query = 'SELECT ACCOUNTS_TB.IDX,SERVICE_IDX,ACCOUNT_NAME,DATE,OAUTH_LOGIN_IDX,ID,PASSWORD FROM ACCOUNTS_TB '
-                +'JOIN SERVICES_TB ON ACCOUNTS_TB.SERVICE_IDX = SERVICES_TB.IDX '
-                +'JOIN GROUPS_TB ON SERVICES_TB.GRP_IDX = GROUPS_TB.IDX '
-                +'WHERE GROUPS_TB.OWNER_IDX = ' + userIDX;
+                let query = 'SELECT ACCOUNTS_TB.IDX,SERVICE_IDX,ACCOUNTS_TB.SORT_ORDER AS ACCOUNT_ORDER,ACCOUNT_NAME,DATE,OAUTH_LOGIN_IDX,ID,PASSWORD FROM ACCOUNTS_TB '
+                + 'JOIN SERVICES_TB ON ACCOUNTS_TB.SERVICE_IDX = SERVICES_TB.IDX '
+                + 'JOIN GROUPS_TB ON SERVICES_TB.GRP_IDX = GROUPS_TB.IDX '
+                + 'WHERE GROUPS_TB.OWNER_IDX = ' + userIDX
+                + ' ORDER BY ACCOUNTS_TB.SORT_ORDER ASC';
 
                 const db = this.connectDatabase();
                 db.all(query, [], (err: any, arg: any) =>{

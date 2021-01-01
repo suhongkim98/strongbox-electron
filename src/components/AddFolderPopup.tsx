@@ -45,8 +45,12 @@ const AddFolderPopup = ({onBackgroundClicked}:AddFolderPopupProps) =>{
             if(result){
             //데이터 넣기 성공 시
             //redux 이용해 mainPage 폴더리스트 리렌더링
-            console.log(result);
-            addGroupList({GRP_IDX: Number(result[0]), GRP_NAME: String(result[1])});
+            addGroupList(
+                {
+                    GRP_IDX: Number(result.rowid),
+                    GRP_NAME: String(result.groupName),
+                    SORT_ORDER: Number(result.ORDER)
+                });
             }else{
                 //실패 시
                 console.log("폴더추가 실패");

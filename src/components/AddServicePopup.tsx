@@ -50,7 +50,13 @@ const AddServcePopup = ({onBackgroundClicked,groupIdx}:AddServcePopupProps) =>{
         const database = StrongboxDatabase.getInstance();
         database.addService(groupIdx,serviceName).then((result)=>{
             if(result){
-                addServiceList({GRP_IDX: groupIdx, SERVICE_IDX: result[0], SERVICE_NAME: result[1]});
+                addServiceList(
+                    {
+                        GRP_IDX: groupIdx, 
+                        SERVICE_IDX: result.rowid, 
+                        SERVICE_NAME: result.serviceName,
+                        ORDER: result.ORDER
+                    });
                 onBackgroundClicked();
             }else{
                 //실패 시
