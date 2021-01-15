@@ -7,7 +7,6 @@ import groupList from './groupList';
 import serviceList from './serviceList';
 import selectedService from './selectedService';
 import accountList from './accountList';
-
 const rootReducer = combineReducers({
   counter,
   groupList,

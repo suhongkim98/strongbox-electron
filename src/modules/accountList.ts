@@ -1,47 +1,53 @@
 //계정리스트 상태관리 redux
 
+import { AES, enc } from "crypto-js";
+import { StrongboxDatabase } from "../StrongboxDatabase";
+
 const UPDATE = 'accountList/UPDATE' as const;
-const ADD = 'accountList/ADD' as const;
-const DELETE = 'accountList/DELETE' as const;
 
 export const updateAccount = (newList: any) => ({
   type: UPDATE,
-  payload: newList
+  payload: newList,
 });
-export const addAccount = (item: any) => ({
-  type: ADD,
-  payload: item
-});
-export const deleteAccount = (item: any) => ({
-  type: DELETE,
-  payload: item
-});
+// getState를 쓰지 않는다면 굳이 파라미터로 받아올 필요 없습니다.
+/* redux-thunk로 redux 동기처리 하기 */
+export const updateAccountAsync = (serviceIdx: number) => (dispatch: any) => {
+  const database = StrongboxDatabase.getInstance();
+  database
+    .getAccount(serviceIdx)
+    .then((result) => {
+      for (let i = 0; i < result.length; i++) {
+        //복호화
+        const decrypted = (AES.decrypt(result[i].PASSWORD, global.key)).toString(enc.Utf8);
+        result[i].PASSWORD = decrypted;
+      }
+      //result반환
+      dispatch(updateAccount(result));
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+};
+type accountListAction = ReturnType<typeof updateAccount>;
 
-type accountListAction =
-  | ReturnType<typeof updateAccount>
-  | ReturnType<typeof addAccount>
-  | ReturnType<typeof deleteAccount>;
+type accountListState = {
+  list: any;
+};
 
-  type accountListState = {
-    list: any; 
+const initialState: accountListState = {
+  list: [],
+};
+
+const accountList = (
+  state: accountListState = initialState,
+  action: accountListAction,
+) => {
+  switch (action.type) {
+    case UPDATE:
+      return {list: action.payload}; // 새로운 배열로 교체
+    default:
+      return state;
   }
-  
-  const initialState: accountListState = {
-    list: []
-  };
+};
 
-  const accountList = (state: accountListState = initialState, action: accountListAction) => {
-    switch (action.type) {
-      case UPDATE:
-        return { list: action.payload }; // 새로운 배열로 교체
-      case ADD:
-        return { list: [...state.list, action.payload]}; // 새로운 아이템 추가
-        case DELETE:
-          const newList = state.list.filter((row:any)=>{return row.ACCOUNT_IDX !== action.payload});
-          return { list: newList};
-      default:
-        return state;
-    }
-  }
-  
-  export default accountList;
+export default accountList;

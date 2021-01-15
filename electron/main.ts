@@ -146,20 +146,35 @@ const tableInit = () => {
       query = 'CREATE TABLE "ACCOUNTS_TB" (' +
           '"IDX"	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,' +
           '"SORT_ORDER" INTEGER DEFAULT -1,' +
-          '"DATE"	DATETIME DEFAULT (datetime(\'now\',\'localtime\')),' +
+          '"DATE"	TEXT,' +
           '"SERVICE_IDX"	INTEGER NOT NULL,' +
           '"ACCOUNT_NAME"	TEXT DEFAULT "no name",' +
-          '"OAUTH_LOGIN_IDX"	INTEGER,' +
           '"ID"	TEXT,' +
           '"PASSWORD"	TEXT,' +
-          'FOREIGN KEY("SERVICE_IDX") REFERENCES "SERVICES_TB"("IDX") ON UPDATE CASCADE ON DELETE CASCADE,' +
-          'FOREIGN KEY("OAUTH_LOGIN_IDX") REFERENCES "ACCOUNTS_TB"("IDX") ON UPDATE CASCADE ON DELETE CASCADE' +
+          'FOREIGN KEY("SERVICE_IDX") REFERENCES "SERVICES_TB"("IDX") ON UPDATE CASCADE ON DELETE CASCADE' +
       ');';
       db.run(query,[], (arg:any) =>{
         if(arg) {
           console.log(arg);
         }
           console.log('create init table ACCOUNTS_TB');
+      });
+
+      query = 'CREATE TABLE "OAUTH_ACCOUNTS_TB" (' +
+          '"IDX"	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,' +
+          '"ACCOUNT_IDX"	INTEGER NOT NULL,' +
+          '"ACCOUNT_NAME"	TEXT DEFAULT "no-name",' +
+          '"SERVICE_IDX"	INTEGER NOT NULL,' +
+          '"SORT_ORDER"	INTEGER DEFAULT -1,' +
+          '"DATE"	TEXT,' +
+          'FOREIGN KEY("ACCOUNT_IDX") REFERENCES "ACCOUNTS_TB"("IDX") ON UPDATE CASCADE ON DELETE CASCADE,' +
+          'FOREIGN KEY("SERVICE_IDX") REFERENCES "SERVICES_TB"("IDX") ON UPDATE CASCADE ON DELETE CASCADE' +
+      ');';
+      db.run(query,[], (arg:any) =>{
+        if(arg) {
+          console.log(arg);
+        }
+          console.log('create init table OAUTH_ACCOUNTS_TB');
       });
 
       db.close((err:any) => {

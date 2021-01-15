@@ -1,6 +1,6 @@
 import {DB_PATH} from './environment';
 import sha256 from 'crypto-js/sha256';
-import { AES, enc } from 'crypto-js';
+import { AES } from 'crypto-js';
 const sqlite3 = window.require('sqlite3');
 
 // 이 클래스로만 db에 접근하도록 하자
@@ -17,11 +17,13 @@ export class StrongboxDatabase{
     }
 
     private connectDatabase = () =>{
-        return new sqlite3.Database(DB_PATH, (err:any) =>{
+        const database = new sqlite3.Database(DB_PATH, (err:any) =>{
             if(err){
                 console.error(err.message);
             }
         });
+        database.run('PRAGMA foreign_keys = ON;'); //외래키 사용
+        return database;
     }
     private disconnectDatabase = (db:any) =>{
         db.close((err:any) => {
@@ -30,7 +32,7 @@ export class StrongboxDatabase{
             }
         });
     }
-    private getColumnCount = (column: string, table: string) => {
+    private getColumnMaxValue = (column: string, table: string) => {
         return new Promise((succ, fail) =>{
             let query = 'SELECT MAX(' + column +') AS COUNT FROM ' + table;
             const db = this.connectDatabase();
@@ -140,7 +142,7 @@ export class StrongboxDatabase{
         }
 
         const rowid = await getRowIDFromInsertGroup();
-        const orderCount: any = await this.getColumnCount("SORT_ORDER","GROUPS_TB");
+        const orderCount: any = await this.getColumnMaxValue("SORT_ORDER","GROUPS_TB");
         const result = {rowid: rowid, ORDER: orderCount[0].COUNT, groupName: groupName};
         return result;
     }
@@ -190,7 +192,7 @@ export class StrongboxDatabase{
         }
 
         const rowid = await getRowIDFromInsertService();
-        const orderCount: any = await this.getColumnCount("SORT_ORDER","SERVICES_TB");
+        const orderCount: any = await this.getColumnMaxValue("SORT_ORDER","SERVICES_TB");
         const result = {rowid: rowid, ORDER: orderCount[0].COUNT, serviceName: serviceName};
         return result;
     }
@@ -243,31 +245,14 @@ export class StrongboxDatabase{
             return error;
         }    
     }
-    public async addAccount(serviceIDX:number, accountName:string, account: {OAuthAccountIDX?:number, id?:string, password?:string}){
-
-        //매개변수로 서비스, 계정 이름, id, password,OAuthAccountIDX받음
-        //OAuthAccountIDX가 매개변수로 들어왔는지 체크 후 OAuthAccountIDX가 존재하다면 accountName,serviceIDX, OAuthAccountIDX를 쿼리에 집어넣음
-
-        //OAuthAccountIDX가 존재하지 않다면
-        //password를 글로벌 변수에 저장해둔 유저의 패스워드+salt키로 대칭키 AES 암호화 진행
-        //service_idx에 서비스idx넣고 
-        //serviceIDX, accountName, id, password 를 쿼리에 집어넣음
-        
-        let encrypedPassword;
-        const getRowIDFromInsertAccount = () =>{
-            //Promise 이용하여 DB에 추가하고 rowid 받아오는 함수
-            let query:string;
-            if(account.OAuthAccountIDX){
-                const val = "'"+accountName + "', " + serviceIDX + ", " + account.OAuthAccountIDX + ", (SELECT IFNULL(MAX(SORT_ORDER), 0) + 1 FROM ACCOUNTS_TB)";
-                query = 'INSERT INTO ACCOUNTS_TB(ACCOUNT_NAME,SERVICE_IDX,OAUTH_LOGIN_IDX,SORT_ORDER) VALUES(' + val + ')'; 
-            }else{
-                const key = global.key;
-                encrypedPassword = AES.encrypt(account.password as string, key);
-                const val = serviceIDX + ", '" + accountName + "', '" + account.id +"', '" + encrypedPassword+"', (SELECT IFNULL(MAX(SORT_ORDER), 0) + 1 FROM ACCOUNTS_TB)";
-                query = 'INSERT INTO ACCOUNTS_TB(SERVICE_IDX,ACCOUNT_NAME,ID,PASSWORD,SORT_ORDER) VALUES(' + val + ')'; 
-            }
-            return new Promise((succ, fail) =>{
-                const db = this.connectDatabase();
+    public async addAccount(serviceIdx: number, accountName: string, account: {OAuthAccountIDX?:number, id?:string, password?:string}) {
+        const insertAccount = (db:any, count: number) => {
+            const key = global.key;
+            const encrypedPassword = AES.encrypt(account.password as string, key);
+            const query =
+            'INSERT INTO ACCOUNTS_TB(SERVICE_IDX,ACCOUNT_NAME,ID,PASSWORD, SORT_ORDER, DATE) ' +
+            "VALUES(" + serviceIdx + ",'" + accountName + "','" + account.id + "','" + encrypedPassword + "'," + count + ",datetime('now', 'localtime'))";
+            return new Promise((succ, fail) => {
                 db.run(query, function(this:typeof sqlite3, err:any,arg:any){ 
                     if(err){
                         fail(err);
@@ -276,101 +261,111 @@ export class StrongboxDatabase{
                         succ(this.lastID);
                     }
                 });
-                this.disconnectDatabase(db);
             });
         }
-
-        const rowid = await getRowIDFromInsertAccount();
-        const orderCount: any = await this.getColumnCount("SORT_ORDER","ACCOUNTS_TB");
-        let [id, password] = [account.id, account.password];
-        if(account.OAuthAccountIDX) { // oauth계정 추가한거라면 db에서 해당 id, pw를 꺼냄
-            const oauthRow: any = await this.fetchDatabase("ID, PASSWORD", "ACCOUNTS_TB", "IDX = " + account.OAuthAccountIDX);
-            const decryped = (AES.decrypt(oauthRow[0].PASSWORD, global.key)).toString(enc.Utf8);
-            [id, password] = [oauthRow[0].ID, decryped];
+        const insertOauthAccount = (db:any, count: number) => {
+            const query =
+            'INSERT INTO OAUTH_ACCOUNTS_TB(ACCOUNT_IDX, ACCOUNT_NAME, SERVICE_IDX, SORT_ORDER, DATE) ' +
+            "VALUES(" + account.OAuthAccountIDX + ",'" + accountName + "'," + serviceIdx + "," + count + ",datetime('now', 'localtime'))";
+            return new Promise((succ, fail) => {
+                db.run(query, function(this:typeof sqlite3, err:any,arg:any){ 
+                    if(err){
+                        fail(err);
+                    }else{
+                        console.log(`A row has been inserted with rowid ${this.lastID}`);//rowid 받아내기
+                        succ(this.lastID);
+                    }
+                });
+            });
         }
-        const date = new Date();
-        const now = date.getFullYear() + "-" + date.getMonth() + "-" + date.getDate() + " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
-        const result = {
-            ROWID: rowid,
-            ORDER: orderCount[0].COUNT,
-            DATE:now, 
-            NAME:accountName,
-            SERVICE_IDX:serviceIDX,
-            OAuthIDX:account.OAuthAccountIDX,
-            ID:id,
-            PASSWORD:password};
-        return result;
+        const db = this.connectDatabase();
+        let rowId: any = -1;
+        const accountCount: any = await this.getColumnMaxValue('SORT_ORDER', 'ACCOUNTS_TB');
+        if(accountCount[0].COUNT == null) {
+            accountCount[0].COUNT = 0;
+        }
+        const oauthAccountCount: any = await this.getColumnMaxValue('SORT_ORDER', 'OAUTH_ACCOUNTS_TB');
+        if(oauthAccountCount[0].COUNT == null) {
+            oauthAccountCount[0].COUNT = 0;
+        }
+        let count = //sort order count
+          accountCount[0].COUNT >= oauthAccountCount[0].COUNT
+            ? accountCount[0].COUNT + 1
+            : oauthAccountCount[0].COUNT + 1;
+            
+        if(account.OAuthAccountIDX) {
+            //oauth 계정 추가
+            rowId = await insertOauthAccount(db, count);
+        } else {
+            //일반 계정 추가
+            rowId = await insertAccount(db, count);
+        }
+        this.disconnectDatabase(db);
+        return rowId;
     }
-
-    public async getAccountList(userIDX:number){
-        const fetchAllAccount = (userIDX:number) =>{
-            //Promise 이용하여 DB에서 받아와주는 함수
-            return new Promise((succ, fail) =>{
-                let query = 'SELECT ACCOUNTS_TB.IDX,SERVICE_IDX,ACCOUNTS_TB.SORT_ORDER AS ACCOUNT_ORDER,ACCOUNT_NAME,DATE,OAUTH_LOGIN_IDX,ID,PASSWORD FROM ACCOUNTS_TB '
-                + 'JOIN SERVICES_TB ON ACCOUNTS_TB.SERVICE_IDX = SERVICES_TB.IDX '
-                + 'JOIN GROUPS_TB ON SERVICES_TB.GRP_IDX = GROUPS_TB.IDX '
-                + 'WHERE GROUPS_TB.OWNER_IDX = ' + userIDX
-                + ' ORDER BY ACCOUNTS_TB.SORT_ORDER ASC';
-
-                const db = this.connectDatabase();
+    public async getAccount(serviceIdx: number) {
+        const getAccountList = (db: any) => {
+            let query = 'SELECT * FROM ACCOUNTS_TB WHERE SERVICE_IDX = ' + serviceIdx + ' ORDER BY SORT_ORDER ASC';
+            return new Promise((succ, fail) => {
                 db.all(query, [], (err: any, arg: any) =>{
-                    if (err) {
+                    if(err) {
                         console.log(err);
                         fail(err);
                     } else {
                         succ(arg);
-                    } 
+                    }
                 });
-                this.disconnectDatabase(db);
             });
         }
-        const fetchOAuthAccount = (oauthIDXArr:any) =>{
-            //oauthIDX를 넣으면 해당 idx의 계정이름, id, pw를 가져와서 json 업데이트를 하자
-            return new Promise((succ, fail) =>{
-                let idx = '(';
-                for(let i = 0; i < oauthIDXArr.length ; i++){
-                    idx += oauthIDXArr[i];
-                    if(i !== oauthIDXArr.length - 1) idx += ',';
-                    else idx += ')';
-                }
-                let query = 'SELECT ATB.IDX,STB.SERVICE_NAME,ATB.ACCOUNT_NAME,ATB.ID,ATB.PASSWORD FROM ACCOUNTS_TB ATB,SERVICES_TB STB '+
-                'WHERE ATB.IDX IN ' + idx + ' AND ATB.SERVICE_IDX = STB.IDX';
-                const db = this.connectDatabase();
+        const getOauthAccountList = (db: any) => {
+            let query = 'SELECT OTB.IDX, OTB.ACCOUNT_NAME, OTB.SORT_ORDER, OTB.DATE, STB.SERVICE_NAME AS OAUTH_SERVICE_NAME, ATB.ID, ATB.PASSWORD ' +
+            'FROM OAUTH_ACCOUNTS_TB OTB ' +
+            'JOIN ACCOUNTS_TB ATB ON OTB.ACCOUNT_IDX = ATB.IDX ' +
+            'JOIN SERVICES_TB STB ON ATB.SERVICE_IDX = STB.IDX ' +
+            'WHERE OTB.SERVICE_IDX = ' +
+            serviceIdx +
+            ' ORDER BY OTB.SORT_ORDER ASC';
+            return new Promise((succ, fail) => {
                 db.all(query, [], (err: any, arg: any) =>{
-                    if (err) {
+                    if(err) {
+                        console.log(err);
                         fail(err);
                     } else {
                         succ(arg);
-                    } 
+                    }
                 });
-                this.disconnectDatabase(db);
             });
         }
-        try {
-            const allAccountList:any = await fetchAllAccount(userIDX);
-            
-            const list = [];
-            for(let i = 0 ; i < allAccountList.length ; i++){
-                if(allAccountList[i].OAUTH_LOGIN_IDX) list.push(allAccountList[i].OAUTH_LOGIN_IDX);
-            }
-            if(list.length > 0){
-                const oauthAccountList:any = await fetchOAuthAccount(list);
+        const db = this.connectDatabase();
+        const accountList:any = await getAccountList(db);
+        const oauthAccountList:any = await getOauthAccountList(db);
+        //account, oauth 모두 오름차순으로 뽑았기 때문에 번갈아가며 둘을 합쳐 sort하자
+        const result = [];
+        let [i, j] = [0, 0];
+        while (accountList.length > i && oauthAccountList.length > j) {
+        const accountElement = accountList[i];
+        const oauthAccountElement = oauthAccountList[j];
+        if (accountElement.SORT_ORDER > oauthAccountElement.SORT_ORDER) {
+            result.push(oauthAccountElement);
+            j++;
+        } else {
+            result.push(accountElement);
+            i++;
+        }
+        }
+        while (accountList.length > i) {
+        result.push(accountList[i]);
+        i++;
+        }
+        while (oauthAccountList.length > j) {
+        result.push(oauthAccountList[j]);
+        j++;
+        }
+        //
+        this.disconnectDatabase(db);
+        return result;
+    }
 
-                for(let i = 0 ; i < allAccountList.length ; i++){
-                    for(let j = 0 ; j < oauthAccountList.length ; j++){ // 나중에 SQL문으로 한번에 뽑아보자
-                        if(allAccountList[i].OAUTH_LOGIN_IDX === oauthAccountList[j].IDX){
-                            allAccountList[i].OAUTH_SERVICE_NAME = oauthAccountList[j].SERVICE_NAME;
-                            allAccountList[i].ID = oauthAccountList[j].ID;
-                            allAccountList[i].PASSWORD = oauthAccountList[j].PASSWORD;
-                        }
-                    }
-                }
-            }
-            return allAccountList;
-        }catch(error){
-            return error;
-        }  
-    }    
     public deleteAccount(accountIDX:number){
         try{
             const db = this.connectDatabase();

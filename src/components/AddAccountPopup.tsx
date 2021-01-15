@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import { AES, enc } from 'crypto-js';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../modules';
-import { addAccount } from '../modules/accountList';
+import { updateAccountAsync } from '../modules/accountList';
 import { StrongboxDatabase } from '../StrongboxDatabase';
 import styled from '../styles/theme-components';
 import AnimInputBox from './AnimInputBox';
@@ -76,52 +77,55 @@ interface AddAccountUseFormProps {
 const AddAccountPopup = ({onBackgroundClicked}:AddAccountPopupProps) =>{
     const selectedService = useSelector((state: RootState)=>state.selectedService.itemIndex);
     const serviceList = useSelector((state: RootState)=>state.serviceList.list);
-    const accountList = useSelector((state: RootState)=>state.accountList.list);
     const { register, handleSubmit } = useForm<AddAccountUseFormProps>();
     const [isOAuth, setOAuth] = useState(false);
     const [dropboxSelectedService,setDropboxSelectedService] = useState(-1);
+    const [dropboxAccount, setDropboxAccount] = useState([]);
     const dispatch = useDispatch(); 
 
+    useEffect(() => {
+        if(dropboxSelectedService > 0) {
+            //db에서 계정 뽑아 리스트 업데이트
+            const database = StrongboxDatabase.getInstance();
+            database
+            .getAccount(dropboxSelectedService)
+            .then((result: any) => {
+            for (let i = 0; i < result.length; i++) {
+                //복호화
+                const decrypted = (AES.decrypt(result[i].PASSWORD, global.key)).toString(enc.Utf8);
+                result[i].PASSWORD = decrypted;
+            }
+            //result반환
+            setDropboxAccount(result);
+            })
+            .catch((error) => {
+            console.log(error);
+            });
+        }
+    }, [dropboxSelectedService]);
 
-    const addAccountList =(item: any) =>{
-        dispatch(addAccount(item));
-    }
     const onSubmitIdPassword = (data:any) =>{
         const database = StrongboxDatabase.getInstance();
-        database.addAccount(selectedService['idx'],data.accountName,{id:data.id,password:data.pw}).then((result:any)=>{
-            addAccountList(
-                {
-                    ACCOUNT_IDX:result.ROWID,
-                    ORDER: result.ACCOUNT_ORDER,
-                    SERVICE_IDX:result.SERVICE_IDX,
-                    ACCOUNT_NAME:result.NAME,
-                    DATE:result.DATE,
-                    OAUTH_LOGIN:result.OAuthIDX,ID:result.ID,
-                    PASSWORD:result.PASSWORD
-                });
+        //계정 추가
+        database.addAccount(selectedService.idx, data.accountName, {id: data.id, password: data.pw}).then(()=>{
+            //redux 건들기
+            dispatch(updateAccountAsync(selectedService.idx));
         }).catch((error)=>{
-            console.error(error);
-        }); //id pw방식
+            console.log(error);
+        });
         onBackgroundClicked(); // 창닫기
     }
 
     const onSubmitOAuth = (data:any) =>{
         const database = StrongboxDatabase.getInstance();
-        database.addAccount(selectedService['idx'],data.accountName,{OAuthAccountIDX:data.accountSelect}).then((result:any)=>{
-            addAccountList(
-                {
-                    ACCOUNT_IDX:result.ROWID,
-                    ORDER: result.ORDER,
-                    SERVICE_IDX:result.SERVICE_IDX,
-                    ACCOUNT_NAME:result.NAME,
-                    DATE:result.DATE,
-                    OAUTH_LOGIN_IDX:result.OAuthIDX,
-                    OAUTH_SERVICE_NAME:data.serviceSelect.split(",")[1],
-                    ID:result.ID,PASSWORD:result.PASSWORD
-                });
+        //계정 추가
+        database.addAccount(selectedService.idx, data.accountName, {OAuthAccountIDX: data.accountSelect}).then(()=>{
+            //redux 건들기
+            dispatch(updateAccountAsync(selectedService.idx));
         }).catch((error)=>{
-            console.error(error);
-        }); // oauth방식
+            console.log(error);
+        });
+        dispatch(updateAccountAsync(selectedService.idx));
         onBackgroundClicked(); // 창닫기
     }
     return <PopupFloatDiv 
@@ -140,16 +144,15 @@ const AddAccountPopup = ({onBackgroundClicked}:AddAccountPopupProps) =>{
         <SelectLabel>
             <Span size="1.5rem">서비스 선택</Span>
             <Select name="serviceSelect" ref={register({required: true})} onChange={(e:any)=>{setDropboxSelectedService(e.target.value.split(",")[0])}}>
-                {serviceList.map((data:any)=>{return <option value={data.SERVICE_IDX + "," + data.SERVICE_NAME} key={data.SERVICE_IDX}>{data.SERVICE_NAME}</option>})}
+                {serviceList.map((data:any)=>{return <option value={data.SERVICE_IDX + "," + data.SERVICE_NAME} key={data.SORT_ORDER}>{data.SERVICE_NAME}</option>})}
             </Select>
         </SelectLabel>
         <SelectLabel>
             <Span size="1.5rem">계정 선택</Span>
             <Select name="accountSelect" ref={register({required: true})}>
-                {dropboxSelectedService > 0 && accountList.map((data:any)=>{
-                    if(data.SERVICE_IDX !== Number(dropboxSelectedService)) return null;
-                    if(data.OAUTH_LOGIN_IDX) return null; // OAUTH계정은 선택 못하도록
-                    return <option value={data.ACCOUNT_IDX} key={data.ACCOUNT_IDX}>{data.ACCOUNT_NAME}</option>
+                {dropboxSelectedService > 0 && dropboxAccount.map((data:any)=>{
+                    if(data.OAUTH_SERVICE_NAME) return null; // OAUTH계정은 선택 못하도록
+                    return <option value={data.IDX} key={data.SORT_ORDER}>{data.ACCOUNT_NAME}</option>
                 })}
             </Select>
         </SelectLabel>

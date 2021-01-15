@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import PlusSVG from '../images/PlusSVG';
 import { RootState } from '../modules';
-import { deleteAccount } from '../modules/accountList';
+import { updateAccountAsync } from '../modules/accountList';
 import { StrongboxDatabase } from '../StrongboxDatabase';
 import AddAccountPopup from './AddAccountPopup';
 import PopupWarning from './PopupWarning';
@@ -89,7 +89,6 @@ align-items:center;
 const AccountView = () => {
     const [addAccountPopup,setAddAccountPopup] = useState(false);
     const accountList = useSelector((state: RootState) => state.accountList.list);
-    const selectedService = useSelector((state: RootState) => state.selectedService.itemIndex);
 
     const onAddAccountClicked = () =>{
         setAddAccountPopup(true);
@@ -98,12 +97,11 @@ const AccountView = () => {
         {addAccountPopup && <AddAccountPopup onBackgroundClicked={()=>{setAddAccountPopup(false)}} />}
         <InnerWrapper>
         {accountList.map((data:any)=>{
-            if(data.SERVICE_IDX !== selectedService['idx']) return null;
-            if(data.OAUTH_LOGIN_IDX){
+            if(data.OAUTH_SERVICE_NAME){
                 //OAUTH 로그인인 경우
-                return <Account key={data.ACCOUNT_IDX} idx={data.ACCOUNT_IDX} accountName={data.ACCOUNT_NAME} date={data.DATE} OAuthServiceName={data.OAUTH_SERVICE_NAME} accountID={data.ID} accountPassword={data.PASSWORD}/>
+                return <Account key={data.SORT_ORDER} idx={data.IDX} accountName={data.ACCOUNT_NAME} date={data.DATE} OAuthServiceName={data.OAUTH_SERVICE_NAME} accountID={data.ID} accountPassword={data.PASSWORD}/>
             }
-            return <Account key={data.ACCOUNT_IDX} idx={data.ACCOUNT_IDX} accountName={data.ACCOUNT_NAME} date={data.DATE} accountID={data.ID} accountPassword={data.PASSWORD} />
+            return <Account key={data.SORT_ORDER} idx={data.IDX} accountName={data.ACCOUNT_NAME} date={data.DATE} accountID={data.ID} accountPassword={data.PASSWORD} />
             })}
         <AddAccountBtn onClick={(onAddAccountClicked)}><PlusSVG width="50px" height="50px" color="gray" /></AddAccountBtn>
     </InnerWrapper></TotalWrapper>
@@ -117,11 +115,13 @@ const Account = ({idx,accountName,date,OAuthServiceName,accountID,accountPasswor
     const [deleteAccountPopup,setDeleteAccountPopup] = useState(false);
     const dispatch = useDispatch();
     const CONTEXT_ID = "contextAccount" + idx;
+    const selectedService = useSelector((state: RootState) => state.selectedService.itemIndex);
 
     const deleteAccountByIDX = () =>{
         const database = StrongboxDatabase.getInstance();
         if(database.deleteAccount(idx) === true){
-            dispatch(deleteAccount(idx));
+            //redux 건들기
+            dispatch(updateAccountAsync(selectedService.idx));
         }
     }
     const onClickMenu = (e:any, data:any) =>{

@@ -16,9 +16,8 @@ import FolderSVG from '../images/FolderSVG';
 import { ContextMenu, ContextMenuTrigger, MenuItem } from 'react-contextmenu';
 import ServiceSearchBar from '../components/ServiceSearchBar';
 import AccountView from '../components/AccountView';
-import { updateAccount } from '../modules/accountList';
-import { AES, enc } from 'crypto-js';
 import { GroupType, ServiceType } from '../modules/jsonInterface';
+import {updateAccountAsync} from '../modules/accountList';
 
 
 const TotalWrapper = styled.div `
@@ -147,20 +146,6 @@ const MainPage:React.FC = () =>{
     const selectedService = useSelector((state: RootState)=>state.selectedService.itemIndex);
     const serviceList = useSelector((state: RootState)=>state.serviceList.list);
 
-    const updateGroupList = (newList: any) =>{
-        //updateGroupList함수를 실행하면 dispatch를 호출해서 redux 상태변화를 일으킴
-        dispatch(updateGroup(newList));
-    }
-    const updateServiceList = (newList: any) =>{
-        dispatch(updateService(newList));
-    }
-    const updateAccountList = (newList: any) =>{
-        dispatch(updateAccount(newList));
-    }
-    const resetSelectedServiceIndex = () =>{
-        dispatch(updateSelectedItemIndex({idx:-1,name:"no-name"}));
-    }
-
     useEffect(() =>{
         const database = StrongboxDatabase.getInstance();
         database.select("NAME","USERS_TB","IDX = " + global.idx).then((result:any) =>{
@@ -170,17 +155,17 @@ const MainPage:React.FC = () =>{
         });
 
         database.getGroupList(global.idx).then((result)=>{
-            updateGroupList(result.map((data:any)=>{
+            dispatch(updateGroup(result.map((data:any)=>{
                 const group: GroupType = {
                     GRP_IDX: data.IDX, 
                     GRP_NAME: data.GRP_NAME, 
                     SORT_ORDER: data.SORT_ORDER
                 };
-                return group}));
+                return group})));
         });
 
         database.getServiceListByUserIDX(global.idx).then((result)=>{
-            updateServiceList(result.map((data:any) => 
+            dispatch(updateService(result.map((data:any) => 
             {
                 const service: ServiceType = {
                     GRP_IDX: data.GRP_IDX,
@@ -188,38 +173,21 @@ const MainPage:React.FC = () =>{
                     SERVICE_IDX: data.SERVICE_IDX, 
                     SERVICE_NAME: data.SERVICE_NAME
                 };
-                return service}));
+                return service})));
         }).catch((error)=>{
             console.log(error);
         });
+    },[dispatch]);
 
-        database.getAccountList(global.idx).then((result)=>{
-            updateAccountList(result.map((data:any)=>{
-                let json:any = {
-                    ACCOUNT_IDX:data.IDX,
-                    ORDER: data.ACCOUNT_ORDER,
-                    SERVICE_IDX:data.SERVICE_IDX,
-                    ACCOUNT_NAME:data.ACCOUNT_NAME,
-                    DATE:data.DATE,
-                    OAUTH_LOGIN_IDX:data.OAUTH_LOGIN_IDX,
-                    OAUTH_SERVICE_NAME:data.OAUTH_SERVICE_NAME,
-                    ID:data.ID,
-                    PASSWORD:data.PASSWORD}; // 기본항목
-
-                if(data.PASSWORD){
-                    //패스워드가 존재하다면 복호화
-                const decrypted = (AES.decrypt(data.PASSWORD, global.key)).toString(enc.Utf8);
-                json['ID'] = data.ID;
-                json['PASSWORD'] = decrypted;
-                }
-                return json}));
-        }).catch((error)=>{
-            console.log(error);
-        });
-    },[]);
+    useEffect(() => {
+        //섭스 선택 떄마다 계정 뽑아내자
+        if(selectedService.idx > 0) {
+            dispatch(updateAccountAsync(selectedService.idx));
+        }
+    }, [dispatch, selectedService]);
 
     const resetInformation = () =>{
-        resetSelectedServiceIndex();
+        dispatch(updateSelectedItemIndex({idx:-1,name:"no-name"}));
         global.idx = -1;
         global.key = "";
     }
