@@ -18,6 +18,7 @@ import ServiceSearchBar from '../components/ServiceSearchBar';
 import AccountView from '../components/AccountView';
 import { updateAccount } from '../modules/accountList';
 import { AES, enc } from 'crypto-js';
+import { GroupType, ServiceType } from '../modules/jsonInterface';
 
 
 const TotalWrapper = styled.div `
@@ -169,22 +170,25 @@ const MainPage:React.FC = () =>{
         });
 
         database.getGroupList(global.idx).then((result)=>{
-            updateGroupList(result.map((data:any)=>{return {
-                GRP_IDX: data.IDX, 
-                GRP_NAME: data.GRP_NAME, 
-                ORDER: data.SORT_ORDER
-            }}));
+            updateGroupList(result.map((data:any)=>{
+                const group: GroupType = {
+                    GRP_IDX: data.IDX, 
+                    GRP_NAME: data.GRP_NAME, 
+                    SORT_ORDER: data.SORT_ORDER
+                };
+                return group}));
         });
 
         database.getServiceListByUserIDX(global.idx).then((result)=>{
             updateServiceList(result.map((data:any) => 
-            {return {
-                GRP_IDX: data.GRP_IDX,
-                ORDER: data.SERVICE_ORDER,
-                GRP_NAME: data.GRP_NAME, 
-                SERVICE_IDX: data.SERVICE_IDX, 
-                SERVICE_NAME: data.SERVICE_NAME
-            }}));
+            {
+                const service: ServiceType = {
+                    GRP_IDX: data.GRP_IDX,
+                    SORT_ORDER: data.SERVICE_ORDER,
+                    SERVICE_IDX: data.SERVICE_IDX, 
+                    SERVICE_NAME: data.SERVICE_NAME
+                };
+                return service}));
         }).catch((error)=>{
             console.log(error);
         });
