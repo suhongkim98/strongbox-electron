@@ -1,7 +1,7 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
-import { addGroup } from '../modules/groupList';
+import { updateGroupAsync } from '../modules/groupList';
 import { StrongboxDatabase } from '../StrongboxDatabase';
 import AnimInputBox from './AnimInputBox';
 import PopupFloatDiv from './PopupFloatDiv';
@@ -30,11 +30,6 @@ border-radius:5px;
 
 const AddFolderPopup = ({onBackgroundClicked}:AddFolderPopupProps) =>{
     const dispatch = useDispatch(); // groupList redux에 상태변화를 주기 위해
-    
-    const addGroupList = (item: any) =>{
-        //updateGroupList함수를 실행하면 dispatch를 호출해서 redux 상태변화를 일으킴
-        dispatch(addGroup(item));
-    }
 
     const onButtonClicked = (event:any) =>{
         event.preventDefault();
@@ -45,12 +40,7 @@ const AddFolderPopup = ({onBackgroundClicked}:AddFolderPopupProps) =>{
             if(result){
             //데이터 넣기 성공 시
             //redux 이용해 mainPage 폴더리스트 리렌더링
-            addGroupList(
-                {
-                    GRP_IDX: Number(result.rowid),
-                    GRP_NAME: String(result.groupName),
-                    SORT_ORDER: Number(result.ORDER)
-                });
+            dispatch(updateGroupAsync());
             }else{
                 //실패 시
                 console.log("폴더추가 실패");

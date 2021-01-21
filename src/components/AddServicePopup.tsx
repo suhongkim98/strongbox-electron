@@ -6,7 +6,7 @@ import PopupFloatDiv from './PopupFloatDiv';
 import { useForm } from "react-hook-form";
 import Span from './Span';
 import { useDispatch } from 'react-redux';
-import { addService } from '../modules/serviceList';
+import { updateServiceAsync } from '../modules/serviceList';
 
 interface AddServcePopupProps{
     onBackgroundClicked:any;
@@ -40,23 +40,13 @@ const AddServcePopup = ({onBackgroundClicked,groupIdx}:AddServcePopupProps) =>{
     const { register, errors, handleSubmit } = useForm<AddServiceUseFormProps>();
     const dispatch = useDispatch(); 
 
-    const addServiceList = (item: any) =>{
-        dispatch(addService(item));
-    }
-
     const onButtonClicked = (data:any) =>{
         const serviceName = data.serviceInputBox;
         console.log(serviceName);
         const database = StrongboxDatabase.getInstance();
         database.addService(groupIdx,serviceName).then((result)=>{
             if(result){
-                addServiceList(
-                    {
-                        GRP_IDX: groupIdx, 
-                        SERVICE_IDX: result.rowid, 
-                        SERVICE_NAME: result.serviceName,
-                        ORDER: result.ORDER
-                    });
+                dispatch(updateServiceAsync());
                 onBackgroundClicked();
             }else{
                 //실패 시

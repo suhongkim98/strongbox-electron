@@ -4,9 +4,8 @@ import { ContextMenu, ContextMenuTrigger, MenuItem } from "react-contextmenu";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { RootState } from "../modules";
-import { updateAccount } from "../modules/accountList";
 import { updateSelectedItemIndex } from "../modules/selectedService";
-import { deleteService } from "../modules/serviceList";
+import { updateServiceAsync } from '../modules/serviceList';
 import { StrongboxDatabase } from "../StrongboxDatabase";
 import PopupWarning from "./PopupWarning";
 import Span from "./Span";
@@ -29,16 +28,9 @@ const GroupFolderItem = ({serviceIDX,serviceName}:GroupFolderItemProps) =>{
     const dispatch = useDispatch(); 
     const CONTEXT_ID = "GroupFolderItemContext" + serviceIDX;
     const selectedService = useSelector((state: RootState)=>state.selectedService.itemIndex);
-    const accountList = useSelector((state: RootState)=>state.accountList.list);
 
     const updateSelectedItem = (newItem: any) =>{
         dispatch(updateSelectedItemIndex(newItem));
-    }
-    const updateAccountList = (newList: any) =>{
-        dispatch(updateAccount(newList));
-    }
-    const deleteServiceList = (item: any) =>{
-        dispatch(deleteService(item));
     }
 
     const onClickMenu = (e:any, data:any) =>{
@@ -55,13 +47,13 @@ const GroupFolderItem = ({serviceIDX,serviceName}:GroupFolderItemProps) =>{
         //만약 삭제하고자 하는 서비스가 선택 중인 서비스라면 selectedService 초기화
         if(selectedService.idx === serviceIDX) updateSelectedItem({idx:-1,name:"no-name"});
 
-        //삭제하고자 하는 서비스idx에 해당하는 accountList redux 삭제 // filter로 거른 후 update
-        updateAccountList(accountList.filter((row:any)=>{return row.SERVICE_IDX !== serviceIDX}));
-
         //DB 및 service리스트에서 삭제
         const database = StrongboxDatabase.getInstance();
-        database.deleteService(serviceIDX);
-        deleteServiceList(serviceIDX);
+        database.deleteService(serviceIDX)
+        .then(()=>{
+            dispatch(updateServiceAsync());
+        })
+        .catch((error)=>{console.log(error)});
     }
 
     return <div>

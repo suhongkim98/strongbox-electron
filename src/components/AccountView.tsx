@@ -119,10 +119,9 @@ const Account = ({idx,accountName,date,OAuthServiceName,accountID,accountPasswor
 
     const deleteAccountByIDX = () =>{
         const database = StrongboxDatabase.getInstance();
-        if(database.deleteAccount(idx) === true){
-            //redux 건들기
-            dispatch(updateAccountAsync(selectedService.idx));
-        }
+        database.deleteAccount(OAuthServiceName, idx)
+        .then(()=>{dispatch(updateAccountAsync(selectedService.idx));})
+        .catch((error)=>console.log(error));
     }
     const onClickMenu = (e:any, data:any) =>{
         switch(data.action){

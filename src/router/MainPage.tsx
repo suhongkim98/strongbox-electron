@@ -7,8 +7,8 @@ import AddFolderPopup from '../components/AddFolderPopup';
 import GroupFolder from '../components/GroupFolder';
 import SettingSVG from '../images/SettingSVG';
 import { StrongboxDatabase } from '../StrongboxDatabase';
-import { updateGroup } from '../modules/groupList';
-import { updateService } from '../modules/serviceList';
+import { updateGroupAsync } from '../modules/groupList';
+import { updateServiceAsync } from '../modules/serviceList';
 import Span from '../components/Span';
 import { updateSelectedItemIndex } from '../modules/selectedService';
 import theme from '../styles/theme';
@@ -16,7 +16,6 @@ import FolderSVG from '../images/FolderSVG';
 import { ContextMenu, ContextMenuTrigger, MenuItem } from 'react-contextmenu';
 import ServiceSearchBar from '../components/ServiceSearchBar';
 import AccountView from '../components/AccountView';
-import { GroupType, ServiceType } from '../modules/jsonInterface';
 import {updateAccountAsync} from '../modules/accountList';
 
 
@@ -154,29 +153,8 @@ const MainPage:React.FC = () =>{
             console.log(error);
         });
 
-        database.getGroupList(global.idx).then((result)=>{
-            dispatch(updateGroup(result.map((data:any)=>{
-                const group: GroupType = {
-                    GRP_IDX: data.IDX, 
-                    GRP_NAME: data.GRP_NAME, 
-                    SORT_ORDER: data.SORT_ORDER
-                };
-                return group})));
-        });
-
-        database.getServiceListByUserIDX(global.idx).then((result)=>{
-            dispatch(updateService(result.map((data:any) => 
-            {
-                const service: ServiceType = {
-                    GRP_IDX: data.GRP_IDX,
-                    SORT_ORDER: data.SERVICE_ORDER,
-                    SERVICE_IDX: data.SERVICE_IDX, 
-                    SERVICE_NAME: data.SERVICE_NAME
-                };
-                return service})));
-        }).catch((error)=>{
-            console.log(error);
-        });
+        dispatch(updateGroupAsync()); // 그룹리스트 업데이트
+        dispatch(updateServiceAsync()); // 서비스리스트 업데이트
     },[dispatch]);
 
     useEffect(() => {

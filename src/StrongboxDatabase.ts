@@ -91,6 +91,20 @@ export class StrongboxDatabase{
         db.run(query, (err:any,arg:any)=>{});
         this.disconnectDatabase(db);
     }
+    private deleteRow(table:string, idx: number) {
+        return new Promise((succ, fail) =>{
+            let query = 'DELETE FROM ' + table + ' WHERE IDX = ' + idx;
+            const db = this.connectDatabase();
+            db.run(query, function(this:typeof sqlite3, err:any,arg:any){ 
+                if(err){
+                    fail(err);
+                }else{
+                    succ(true);
+                }
+            });
+            this.disconnectDatabase(db);
+        });
+    }
     public async addUser(name: string, password: string){
         // 이름 중복 여부 확인
         // 비밀번호 6글자인지 확인
@@ -146,17 +160,9 @@ export class StrongboxDatabase{
         const result = {rowid: rowid, ORDER: orderCount[0].COUNT, groupName: groupName};
         return result;
     }
-    public deleteGroup(groupIDX:number){
-        try{
-            const db = this.connectDatabase();
-            const query = 'DELETE FROM GROUPS_TB WHERE IDX = ' + groupIDX;
-            db.run(query);
-            this.disconnectDatabase(db);
-            return true;
-        }catch(error){
-            console.error(error);
-            return false;
-        }
+    public async deleteGroup(groupIDX:number){
+        await this.deleteRow('GROUPS_TB', groupIDX);
+        return true;
     }
     public async getGroupList(userIDX:number){
         //매개변수로 유저idx
@@ -196,18 +202,9 @@ export class StrongboxDatabase{
         const result = {rowid: rowid, ORDER: orderCount[0].COUNT, serviceName: serviceName};
         return result;
     }
-        
-    public deleteService(serviceIDX:number){
-        try{
-            const db = this.connectDatabase();
-            const query = 'DELETE FROM SERVICES_TB WHERE IDX = ' + serviceIDX;
-            db.run(query);
-            this.disconnectDatabase(db);
-            return true;
-        }catch(error){
-            console.error(error);
-            return false;
-        }
+    public async deleteService(serviceIDX:number){
+        await this.deleteRow('SERVICES_TB', serviceIDX);
+        return true;
     }
     public async getServiceList(groupIDX:number){
         //매개변수로 그룹idx
@@ -366,16 +363,12 @@ export class StrongboxDatabase{
         return result;
     }
 
-    public deleteAccount(accountIDX:number){
-        try{
-            const db = this.connectDatabase();
-            const query = 'DELETE FROM ACCOUNTS_TB WHERE IDX = ' + accountIDX;
-            db.run(query);
-            this.disconnectDatabase(db);
-            return true;
-        }catch(error){
-            console.error(error);
-            return false;
+    public async deleteAccount(oauthServiceName: any, accountIDX:number){
+        if(oauthServiceName) {
+            await this.deleteRow('OAUTH_ACCOUNTS_TB', accountIDX);
+        } else {
+            await this.deleteRow('ACCOUNTS_TB', accountIDX);
         }
+        return true;
     }
 }

@@ -1,26 +1,30 @@
 //그룹 리스트 상태관리 redux
+import { StrongboxDatabase } from "../StrongboxDatabase";
+import { GroupType } from "./jsonInterface";
+
 
 const UPDATE = 'groupList/UPDATE' as const;
-const ADD = 'groupList/ADD' as const;
-const DELETE = 'groupList/DELETE' as const;
 
 export const updateGroup = (newList: any) => ({
   type: UPDATE,
   payload: newList
 });
-export const addGroup = (item: any) => ({
-  type: ADD,
-  payload: item
-});
-export const deleteGroup = (groupIDX: number) => ({
-  type: DELETE,
-  payload: groupIDX
-});
-
+export const updateGroupAsync = () => (dispatch: any) => {
+  const database = StrongboxDatabase.getInstance();
+  
+  database.getGroupList(global.idx).then((result)=>{
+    dispatch(updateGroup(result.map((data:any)=>{
+      const group: GroupType = {
+          GRP_IDX: data.IDX, 
+          GRP_NAME: data.GRP_NAME, 
+          SORT_ORDER: data.SORT_ORDER
+      };
+      return group})));
+      
+  });
+};
 type groupListAction =
-  | ReturnType<typeof updateGroup>
-  | ReturnType<typeof addGroup>
-  | ReturnType<typeof deleteGroup>;
+  | ReturnType<typeof updateGroup>;
 
   type groupListState = {
     list: any; // 
@@ -34,11 +38,6 @@ type groupListAction =
     switch (action.type) {
       case UPDATE:
         return { list: action.payload }; // 새로운 배열로 교체
-      case ADD:
-        return { list: [...state.list, action.payload]}; // 새로운 아이템 추가
-      case DELETE:
-        const newList = state.list.filter((row:any)=>{return row.GRP_IDX !== action.payload});
-        return { list: newList }; // 해당 IDX 삭제
       default:
         return state;
     }

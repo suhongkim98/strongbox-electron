@@ -117,6 +117,10 @@ const AddAccountPopup = ({onBackgroundClicked}:AddAccountPopupProps) =>{
     }
 
     const onSubmitOAuth = (data:any) =>{
+        console.log(data.accountSelect);
+        if(data.accountSelect === '선택' || data.serviceSelect === '선택') {
+            return;
+        }
         const database = StrongboxDatabase.getInstance();
         //계정 추가
         database.addAccount(selectedService.idx, data.accountName, {OAuthAccountIDX: data.accountSelect}).then(()=>{
@@ -144,12 +148,14 @@ const AddAccountPopup = ({onBackgroundClicked}:AddAccountPopupProps) =>{
         <SelectLabel>
             <Span size="1.5rem">서비스 선택</Span>
             <Select name="serviceSelect" ref={register({required: true})} onChange={(e:any)=>{setDropboxSelectedService(e.target.value.split(",")[0])}}>
+                <option>선택</option>
                 {serviceList.map((data:any)=>{return <option value={data.SERVICE_IDX + "," + data.SERVICE_NAME} key={data.SORT_ORDER}>{data.SERVICE_NAME}</option>})}
             </Select>
         </SelectLabel>
         <SelectLabel>
             <Span size="1.5rem">계정 선택</Span>
             <Select name="accountSelect" ref={register({required: true})}>
+                <option>선택</option>
                 {dropboxSelectedService > 0 && dropboxAccount.map((data:any)=>{
                     if(data.OAUTH_SERVICE_NAME) return null; // OAUTH계정은 선택 못하도록
                     return <option value={data.IDX} key={data.SORT_ORDER}>{data.ACCOUNT_NAME}</option>

@@ -8,15 +8,13 @@ import { RootState } from '../modules';
 import AddServcePopup from './AddServicePopup';
 import Span from './Span';
 import { updateSelectedItemIndex } from '../modules/selectedService';
-import {updateAccount} from '../modules/accountList';
-import { deleteGroup } from '../modules/groupList';
 
 import '../styles/css/react-contextmenu.css'; //contextmenu 사용 시 추가해야함
 import '../styles/css/custom.css'; // 
 import { StrongboxDatabase } from '../StrongboxDatabase';
 import PopupWarning from './PopupWarning';
-import { deleteService } from '../modules/serviceList';
 import GroupFolderItem from './GroupFolderItem';
+import { updateGroupAsync } from '../modules/groupList';
 
 interface GroupFolderProps{
     groupIdx:number;
@@ -53,7 +51,6 @@ const GroupFolder = ({groupIdx,groupName}:GroupFolderProps) =>{
     const listRef = useRef<HTMLDivElement>(null);
     const serviceList = useSelector((state: RootState) => state.serviceList.list);
     const selectedService = useSelector((state: RootState)=>state.selectedService.itemIndex);
-    const accountList = useSelector((state: RootState)=>state.accountList.list);
     
     const CONTEXT_ID = "context" + groupIdx; // 마우스 우클릭 통일아이디
     const [addServicePopupIDX,setAddServicePopupIDX] = useState(-1);
@@ -109,38 +106,21 @@ const GroupFolder = ({groupIdx,groupName}:GroupFolderProps) =>{
         }
     }
     
-    const updateSelectedItem = (newItem: any) =>{
-        dispatch(updateSelectedItemIndex(newItem));
-    }
-    const updateAccountList = (newList: any) =>{
-        dispatch(updateAccount(newList));
-    }
-    const deleteServiceList = (item: any) =>{
-        dispatch(deleteService(item));
-    }
-    const deleteServiceByIDX = (idx:number) =>{
-        //만약 삭제하고자 하는 서비스가 선택 중인 서비스라면 selectedService 초기화
-        if(selectedService.idx === idx) updateSelectedItem({idx:-1,name:"no-name"});
-
-        //삭제하고자 하는 서비스idx에 해당하는 accountList redux 삭제 // filter로 거른 후 update
-        updateAccountList(accountList.filter((row:any)=>{return row.SERVICE_IDX !== idx}));
-
-        deleteServiceList(idx);
-    }
 
     const deleteGroupByIDX = () =>{
-        const database = StrongboxDatabase.getInstance();
         
-        if(database.deleteGroup(groupIdx) === true){
-            //해당 그룹에 해당하는 서비스부터 redux 삭제
-            for(let i = 0 ; i < serviceList.length ; i++){
-                if(serviceList[i].GRP_IDX === groupIdx){
-                    deleteServiceByIDX(serviceList[i].SERVICE_IDX);
-                }
+        // 선택된 서비스가 있는지 검사 후 있으면 초기화
+        const list = serviceList.filter((row: any) => {return row.GRP_IDX === groupIdx});
+        for(let i = 0 ; i < list.length ; i++){
+            if(selectedService.idx === list[i].SERVICE_IDX) {
+                dispatch(updateSelectedItemIndex({idx:-1,name:"no-name"}));
             }
-            //삭제 성공하면 redux 상태변화
-            dispatch(deleteGroup(groupIdx));
         }
+        // 그룹 삭제 후 리덕스 업데이트
+        const database = StrongboxDatabase.getInstance();
+        database.deleteGroup(groupIdx)
+        .then(()=>{dispatch(updateGroupAsync());})
+        .catch((error)=>{console.log(error)});
         
     }
     return <TotalWrapper>
