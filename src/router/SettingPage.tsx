@@ -33,7 +33,7 @@ const NavBarHeader = styled.div`
 const NavBarBody = styled.div`
     display: flex;
     flex-direction: column;
-    padding: 30px 10px 0 10px;
+    padding: 0 10px 0 10px;
 `;
 const NavBarItem = styled.div`
     border-bottom: solid gray 1px;
