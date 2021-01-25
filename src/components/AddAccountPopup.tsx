@@ -117,7 +117,6 @@ const AddAccountPopup = ({onBackgroundClicked}:AddAccountPopupProps) =>{
     }
 
     const onSubmitOAuth = (data:any) =>{
-        console.log(data.accountSelect);
         if(data.accountSelect === '선택' || data.serviceSelect === '선택') {
             return;
         }
