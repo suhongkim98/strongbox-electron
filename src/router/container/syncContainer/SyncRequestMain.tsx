@@ -38,10 +38,13 @@ const TipWrapper = styled.div``;
 interface FormProps {
     pinInput: string;
 }
-const SyncRequestMain = () => {
+interface RequestMainProps {
+    history: any;
+}
+const SyncRequestMain = ({history}: RequestMainProps) => {
     const { register, errors, handleSubmit } = useForm<FormProps>();
     const onSubmitEvent = (data:any) => {
-        
+        history.push('/Setting/syncConnectSuccess');
     }
     return <TotalWrapper>
         <Span size="1.6rem" fontWeight="700">상대방이 제공한 인증 번호를 입력하세요</Span>

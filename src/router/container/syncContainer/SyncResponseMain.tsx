@@ -25,14 +25,20 @@ justify-content: center;
 align-items: center;
 `;
 const TipWrapper = styled.div``;
-const SyncResponseMain = () => {
+interface RequestMainProps {
+    history: any;
+}
+const SyncResponseMain = ({history}: RequestMainProps) => {
+    const onSubmitEvent = () => {
+        history.push('/Setting/syncConnectSuccess');
+    }
     return <TotalWrapper>
         <Span size="1.6rem" fontWeight="700">상대방이 제공한 인증 번호를 입력하세요</Span>
             <TipWrapper>
                 <Span size="1.4rem"><br />상대방과 계정 정보를 동기화할 수 있습니다. 핀번호를 확인한 후 동기화버튼을 눌러주세요. <br /><br />
                     아이디가 일치한데 비밀번호가 다른경우 <Span textColor="red" size="1.4rem">가장 최근에 추가된 계정 정보</Span>로 업데이트 되니 참고하시기 바랍니다.</Span>
             </TipWrapper>
-            <SubmitBtn><Icon size="2rem"><MdCached /></Icon><Span size="2rem" fontWeight="700">동기화하기</Span></SubmitBtn>
+            <SubmitBtn onClick={onSubmitEvent}><Icon size="2rem"><MdCached /></Icon><Span size="2rem" fontWeight="700">동기화하기</Span></SubmitBtn>
     </TotalWrapper>
 }
 
