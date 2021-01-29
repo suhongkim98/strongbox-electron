@@ -5,6 +5,7 @@ import Span from '../../components/Span';
 import returnImg from '../../images/return.svg';
 import SyncConnectSuccess from './syncContainer/SyncConnectSuccess';
 import SyncRequestMain from './syncContainer/SyncRequestMain';
+import SyncRequestPin from './syncContainer/SyncRequestPin';
 
 const TotalWrapper = styled.div`
     display: flex;
@@ -33,6 +34,7 @@ const SettingSyncRequest = () => {
             <HashRouter>
                 <Route path="/Setting/syncRequestPage" exact component={SyncRequestMain} />
                 <Route path="/Setting/syncRequestPage/connectSuccess" component={SyncConnectSuccess} />
+                <Route path="/Setting/syncRequestPage/pin" component={SyncRequestPin} />
             </HashRouter>
         </BodyWrapper>
     </TotalWrapper>);
