@@ -2,6 +2,7 @@ import React from 'react';
 import Span from '../../../components/Span';
 import styled from '../../../styles/theme-components';
 import {MdCached} from 'react-icons/md';
+import axios from 'axios';
 
 const TotalWrapper = styled.div`
     height: 100%;
@@ -30,7 +31,20 @@ interface RequestMainProps {
 }
 const SyncRequestMain = ({history}: RequestMainProps) => {
     const onSubmitEvent = () => {
-        history.push('/Setting/SyncRequestPage/pin');
+        const params = new URLSearchParams();
+		params.append('name', global.name);
+		axios.post('http://localhost:8080/sync/requestSync', params).then((response)=>{
+            console.log(response.data);
+            const roomId = response.data.data[0].roomId;
+            const vertificationCode = response.data.data[0].vertificationCode;
+            const token = response.data.data[1].token;
+
+            global.syncInfo = {roomId: roomId, token: token};
+
+            history.push('/Setting/SyncRequestPage/pin/' + vertificationCode);
+		}).catch((error)=>{
+		    console.log(error);
+		});
     }
     return <TotalWrapper>
             <TipWrapper>

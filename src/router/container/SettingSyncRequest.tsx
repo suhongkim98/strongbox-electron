@@ -34,7 +34,7 @@ const SettingSyncRequest = () => {
             <HashRouter>
                 <Route path="/Setting/syncRequestPage" exact component={SyncRequestMain} />
                 <Route path="/Setting/syncRequestPage/connectSuccess" component={SyncConnectSuccess} />
-                <Route path="/Setting/syncRequestPage/pin" component={SyncRequestPin} />
+                <Route path="/Setting/syncRequestPage/pin/:vertificationCode" component={SyncRequestPin} />
             </HashRouter>
         </BodyWrapper>
     </TotalWrapper>);

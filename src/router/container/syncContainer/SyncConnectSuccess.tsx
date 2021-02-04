@@ -4,6 +4,7 @@ import { IoMdPerson } from 'react-icons/io';
 import styled from 'styled-components';
 import Span from '../../../components/Span';
 import theme from '../../../styles/theme';
+import { useParams } from 'react-router-dom';
 
 const TotalWrapper = styled.div`
     height: 100%;
@@ -44,12 +45,14 @@ const Icon = styled(Span)`
     align-items: center;
 `;
 const SyncConnectSuccess = () => {
+    const {otherPartName, vertificationCode}: any = useParams();
+    
     return (<TotalWrapper>
             <ProfileWrapper>
                 <Span size="2.5rem" fontWeight="700">연결 성공!</Span>
                 <Span size="5rem"><IoMdPerson /></Span>
-                <Span size="2rem" fontWeight="700">이름: </Span>
-                <Span size="2rem" fontWeight="700">인증 번호: </Span>
+                <Span size="2rem" fontWeight="700">이름: {otherPartName}</Span>
+                <Span size="2rem" fontWeight="700">인증 번호: {vertificationCode}</Span>
             </ProfileWrapper>
             <TipWrapper>
                 <Span size="1.4rem" textColor={theme.colors.backgroundMainColor}>

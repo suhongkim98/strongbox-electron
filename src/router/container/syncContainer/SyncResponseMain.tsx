@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import Span from '../../../components/Span';
 import styled from '../../../styles/theme-components';
 import {MdCached} from 'react-icons/md';
+import axios from 'axios';
 
 const TotalWrapper = styled.div`
     height: 100%;
@@ -45,7 +46,25 @@ interface RequestMainProps {
 const SyncResponseMain = ({history}: RequestMainProps) => {
     const { register, errors, handleSubmit } = useForm<FormProps>();
     const onSubmitEvent = (data:any) => {
-        history.push('/Setting/syncConnectSuccess');
+        console.log(data.pinInput);
+        const params = new URLSearchParams();
+        params.append('name', global.name);
+        params.append('vertificationCode', data.pinInput);
+
+		axios.post('http://localhost:8080/sync/responseSync', params).then((response)=>{
+            console.log(response.data);
+            const roomId = response.data.data[0].roomId;
+            const vertificationCode = response.data.data[0].vertificationCode;
+            const token = response.data.data[1].token;
+            const requestorName = response.data.data[0].requestorName;
+            
+            global.syncInfo = {roomId: roomId, token: token};
+
+            history.push('/Setting/syncResponsePage/connectSuccess/' + requestorName + '/' +  + vertificationCode);
+		}).catch((error)=>{
+            console.log(error);
+            // 방이 없다면 // 서버가 문제가 있다면
+		});
     }
     return <TotalWrapper>
         <Span size="1.6rem" fontWeight="700">상대방이 제공한 인증 번호를 입력하세요</Span>

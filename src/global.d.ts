@@ -5,5 +5,6 @@ declare namespace NodeJS{
         idx: number = -1
         key: string = ""
         name: string = ""
+        syncInfo: any = {token: "", roomId: ""}
     }
 }

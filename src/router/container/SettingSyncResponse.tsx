@@ -31,7 +31,7 @@ const SettingSyncResponse = () => {
         <BodyWrapper>
             <HashRouter>
                 <Route path="/Setting/syncResponsePage" exact component={SyncResponseMain} />
-                <Route path="/Setting/syncResponsePage/connectSuccess" component={SyncConnectSuccess} />
+                <Route path="/Setting/syncResponsePage/connectSuccess/:otherPartName/:vertificationCode" component={SyncConnectSuccess} />
             </HashRouter>
         </BodyWrapper>
     </TotalWrapper>);
