@@ -5,7 +5,8 @@ import Span from '../../../components/Span';
 import styled from '../../../styles/theme-components';
 import {MdCached} from 'react-icons/md';
 import axios from 'axios';
-
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 const TotalWrapper = styled.div`
     height: 100%;
     margin: 10px 0 0 0;
@@ -64,9 +65,56 @@ const SyncResponseMain = ({history}: RequestMainProps) => {
 		}).catch((error)=>{
             console.log(error);
             // 방이 없다면 // 서버가 문제가 있다면
+            if (error.response) {
+                // 요청이 이루어졌으며 서버가 2xx의 범위를 벗어나는 상태 코드로 응답했습니다.
+                console.log(error.response.data);
+                console.log(error.response.status);
+                console.log(error.response.headers);
+                if(error.response.status === 404) {
+                    // 방이 없을 경우
+                    toast.error('인증 번호가 일치하지 않습니다.', {
+                        position: "bottom-right",
+                        autoClose: 5000,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                        });
+                }
+              }
+              else if (error.request) {
+                // 요청이 이루어 졌으나 응답을 받지 못했습니다.
+                // `error.request`는 브라우저의 XMLHttpRequest 인스턴스 또는
+                // Node.js의 http.ClientRequest 인스턴스입니다.
+                console.log(error.request);
+                toast.error('동기화 서버가 점검 중입니다.', {
+                    position: "bottom-right",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    });
+              }
+              else {
+                // 오류를 발생시킨 요청을 설정하는 중에 문제가 발생했습니다.
+                console.log('Error', error.message);
+                toast.error('동기화 서버가 점검 중입니다.', {
+                    position: "bottom-right",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    });
+              }
 		});
     }
     return <TotalWrapper>
+        <ToastContainer />
         <Span size="1.6rem" fontWeight="700">상대방이 제공한 인증 번호를 입력하세요</Span>
             <Form onSubmit={handleSubmit(onSubmitEvent)} noValidate>
                 <PinInput type="text" name="pinInput" ref={register({ required: true })} />

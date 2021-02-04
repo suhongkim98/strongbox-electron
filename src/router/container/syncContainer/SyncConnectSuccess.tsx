@@ -51,7 +51,7 @@ const SyncConnectSuccess = () => {
             <ProfileWrapper>
                 <Span size="2.5rem" fontWeight="700">연결 성공!</Span>
                 <Span size="5rem"><IoMdPerson /></Span>
-                <Span size="2rem" fontWeight="700">이름: {otherPartName}</Span>
+                <Span size="2rem" fontWeight="700">상대방 이름: {otherPartName}</Span>
                 <Span size="2rem" fontWeight="700">인증 번호: {vertificationCode}</Span>
             </ProfileWrapper>
             <TipWrapper>

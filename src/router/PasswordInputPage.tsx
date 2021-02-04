@@ -6,6 +6,8 @@ import sha256 from 'crypto-js/sha256';
 import { Redirect } from 'react-router-dom';
 import Span from '../components/Span';
 import PinBox from '../components/PinBox';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const TotalWrapper = styled.div`
 height: 100vh;
@@ -55,11 +57,21 @@ const PasswordInputPage:React.FC = () =>{
         }else{
             //틀렸다면
             console.log("로그인 실패");
+            toast.error('핀번호가 일치하지 않습니다.', {
+                position: "bottom-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                });
         }
     }
 
     if(redirect) return <Redirect to='/Main'/>
     return <TotalWrapper>
+        <ToastContainer />
         <FloatDiv width="500px" height="220px" title={name} returnURL="/">
             <InnerWrapper>
             <SpanWrapper><Span size="3rem" textColor="darkred" fontWeight={700}>PIN 입력</Span></SpanWrapper>

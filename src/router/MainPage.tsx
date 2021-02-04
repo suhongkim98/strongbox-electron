@@ -196,7 +196,7 @@ const MainPage:React.FC = () =>{
         <MainHeaderInnerWrapper>{selectedService['idx'] > 0 && <CenterContent><FolderSVG width="40px" height="40px"/><MainHeaderItem><Span textColor="black" size="4rem">{selectedService['name']}</Span></MainHeaderItem></CenterContent>}  </MainHeaderInnerWrapper>  
         <MainHeaderInnerWrapper>
         <MainHeaderProfile><ContextMenuTrigger id="profile" holdToDisplay={0}><Span textColor="black" size="2rem">{name}</Span></ContextMenuTrigger></MainHeaderProfile>
-        <MainHeaderItem><NavLink to="/Setting"><SettingSVG width="30px" height="30px" color="black"/></NavLink></MainHeaderItem></MainHeaderInnerWrapper></MainHeader>
+        <MainHeaderItem><NavLink to="/Setting/syncRequestPage"><SettingSVG width="30px" height="30px" color="black"/></NavLink></MainHeaderItem></MainHeaderInnerWrapper></MainHeader>
         <MainBody>
         {
         selectedService['idx'] > 0 ? <AccountView /> : <CenterContent><Span textColor="black" size="2rem" fontWeight="700" center>환영합니다!<br/>계정을 추가하거나 선택해주세요.</Span></CenterContent>
