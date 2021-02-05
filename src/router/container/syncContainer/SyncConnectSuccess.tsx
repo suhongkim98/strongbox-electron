@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { MdCached } from 'react-icons/md';
 import { IoMdPerson } from 'react-icons/io';
 import styled from 'styled-components';
 import Span from '../../../components/Span';
 import theme from '../../../styles/theme';
 import { useParams } from 'react-router-dom';
+import {stompConnect, stompDisconnect} from '../../../modules/SyncWebSocketContainer';
 
 const TotalWrapper = styled.div`
     height: 100%;
@@ -46,7 +47,17 @@ const Icon = styled(Span)`
 `;
 const SyncConnectSuccess = () => {
     const {otherPartName, vertificationCode}: any = useParams();
-    
+
+    useEffect(() => {
+        //stomp 구독하기
+        stompConnect();
+        
+        return () => {
+            console.log("동기화 이탈");
+            stompDisconnect();
+        }
+    }, []);
+
     return (<TotalWrapper>
             <ProfileWrapper>
                 <Span size="2.5rem" fontWeight="700">연결 성공!</Span>

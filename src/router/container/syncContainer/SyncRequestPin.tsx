@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import Span from '../../../components/Span';
 import { useInterval } from '../../../modules/customHook';
 import theme from '../../../styles/theme';
+import {stompConnect, stompDisconnect} from '../../../modules/SyncWebScoketContainer';
 
 const TotalWrapper = styled.div`
     display: flex;
@@ -40,11 +41,11 @@ const SyncRequestPin = ({history}: SyncRequestPinProps) => {
     
     useEffect(() => {
         //stomp 구독하기
-
-        //
+        stompConnect();
+        
         return () => {
-            console.log("이탈");
-            global.syncInfo = {}; // 초기화
+            console.log("동기화 이탈");
+            stompDisconnect();
         }
     }, []);
     
