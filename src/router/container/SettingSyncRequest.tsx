@@ -33,7 +33,7 @@ const SettingSyncRequest = () => {
         <BodyWrapper>
             <HashRouter>
                 <Route path="/Setting/syncRequestPage" exact component={SyncRequestMain} />
-                <Route path="/Setting/syncRequestPage/connectSuccess" component={SyncConnectSuccess} />
+                <Route path="/Setting/syncRequestPage/connectSuccess/:otherPartName/:vertificationCode" component={SyncConnectSuccess} />
                 <Route path="/Setting/syncRequestPage/pin/:vertificationCode" component={SyncRequestPin} />
             </HashRouter>
         </BodyWrapper>

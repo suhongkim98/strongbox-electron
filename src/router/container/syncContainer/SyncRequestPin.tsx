@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import Span from '../../../components/Span';
 import { useInterval } from '../../../modules/customHook';
 import theme from '../../../styles/theme';
-import {stompConnect, stompDisconnect} from '../../../modules/SyncWebScoketContainer';
+import {stompConnect, stompDisconnect} from '../../../modules/SyncWebSocketContainer';
 
 const TotalWrapper = styled.div`
     display: flex;
@@ -41,13 +41,27 @@ const SyncRequestPin = ({history}: SyncRequestPinProps) => {
     
     useEffect(() => {
         //stomp 구독하기
-        stompConnect();
+        stompConnect(onResponseMessage).then((result) => {
+
+        }).catch((error) => {
+            console.log(error);
+        });
         
         return () => {
             console.log("동기화 이탈");
             stompDisconnect();
         }
     }, []);
+
+    const onResponseMessage = (response: any) => {
+        // 구독 메시지가 도착했을 때 호출
+        const message = JSON.parse(response.body);
+        console.log(message);
+        if(message.type === "CONNECT_SUCCESS") {
+            // 동기화 응답자가 핀번호를 제대로 입력했다는 메시지를 보내 올 경우
+            history.replace("/Setting/syncRequestPage/connectSuccess/" + message.sender + "/" + vertificationCode);
+        }
+    }
     
     return (<TotalWrapper>
         <InnerWrapper>

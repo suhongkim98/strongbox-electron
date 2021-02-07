@@ -3,8 +3,9 @@ import Stomp from 'stompjs';
 
 let stompClient :Stomp.Client;
 
-export const stompConnect = () => {
-    const sockJS = new SockJS("http://localhost:8080/socket");
+export const stompConnect = (onResponseMessage: (response: any) => any) => {
+    return new Promise((succ, fail) => {
+        const sockJS = new SockJS("http://localhost:8080/socket");
     stompClient = Stomp.over(sockJS);
 
     const headers = {
@@ -13,13 +14,15 @@ export const stompConnect = () => {
 
     stompClient.connect(headers, function(frame) {  // 토큰 집어넣고
 		console.log('connected: ' + frame);
-		stompSubscribe('/topic/' + global.syncInfo.roomId); // 해당 방으로 구독
+		stompSubscribe('/topic/' + global.syncInfo.roomId, onResponseMessage); // 해당 방으로 구독
+        succ(true);
 	}, function(error){
-		console.log(error);
+        fail(error);
 	});
+    });
 }
 
-export const stompSubscribe = (path: string) => {
+export const stompSubscribe = (path: string, onResponseMessage: (response: any) => any) => {
     const headers = {
         'token': global.syncInfo.token, 
     };
@@ -29,6 +32,7 @@ export const stompSubscribe = (path: string) => {
 		console.log('응답: ' + response);
         const message = JSON.parse(response.body);
         console.log(message);
+        onResponseMessage(response);
 	},headers); 
 }
 

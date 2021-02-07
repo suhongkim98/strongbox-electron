@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import Span from '../../../components/Span';
 import theme from '../../../styles/theme';
 import { useParams } from 'react-router-dom';
-import {stompConnect, stompDisconnect} from '../../../modules/SyncWebSocketContainer';
+import {stompConnect, stompDisconnect, stompSendMessage} from '../../../modules/SyncWebSocketContainer';
 
 const TotalWrapper = styled.div`
     height: 100%;
@@ -50,13 +50,22 @@ const SyncConnectSuccess = () => {
 
     useEffect(() => {
         //stomp 구독하기
-        stompConnect();
+        stompConnect(onResponseMessage).then((result) => {
+            stompSendMessage("CONNECT_SUCCESS", "연결 성공");
+        }).catch((error) => {
+            console.log(error);
+        });
         
+
         return () => {
             console.log("동기화 이탈");
             stompDisconnect();
         }
     }, []);
+    const onResponseMessage = (response: any) => {
+        // 구독 메시지가 도착했을 때 호출
+        const message = JSON.parse(response.body);
+    }
 
     return (<TotalWrapper>
             <ProfileWrapper>
