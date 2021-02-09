@@ -30,8 +30,7 @@ export const stompSubscribe = (path: string, onResponseMessage: (response: any) 
     stompClient.subscribe(path, function(response) {
         //전달받은 메시지
 		console.log('응답: ' + response);
-        const message = JSON.parse(response.body);
-        console.log(message);
+        //const message = JSON.parse(response.body);
         onResponseMessage(response);
 	},headers); 
 }
@@ -47,7 +46,7 @@ export const stompSendMessage = (type: string, message: string) => {
     const body = {
         type: type,
         roomId: global.syncInfo.roomId, //서버에서는 토큰 안에 있는 룸아이디랑 이 룸아이디랑 일치하는지 검사해야한다.
-        sender: global.name,
+        senderToken: global.syncInfo.token,
         message: message,
     };
 	stompClient.send("/app/syncPub",{'token': global.syncInfo.token}, JSON.stringify(body)); 

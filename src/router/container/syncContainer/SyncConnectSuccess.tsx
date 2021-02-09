@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { MdCached } from 'react-icons/md';
 import { IoMdPerson } from 'react-icons/io';
 import styled from 'styled-components';
@@ -6,6 +6,7 @@ import Span from '../../../components/Span';
 import theme from '../../../styles/theme';
 import { useParams } from 'react-router-dom';
 import {stompConnect, stompDisconnect, stompSendMessage} from '../../../modules/SyncWebSocketContainer';
+import {StrongboxDatabase} from '../../../StrongboxDatabase';
 
 const TotalWrapper = styled.div`
     height: 100%;
@@ -31,10 +32,11 @@ const TipWrapper = styled.div`
 
     text-align: center;
 `;
-const SubmitBtn = styled.button`
+const SubmitBtn = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
+    margin: 0 5px 0 5px;
 `;
 const ButtonWrapper = styled.div`
     display: flex;
@@ -45,8 +47,13 @@ const Icon = styled(Span)`
     justify-content: center;
     align-items: center;
 `;
-const SyncConnectSuccess = () => {
+interface SyncConnectSuccessProps {
+    history: any;
+}
+const SyncConnectSuccess = ({history}: SyncConnectSuccessProps) => {
     const {otherPartName, vertificationCode}: any = useParams();
+    const [isSyncAgree, setSyncAgree] = useState(false);
+    const [isOtherPartAgree, setOtherPartAgree] = useState(false); // 상대방 동의 여부
 
     useEffect(() => {
         //stomp 구독하기
@@ -59,12 +66,55 @@ const SyncConnectSuccess = () => {
 
         return () => {
             console.log("동기화 이탈");
+            stompSendMessage("SYNC_DENY", "동기화 거부");
             stompDisconnect();
         }
     }, []);
+
+    useEffect(() => {
+        if(isOtherPartAgree && isSyncAgree) {
+            //둘 다 동의한 경우
+            const database = StrongboxDatabase.getInstance();
+            database.getAllSyncData().then((result) => {
+                //계정정보 상대방에게 건내주기
+                console.log(result);
+                
+            }).catch((error) => {
+                console.error(error);
+                onDegreeSync();
+            });
+            setSyncAgree(false); // 나는 동의여부 false로 바꾸어주고
+        }
+    }, [isOtherPartAgree, isSyncAgree]);
+
     const onResponseMessage = (response: any) => {
         // 구독 메시지가 도착했을 때 호출
         const message = JSON.parse(response.body);
+        if(message.senderToken === global.syncInfo.token) {
+            //내가 보낸 메시지는 무시
+            return;
+        }
+        //상대방이 보낸 메시지
+
+
+        if(message.type === "SYNC_DENY") {
+            //동기화 거부를 한다면
+            onDegreeSync(); // 나도 나갈랭
+        } else if(message.type === "SYNC_AGREE") {
+            //상대방이 동기화 동의를 한다면
+            setOtherPartAgree(true);
+        } else if(message.type === "DATA") {
+            //상대방이 건내준 계정 정보
+            
+            //내 로컬db에 동기화하기
+        }
+    }
+    const onAgreeSync = () => {
+        stompSendMessage("SYNC_AGREE", "동기화 찬성");
+        setSyncAgree(true);
+    }
+    const onDegreeSync = () => {
+        history.replace("/Setting/syncRequestPage");
     }
 
     return (<TotalWrapper>
@@ -80,8 +130,11 @@ const SyncConnectSuccess = () => {
                 </Span>
                 <Span size="1.4rem" textColor={theme.colors.backgroundMainColor}>이 단계에서 동기화를 하는 순간 상대방에게 계정정보가 보내집니다.</Span>
                 <ButtonWrapper>
-                    <SubmitBtn><Icon size="2rem"><MdCached /></Icon><Span size="2rem" fontWeight="700">동기화하기</Span></SubmitBtn>
-                    <SubmitBtn><Span size="2rem" fontWeight="700">취소</Span></SubmitBtn>
+                    {!isSyncAgree ? 
+                    <SubmitBtn onClick={onAgreeSync}><Icon size="2rem"><MdCached /></Icon><Span size="2rem" fontWeight="700">동기화하기</Span></SubmitBtn>
+                    : <Span size="2rem" fontWeight="700">상대방 동의 대기 중</Span>
+                    }
+                    <SubmitBtn onClick={onDegreeSync}><Span size="2rem" fontWeight="700">취소</Span></SubmitBtn>
                 </ButtonWrapper>
             </TipWrapper>
         </TotalWrapper>);
