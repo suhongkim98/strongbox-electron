@@ -100,6 +100,13 @@ const SyncConnectSuccess = ({history}: SyncConnectSuccessProps) => {
         }
     }, [isOtherPartAgree, isSyncAgree]);
 
+    useEffect(() => {
+        // 동기화 완료 시
+        if(isFinish){
+            onRedirect();
+        }
+    }, [isFinish]);
+
     const onResponseMessage = (response: any) => {
         // 구독 메시지가 도착했을 때 호출
         const message = JSON.parse(response.body);
@@ -121,9 +128,12 @@ const SyncConnectSuccess = ({history}: SyncConnectSuccessProps) => {
             const data = JSON.parse(message.message);
             //내 로컬db에 동기화하기
             console.log(data);
-            setFinish(true);
-            onRedirect();
-            //
+            const database = StrongboxDatabase.getInstance();
+            database.syncData(data).then((result) => {
+                setFinish(true);
+            }).catch((error) => {
+                console.error(error);
+            });
         }
     }
     const onAgreeSync = () => {

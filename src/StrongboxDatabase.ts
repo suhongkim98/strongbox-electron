@@ -422,4 +422,38 @@ export class StrongboxDatabase{
 
         return result;
     }
+    public async syncData(data: any) {
+        /*
+        변수: 그룹, 서비스 이름이 같은게 여러개일 때, 계정이 여러 개일 때 --> 단일만 존재하도록 해야겠다
+        그룹
+            존재하면 해당 그룹 idx을 기준으로 설정하고 밑에 서비스들 검사 // 동기화 데이터 idx는 key로 사용한다
+            존재하지 않으면 하위 모두 추가
+
+        서비스
+            존재하면 해당 서비스 기준으로 밑에 계정들 검사
+            존재하지 않다면 하위 모두 추가
+
+        계정	서비스에서 계정 검사 하기로 한 경우에만
+            id겹치는게 있는지 검사
+                패스워드 일치하면 date만 최신으로 업데이트
+                패스워드 다르면 date 최신인걸로 업데이트
+        */
+        const groups = data.groups;
+        const services = data.services;
+        const accounts = data.accounts;
+        const oauthAccounts = data.oauthAccounts;
+
+        const addGroupData = (group: any) => {
+            //해당 그룹 하위에 있는 모든 데이터 동기화
+        }
+       for(let i = 0 ; i < groups.length ; i++) {
+           const select: any = await this.fetchDatabase("*", "GROUPS_TB", "GRP_NAME = " + groups.GRP_NAME);
+           if(select.length > 0) {
+               // 그룹이 존재
+           } else {
+               // 그룹 존재 x
+               addGroupData(groups[i]);
+           }
+       }
+    }
 }
