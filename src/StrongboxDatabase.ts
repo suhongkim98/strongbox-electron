@@ -438,9 +438,11 @@ export class StrongboxDatabase{
             존재하지 않다면 하위 모두 추가
 
         계정	서비스에서 계정 검사 하기로 한 경우에만
-            id겹치는게 있는지 검사
-                패스워드 일치하면 date만 최신으로 업데이트
-                패스워드 다르면 date 최신인걸로 업데이트
+                계정이름 겹치는게 있는지 검사
+                계정이름 겹치는게 있다면 date최신으로 업데ㅣ이트
+                계정이름 겹치는게 없다면 새로추가
+
+        oauth계정
         */
         const groups = data.groups;
         const services = data.services;
@@ -449,6 +451,9 @@ export class StrongboxDatabase{
 
         const addGroupData = (group: any) => {
             //해당 그룹 하위에 있는 모든 데이터 동기화
+        }
+        const addServiceData = (service: any) => {
+            //해당 서비스 하위에 있는 모든 데이터 동기화
         }
        for(let i = 0 ; i < groups.length ; i++) {
            const select: any = await this.fetchDatabase("*", "GROUPS_TB", "GRP_NAME = " + groups.GRP_NAME);
@@ -469,7 +474,19 @@ export class StrongboxDatabase{
         return false;
     }
     public async isExistServiceName(serviceName: string, groupIndex: number) {
+        const query = "SELECT * FROM SERVICES_TB STB "
+        + "JOIN GROUPS_TB GTB ON STB.GRP_IDX = GTB.IDX "
+        + "WHERE GTB.IDX = " + groupIndex + " AND STB.SERVICE_NAME = '" + serviceName + "'";
+        const select: any = await this.getQuery(query);
+        if(select.length > 0) return true;
+        return false;
     }
     public async isExistAccountName(accountName: string, serviceIndex: number) {
+        const query = "SELECT * FROM ACCOUNTS_TB ATB "
+        + "JOIN SERVICES_TB STB ON STB.IDX = ATB.SERVICE_IDX "
+        + "WHERE STB.IDX = " + serviceIndex + " AND ATB.ACCOUNT_NAME = '" + accountName + "'";
+        const select: any = await this.getQuery(query);
+        if(select.length > 0) return true;
+        return false;
     }
 }
