@@ -72,6 +72,19 @@ export class StrongboxDatabase{
         });
     }
 
+    private async getQuery(query: string){
+        return new Promise((succ, fail) =>{
+            const db = this.connectDatabase();
+            db.all(query, [], (err: any, arg: any) =>{
+                if (err) {
+                    fail(err);
+                } else {
+                    succ(arg);
+                } 
+            });
+            this.disconnectDatabase(db);
+        });
+    }
     public async select(col: string, table: string, where?: string){
         // DB에서 SELECT 쿼리 실행하는 함수
         // select할 땐 비동기 문제 땜시 이렇게 해야함
@@ -374,19 +387,7 @@ export class StrongboxDatabase{
 
     public async getAllSyncData() {
         //동기화 데이터 내보낼 계정정보 뽑아내기
-        const getData = (query: string) => {
-            return new Promise((succ, fail) =>{
-                const db = this.connectDatabase();
-                db.all(query, [], (err: any, arg: any) =>{
-                    if (err) {
-                        fail(err);
-                    } else {
-                        succ(arg);
-                    } 
-                });
-                this.disconnectDatabase(db);
-            });
-        }
+        
 
         // 그룹리스트 뽑기
         const groupQuery = "SELECT G_TB.IDX, GRP_NAME FROM GROUPS_TB G_TB JOIN USERS_TB U_TB ON G_TB.OWNER_IDX = U_TB.IDX";
@@ -408,10 +409,10 @@ export class StrongboxDatabase{
         + "JOIN USERS_TB U_TB ON U_TB.IDX = G_TB.OWNER_IDX "
         + "ORDER BY O_TB.DATE ASC";
 
-        const groups = await getData(groupQuery);
-        const services = await getData(serviceQuery);
-        const accounts = await getData(accountQuery);
-        const oauths = await getData(oauthAccountQuery);
+        const groups = await this.getQuery(groupQuery);
+        const services = await this.getQuery(serviceQuery);
+        const accounts = await this.getQuery(accountQuery);
+        const oauths = await this.getQuery(oauthAccountQuery);
 
         const result = {
             groups: groups,
@@ -455,5 +456,17 @@ export class StrongboxDatabase{
                addGroupData(groups[i]);
            }
        }
+    }
+    public async isExistGroupName(grpName: string) {
+        const query = "SELECT * FROM GROUPS_TB "
+        + "JOIN USERS_TB ON GROUPS_TB.OWNER_IDX = USERS_TB.IDX "
+        + "WHERE USERS_TB.IDX = " + global.idx + " AND GROUPS_TB.GRP_NAME = '" + grpName + "'";
+        const select: any = await this.getQuery(query);
+        if(select.length > 0) return true;
+        return false;
+    }
+    public async isExistServiceName(serviceName: string, groupIndex: number) {
+    }
+    public async isExistAccountName(accountName: string, serviceIndex: number) {
     }
 }
