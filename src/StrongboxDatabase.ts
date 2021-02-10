@@ -390,24 +390,27 @@ export class StrongboxDatabase{
         
 
         // 그룹리스트 뽑기
-        const groupQuery = "SELECT G_TB.IDX, GRP_NAME FROM GROUPS_TB G_TB JOIN USERS_TB U_TB ON G_TB.OWNER_IDX = U_TB.IDX";
+        const groupQuery = "SELECT G_TB.IDX, GRP_NAME FROM GROUPS_TB G_TB JOIN USERS_TB U_TB ON G_TB.OWNER_IDX = U_TB.IDX WHERE U_TB.IDX = " + global.idx;
         // 서비스 리스트 뽑기
         const serviceQuery = "SELECT S_TB.IDX, GRP_IDX, SERVICE_NAME "
         + "FROM SERVICES_TB S_TB " 
         + "JOIN GROUPS_TB G_TB ON G_TB.IDX = S_TB.GRP_IDX "
-        + "JOIN USERS_TB U_TB ON U_TB.IDX = G_TB.OWNER_IDX";
+        + "JOIN USERS_TB U_TB ON U_TB.IDX = G_TB.OWNER_IDX "
+        + "WHERE U_TB.IDX = " + global.idx;
         // 계정리스트 뽑기
         const accountQuery = "SELECT A_TB.IDX, DATE, SERVICE_IDX, ACCOUNT_NAME, A_TB.ID, A_TB.PASSWORD FROM ACCOUNTS_TB A_TB "
         + "JOIN SERVICES_TB S_TB ON S_TB.IDX = A_TB.SERVICE_IDX "
         + "JOIN GROUPS_TB G_TB ON G_TB.IDX = S_TB.GRP_IDX "
         + "JOIN USERS_TB U_TB ON U_TB.IDX = G_TB.OWNER_IDX "
-        + "ORDER BY A_TB.DATE ASC";
+        + "ORDER BY A_TB.DATE ASC "
+        + "WHERE U_TB.IDX = " + global.idx;
         // oauth계정 뽑기"
         const oauthAccountQuery = "SELECT O_TB.IDX, ACCOUNT_IDX, ACCOUNT_NAME, SERVICE_IDX, DATE FROM OAUTH_ACCOUNTS_TB O_TB "
         + "JOIN SERVICES_TB S_TB ON S_TB.IDX = O_TB.SERVICE_IDX "
         + "JOIN GROUPS_TB G_TB ON G_TB.IDX = S_TB.GRP_IDX "
         + "JOIN USERS_TB U_TB ON U_TB.IDX = G_TB.OWNER_IDX "
-        + "ORDER BY O_TB.DATE ASC";
+        + "ORDER BY O_TB.DATE ASC "
+        + "WHERE U_TB.IDX = " + global.idx;
 
         const groups = await this.getQuery(groupQuery);
         const services = await this.getQuery(serviceQuery);
