@@ -156,15 +156,41 @@ const AddAccountPopup = ({onBackgroundClicked}:AddAccountPopupProps) =>{
             return;
         }
         const database = StrongboxDatabase.getInstance();
-        //계정 추가
-        database.addAccount(selectedService.idx, data.accountName, {OAuthAccountIDX: data.accountSelect}).then(()=>{
-            //redux 건들기
-            dispatch(updateAccountAsync(selectedService.idx));
-        }).catch((error)=>{
+        database.isExistOauthAccountName(data.accountName, selectedService.idx).then((result) => {
+            if(result) {
+                toast.error('이미 존재하는 계정입니다.', {
+                    position: "bottom-right",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    });
+            } else {
+                //계정 추가
+                database.addAccount(selectedService.idx, data.accountName, {OAuthAccountIDX: data.accountSelect}).then(()=>{
+                    //redux 건들기
+                    dispatch(updateAccountAsync(selectedService.idx));
+                    onBackgroundClicked(); // 창닫기
+                }).catch((error)=>{
+                    console.log(error);
+                    toast.error('계정 추가하는데 문제가 있습니다.', {
+                        position: "bottom-right",
+                        autoClose: 5000,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                        });
+                });                
+            }
+        }).catch((error) => {
             console.log(error);
         });
-        dispatch(updateAccountAsync(selectedService.idx));
-        onBackgroundClicked(); // 창닫기
+        
+        
     }
     return (<TotalWrapper>
         <ToastContainer />

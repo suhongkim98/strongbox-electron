@@ -428,7 +428,7 @@ export class StrongboxDatabase{
     }
     public async syncData(data: any) {
         /*
-        변수: 그룹, 서비스 이름이 같은게 여러개일 때, 계정이 여러 개일 때 --> 단일만 존재하도록 해야겠다
+        변수: 그룹, 서비스, 계정 이름이 같은게 여러개일 때, 계정이 여러 개일 때 --> 이름 기준으로 단일만 존재하도록 해야겠다
         그룹
             존재하면 해당 그룹 idx을 기준으로 설정하고 밑에 서비스들 검사 // 동기화 데이터 idx는 key로 사용한다
             존재하지 않으면 하위 모두 추가
@@ -439,10 +439,13 @@ export class StrongboxDatabase{
 
         계정	서비스에서 계정 검사 하기로 한 경우에만
                 계정이름 겹치는게 있는지 검사
-                계정이름 겹치는게 있다면 date최신으로 업데ㅣ이트
-                계정이름 겹치는게 없다면 새로추가
+                계정이름 겹치는게 있다면 date최신으로 업데이트 및 oauth계정 검사
+                계정이름 겹치는게 없다면 새로추가 및 oauth계정 있으면 새로 추가
 
-        oauth계정
+        oauth계정   계정에서 oauth계정 검사 하기로 한 경우에만
+                계정이름 겹치는게 있는지 검사
+                계정이름 겹치는게 있다면 date만최신으로 업데ㅣ이트
+                계정이름 겹치는게 없다면 새로추가
         */
         const groups = data.groups;
         const services = data.services;
@@ -485,6 +488,14 @@ export class StrongboxDatabase{
         const query = "SELECT * FROM ACCOUNTS_TB ATB "
         + "JOIN SERVICES_TB STB ON STB.IDX = ATB.SERVICE_IDX "
         + "WHERE STB.IDX = " + serviceIndex + " AND ATB.ACCOUNT_NAME = '" + accountName + "'";
+        const select: any = await this.getQuery(query);
+        if(select.length > 0) return true;
+        return false;
+    }
+    public async isExistOauthAccountName(oauthAccountName: string, serviceIndex: number) {
+        const query = "SELECT * FROM OAUTH_ACCOUNTS_TB ATB "
+        + "JOIN SERVICES_TB STB ON STB.IDX = ATB.SERVICE_IDX "
+        + "WHERE STB.IDX = " + serviceIndex + " AND ATB.ACCOUNT_NAME = '" + oauthAccountName + "'";
         const select: any = await this.getQuery(query);
         if(select.length > 0) return true;
         return false;
