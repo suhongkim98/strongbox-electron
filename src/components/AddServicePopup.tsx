@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form";
 import Span from './Span';
 import { useDispatch } from 'react-redux';
 import { updateServiceAsync } from '../modules/serviceList';
+import { toast, ToastContainer } from 'react-toastify';
 
 interface AddServcePopupProps{
     onBackgroundClicked:any;
@@ -32,6 +33,14 @@ border-color:black;
 border-radius:5px;
 `;
 
+const TotalWrapper = styled.div`
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 2;
+    width:100%;
+    height:100%;
+`;
 interface AddServiceUseFormProps{
     serviceInputBox:string;
     groupSelect:string;
@@ -44,19 +53,47 @@ const AddServcePopup = ({onBackgroundClicked,groupIdx}:AddServcePopupProps) =>{
         const serviceName = data.serviceInputBox;
         console.log(serviceName);
         const database = StrongboxDatabase.getInstance();
-        database.addService(groupIdx,serviceName).then((result)=>{
-            if(result){
-                dispatch(updateServiceAsync());
-                onBackgroundClicked();
-            }else{
-                //실패 시
-                console.log("서비스추가 실패");
+        database.isExistServiceName(serviceName, groupIdx).then((result) => {
+            if(result) {
+                toast.error('이미 해당 서비스가 존재합니다.', {
+                    position: "bottom-right",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    });
+            } else {
+                database.addService(groupIdx,serviceName).then((result)=>{
+                    if(result){
+                        dispatch(updateServiceAsync());
+                        onBackgroundClicked();
+                    }else{
+                        //실패 시
+                        console.log("서비스추가 실패");
+                        toast.error('서비스 추가하는데 문제가 있습니다.', {
+                            position: "bottom-right",
+                            autoClose: 5000,
+                            hideProgressBar: false,
+                            closeOnClick: true,
+                            pauseOnHover: true,
+                            draggable: true,
+                            progress: undefined,
+                            });
+                    }
+                }).catch((error)=>{
+                    console.log(error);
+                });
             }
-        }).catch((error)=>{
-            console.log(error);
+        }).catch((error) => {
+            console.error(error);
         });
+        
     }
-    return <PopupFloatDiv 
+    return (<TotalWrapper>
+        <ToastContainer />
+        <PopupFloatDiv 
     title="폴더에 계정 추가"
     onBackgroundClicked={onBackgroundClicked}>
         <form onSubmit={handleSubmit(onButtonClicked)}>
@@ -66,6 +103,7 @@ const AddServcePopup = ({onBackgroundClicked,groupIdx}:AddServcePopupProps) =>{
             <FooterWrapper><Button>저장</Button></FooterWrapper>
         </form>
     </PopupFloatDiv>    
+    </TotalWrapper>);
 }
 
 export default AddServcePopup;

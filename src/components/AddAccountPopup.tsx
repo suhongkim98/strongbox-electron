@@ -2,6 +2,7 @@ import { AES, enc } from 'crypto-js';
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
+import { toast, ToastContainer } from 'react-toastify';
 import { RootState } from '../modules';
 import { updateAccountAsync } from '../modules/accountList';
 import { StrongboxDatabase } from '../StrongboxDatabase';
@@ -74,6 +75,14 @@ interface AddAccountUseFormProps {
     id:string;
     pw:string;
 }
+const TotalWrapper = styled.div`
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 2;
+    width:100%;
+    height:100%;
+`;
 const AddAccountPopup = ({onBackgroundClicked}:AddAccountPopupProps) =>{
     const selectedService = useSelector((state: RootState)=>state.selectedService.itemIndex);
     const serviceList = useSelector((state: RootState)=>state.serviceList.list);
@@ -107,13 +116,39 @@ const AddAccountPopup = ({onBackgroundClicked}:AddAccountPopupProps) =>{
     const onSubmitIdPassword = (data:any) =>{
         const database = StrongboxDatabase.getInstance();
         //계정 추가
-        database.addAccount(selectedService.idx, data.accountName, {id: data.id, password: data.pw}).then(()=>{
-            //redux 건들기
-            dispatch(updateAccountAsync(selectedService.idx));
-        }).catch((error)=>{
-            console.log(error);
+        database.isExistAccountName(data.accountName, selectedService.idx).then((result) => {
+            if(result) {
+                toast.error('이미 존재하는 계정입니다.', {
+                    position: "bottom-right",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    });
+            } else {
+                database.addAccount(selectedService.idx, data.accountName, {id: data.id, password: data.pw}).then(()=>{
+                    //redux 건들기
+                    dispatch(updateAccountAsync(selectedService.idx));
+                    onBackgroundClicked(); // 창닫기
+                }).catch((error)=>{
+                    console.error(error);
+                    toast.error('계정 추가하는데 문제가 있습니다.', {
+                        position: "bottom-right",
+                        autoClose: 5000,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                        });
+                });
+            }
+        }).catch((error) => {
+            console.error(error);
         });
-        onBackgroundClicked(); // 창닫기
+        
     }
 
     const onSubmitOAuth = (data:any) =>{
@@ -131,7 +166,9 @@ const AddAccountPopup = ({onBackgroundClicked}:AddAccountPopupProps) =>{
         dispatch(updateAccountAsync(selectedService.idx));
         onBackgroundClicked(); // 창닫기
     }
-    return <PopupFloatDiv 
+    return (<TotalWrapper>
+        <ToastContainer />
+        <PopupFloatDiv 
     title="계정 추가"
     onBackgroundClicked={onBackgroundClicked}>
         <BodyWrapper>
@@ -166,6 +203,7 @@ const AddAccountPopup = ({onBackgroundClicked}:AddAccountPopupProps) =>{
         }
         </BodyWrapper>
     </PopupFloatDiv>
+    </TotalWrapper>);
 }
 
 export default AddAccountPopup;
