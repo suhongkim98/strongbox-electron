@@ -117,7 +117,7 @@ const AddAccountPopup = ({onBackgroundClicked}:AddAccountPopupProps) =>{
         const database = StrongboxDatabase.getInstance();
         //계정 추가
         database.isExistAccountName(data.accountName, selectedService.idx).then((result) => {
-            if(result) {
+            if(result > 0) {
                 toast.error('이미 존재하는 계정입니다.', {
                     position: "bottom-right",
                     autoClose: 5000,
@@ -156,8 +156,8 @@ const AddAccountPopup = ({onBackgroundClicked}:AddAccountPopupProps) =>{
             return;
         }
         const database = StrongboxDatabase.getInstance();
-        database.isExistOauthAccountName(data.accountName, selectedService.idx).then((result) => {
-            if(result) {
+        database.isExistOauthAccountName(data.accountName, selectedService.idx, data.accountSelect).then((result) => {
+            if(result > 0) {
                 toast.error('이미 존재하는 계정입니다.', {
                     position: "bottom-right",
                     autoClose: 5000,

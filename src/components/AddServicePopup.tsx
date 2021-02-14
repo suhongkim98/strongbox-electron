@@ -54,7 +54,7 @@ const AddServcePopup = ({onBackgroundClicked,groupIdx}:AddServcePopupProps) =>{
         console.log(serviceName);
         const database = StrongboxDatabase.getInstance();
         database.isExistServiceName(serviceName, groupIdx).then((result) => {
-            if(result) {
+            if(result > 0) {
                 toast.error('이미 해당 서비스가 존재합니다.', {
                     position: "bottom-right",
                     autoClose: 5000,

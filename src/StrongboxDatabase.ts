@@ -444,7 +444,7 @@ export class StrongboxDatabase{
 
         oauth계정   계정에서 oauth계정 검사 하기로 한 경우에만
                 계정이름 겹치는게 있는지 검사
-                계정이름 겹치는게 있다면 date만최신으로 업데ㅣ이트
+                계정이름 겹치는게 있다면 date만최신으로 업데이트
                 계정이름 겹치는게 없다면 새로추가
         */
         const groups = data.groups;
@@ -453,51 +453,107 @@ export class StrongboxDatabase{
         const oauthAccounts = data.oauthAccounts;
 
         const addGroupData = (group: any) => {
-            //해당 그룹 하위에 있는 모든 데이터 동기화
+            //해당 그룹 추가
+            //하위에 있는 모든 데이터 추가
+            const userIdx = global.idx;
         }
-        const addServiceData = (service: any) => {
-            //해당 서비스 하위에 있는 모든 데이터 동기화
+        const addServiceData = (service: any, targetGroupIdx: number) => {
+            //target그룹idx로 해당 서비스 추가
+            //하위에 있는 모든 데이터 추가
+        }
+        const addAccountData = (account: any, targetServiceIdx: number) => {
+            //target서비스idx로 해당 계정 추가
+            //하위에 있는 oauth계정 데이터 추가
+        }
+        const addOauthAccountData = (oauthAccount: any, targetServiceIdx: number, targetAccountIdx: number) => {
+            //target서비스idx, target계정idx로 해당 oauth계정 추가
+        }
+        const updateAccountData = (account: any, targetServiceIdx: number, targetAccountIdx: number) => {
+            // 어떤 데이터가 date가 최신인지 비교 후 target서비스idx, target계정idx로 계정 업데이트
+        }
+        const updateOauthAccountData = (oauthAccount: any, targetServiceIdx: number, targetAccountIdx: number) => {
+            //target서비스idx, target계정idx로 oauth 계정 업데이트
         }
        for(let i = 0 ; i < groups.length ; i++) {
-           const select: any = await this.fetchDatabase("*", "GROUPS_TB", "GRP_NAME = " + groups.GRP_NAME);
-           if(select.length > 0) {
-               // 그룹이 존재
-           } else {
-               // 그룹 존재 x
-               addGroupData(groups[i]);
+           if (groups[i] === undefined) continue; //delete된 요소라면 통과
+
+           const groupIdx: number = await this.isExistGroupName(groups[i].GRP_NAME);
+           if(groupIdx > 0) { // 그룹이 존재
+               for(let j = 0 ; j < services.length ; j++) {
+                   if (services[j] === undefined) continue; //delete된 요소라면 통과
+
+                   const serviceIdx: number = await this.isExistServiceName(services[j].SERVICE_NAME, groupIdx);
+                   if(serviceIdx > 0) { //서비스 존재
+                       for(let k = 0 ; k < accounts.length ; k++) {
+                           if (accounts[k] === undefined) continue; //delete된 요소라면 통과
+
+                           const accountIdx: number = await this.isExistAccountName(accounts[k].ACCOUNT_NAME, serviceIdx);
+                           if(accountIdx > 0) {
+                               updateAccountData(accounts[k], serviceIdx, accountIdx); // 가져온 데이터가 date최신이면 그 데이터로 계정 업데이트하기
+
+                               //oauth계정 검사
+                               for(let q = 0 ; q < oauthAccounts.length ; q++) {
+                                   if (oauthAccounts[q] === undefined) continue; //delete된 요소라면 통과
+
+                                   const oauthAccountIdx: number = await this.isExistOauthAccountName(oauthAccounts[q].ACCOUNT_NAME, serviceIdx, accountIdx);
+                                   if(oauthAccountIdx > 0) {
+                                       updateOauthAccountData(oauthAccounts[q], serviceIdx, accountIdx); //date만 최신으로 업데이트
+
+                                       delete oauthAccounts[q]; // 업데이트된 요소는 다시는 추가 안 되게 undefined 처리
+                                   }
+                               }
+                               delete accounts[k]; // 업데이트된 요소는 다시는 추가 안 되게 undefined 처리
+                           }
+                       }
+                       delete services[j]; // 업데이트된 요소는 다시는 추가 안 되게 undefined 처리
+                   }
+               }
+               delete groups[i]; // 업데이트된 요소는 다시는 추가 안 되게 undefined 처리
            }
        }
+       //중복된 것은 다 업데이트 되었고 아직도 남아있는 그룹, 서비스, 계정, oauth계정 요소들은 검사 없이 새로 추가해야할 데이터임
+       
+       //
     }
     public async isExistGroupName(grpName: string) {
         const query = "SELECT * FROM GROUPS_TB "
         + "JOIN USERS_TB ON GROUPS_TB.OWNER_IDX = USERS_TB.IDX "
         + "WHERE USERS_TB.IDX = " + global.idx + " AND GROUPS_TB.GRP_NAME = '" + grpName + "'";
         const select: any = await this.getQuery(query);
-        if(select.length > 0) return true;
-        return false;
+        if(select.length > 0) {
+            return select[0].IDX;
+        }
+        return -1;
     }
     public async isExistServiceName(serviceName: string, groupIndex: number) {
         const query = "SELECT * FROM SERVICES_TB STB "
         + "JOIN GROUPS_TB GTB ON STB.GRP_IDX = GTB.IDX "
         + "WHERE GTB.IDX = " + groupIndex + " AND STB.SERVICE_NAME = '" + serviceName + "'";
         const select: any = await this.getQuery(query);
-        if(select.length > 0) return true;
-        return false;
+        if(select.length > 0) {
+            return select[0].IDX;
+        }
+        return -1;
     }
     public async isExistAccountName(accountName: string, serviceIndex: number) {
         const query = "SELECT * FROM ACCOUNTS_TB ATB "
         + "JOIN SERVICES_TB STB ON STB.IDX = ATB.SERVICE_IDX "
         + "WHERE STB.IDX = " + serviceIndex + " AND ATB.ACCOUNT_NAME = '" + accountName + "'";
         const select: any = await this.getQuery(query);
-        if(select.length > 0) return true;
-        return false;
+        if(select.length > 0) {
+            return select[0].IDX;
+        }
+        return -1;
     }
-    public async isExistOauthAccountName(oauthAccountName: string, serviceIndex: number) {
-        const query = "SELECT * FROM OAUTH_ACCOUNTS_TB ATB "
-        + "JOIN SERVICES_TB STB ON STB.IDX = ATB.SERVICE_IDX "
-        + "WHERE STB.IDX = " + serviceIndex + " AND ATB.ACCOUNT_NAME = '" + oauthAccountName + "'";
+    public async isExistOauthAccountName(oauthAccountName: string, serviceIndex: number, accountIndex: number) {
+        //해당 서비스에 특정 계정idx를 참조하는 중복된 이름이 있는지 검사
+        const query = "SELECT * FROM OAUTH_ACCOUNTS_TB OTB "
+        + "JOIN SERVICES_TB STB ON STB.IDX = OTB.SERVICE_IDX "
+        + "WHERE STB.IDX = " + serviceIndex + " AND OTB.ACCOUNT_NAME = '" + oauthAccountName + "' AND OTB.ACCOUNT_IDX = " + accountIndex;
         const select: any = await this.getQuery(query);
-        if(select.length > 0) return true;
-        return false;
+        if(select.length > 0) {
+            return select[0].IDX;
+        }
+        return -1;
     }
 }

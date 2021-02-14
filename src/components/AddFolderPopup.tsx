@@ -45,7 +45,7 @@ const AddFolderPopup = ({onBackgroundClicked}:AddFolderPopupProps) =>{
         //클릭 시 DB에 데이터 집어넣고
         const database = StrongboxDatabase.getInstance();
         database.isExistGroupName(folderName).then((result) => {
-            if(result === true) {
+            if(result > 0) {
                 toast.error('이미 그룹이 존재합니다.', {
                     position: "bottom-right",
                     autoClose: 5000,
