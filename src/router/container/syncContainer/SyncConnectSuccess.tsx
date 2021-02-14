@@ -8,6 +8,8 @@ import { useParams } from 'react-router-dom';
 import {stompConnect, stompDisconnect, stompSendMessage} from '../../../modules/SyncWebSocketContainer';
 import {StrongboxDatabase} from '../../../StrongboxDatabase';
 import { AES, enc } from "crypto-js";
+import { updateGroupAsync } from '../../../modules/groupList';
+import { updateServiceAsync } from '../../../modules/serviceList';
 
 const TotalWrapper = styled.div`
     height: 100%;
@@ -130,6 +132,9 @@ const SyncConnectSuccess = ({history}: SyncConnectSuccessProps) => {
             console.log(data);
             const database = StrongboxDatabase.getInstance();
             database.syncData(data).then((result) => {
+                updateGroupAsync();
+                updateServiceAsync();
+                console.log('aa');
                 setFinish(true);
             }).catch((error) => {
                 console.error(error);

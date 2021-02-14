@@ -72,7 +72,7 @@ export class StrongboxDatabase{
         });
     }
 
-    private async getQuery(query: string){
+    private getQuery(query: string){
         return new Promise((succ, fail) =>{
             const db = this.connectDatabase();
             db.all(query, [], (err: any, arg: any) =>{
@@ -390,7 +390,7 @@ export class StrongboxDatabase{
         
 
         // 그룹리스트 뽑기
-        const groupQuery = "SELECT G_TB.IDX, GRP_NAME FROM GROUPS_TB G_TB JOIN USERS_TB U_TB ON G_TB.OWNER_IDX = U_TB.IDX WHERE U_TB.IDX = " + global.idx;
+        const groupQuery = "SELECT IDX, GRP_NAME FROM GROUPS_TB WHERE OWNER_IDX = " + global.idx;
         // 서비스 리스트 뽑기
         const serviceQuery = "SELECT S_TB.IDX, GRP_IDX, SERVICE_NAME "
         + "FROM SERVICES_TB S_TB " 
@@ -402,15 +402,15 @@ export class StrongboxDatabase{
         + "JOIN SERVICES_TB S_TB ON S_TB.IDX = A_TB.SERVICE_IDX "
         + "JOIN GROUPS_TB G_TB ON G_TB.IDX = S_TB.GRP_IDX "
         + "JOIN USERS_TB U_TB ON U_TB.IDX = G_TB.OWNER_IDX "
+        + "WHERE U_TB.IDX = " + global.idx + " "
         + "ORDER BY A_TB.DATE ASC "
-        + "WHERE U_TB.IDX = " + global.idx;
         // oauth계정 뽑기"
         const oauthAccountQuery = "SELECT O_TB.IDX, ACCOUNT_IDX, ACCOUNT_NAME, SERVICE_IDX, DATE FROM OAUTH_ACCOUNTS_TB O_TB "
         + "JOIN SERVICES_TB S_TB ON S_TB.IDX = O_TB.SERVICE_IDX "
         + "JOIN GROUPS_TB G_TB ON G_TB.IDX = S_TB.GRP_IDX "
         + "JOIN USERS_TB U_TB ON U_TB.IDX = G_TB.OWNER_IDX "
-        + "ORDER BY O_TB.DATE ASC "
-        + "WHERE U_TB.IDX = " + global.idx;
+        + "WHERE U_TB.IDX = " + global.idx + " "
+        + "ORDER BY O_TB.DATE ASC ";
 
         const groups = await this.getQuery(groupQuery);
         const services = await this.getQuery(serviceQuery);
@@ -455,25 +455,47 @@ export class StrongboxDatabase{
         const addGroupData = (group: any) => {
             //해당 그룹 추가
             //하위에 있는 모든 데이터 추가
+            //idx반환
             const userIdx = global.idx;
         }
         const addServiceData = (service: any, targetGroupIdx: number) => {
             //target그룹idx로 해당 서비스 추가
             //하위에 있는 모든 데이터 추가
+            //idx반환
         }
         const addAccountData = (account: any, targetServiceIdx: number) => {
             //target서비스idx로 해당 계정 추가
             //하위에 있는 oauth계정 데이터 추가
+            //idx반환
         }
         const addOauthAccountData = (oauthAccount: any, targetServiceIdx: number, targetAccountIdx: number) => {
             //target서비스idx, target계정idx로 해당 oauth계정 추가
+            //idx반환
         }
-        const updateAccountData = (account: any, targetServiceIdx: number, targetAccountIdx: number) => {
-            // 어떤 데이터가 date가 최신인지 비교 후 target서비스idx, target계정idx로 계정 업데이트
+        const updateAccountData = (account: any, targetAccountIdx: number) => {
+            // target서비스idx, target계정idx로 계정 업데이트
+            //비밀번호 암호화해서 저장
+            const id = account.ID;
+            const encrypedPassword = AES.encrypt(account.PASSWORD as string, global.key);
+
+            const query = "UPDATE ACCOUNTS_TB SET (ID, PASSWORD, DATE) = ('" + id + "', '" + encrypedPassword + "', datetime('now', 'localtime')) "
+            + "WHERE IDX = " + targetAccountIdx;
+            return this.getQuery(query);
         }
         const updateOauthAccountData = (oauthAccount: any, targetServiceIdx: number, targetAccountIdx: number) => {
             //target서비스idx, target계정idx로 oauth 계정 업데이트
+            const query = "UPDATE OAUTH_ACCOUNTS_TB SET (ACCOUNT_NAME, DATE) = (" + oauthAccount.ACCOUNT_NAME + ", datetime('now', 'localtime')) "
+            + "WHERE ACCOUNT_IDX = " + targetAccountIdx + " AND SERVICE_IDX = " + targetServiceIdx;
+            return this.getQuery(query);
         }
+
+        const splitDate = (date: string) => {
+            //문자열 가져와 잘라 json 반환
+            const split = date.split(' ');
+            const [calendar, time] = [split[0].split('-'), split[1].split(':')];
+            return {year: parseInt(calendar[0]), month: parseInt(calendar[1]), day: parseInt(calendar[2]), hour: parseInt(time[0]), min: parseInt(time[1]), sec: parseInt(time[2])};
+        }
+
        for(let i = 0 ; i < groups.length ; i++) {
            if (groups[i] === undefined) continue; //delete된 요소라면 통과
 
@@ -489,15 +511,23 @@ export class StrongboxDatabase{
 
                            const accountIdx: number = await this.isExistAccountName(accounts[k].ACCOUNT_NAME, serviceIdx);
                            if(accountIdx > 0) {
-                               updateAccountData(accounts[k], serviceIdx, accountIdx); // 가져온 데이터가 date최신이면 그 데이터로 계정 업데이트하기
-
+                               // 가져온 데이터가 date최신이면 그 데이터로 계정 업데이트하기
+                               const select: any = await this.getQuery('SELECT DATE FROM ACCOUNTS_TB WHERE IDX = ' + accountIdx); // date꺼내오기
+                               const [previousDataSplitDate, newDataSplitDate] = [splitDate(select[0].DATE), splitDate(accounts[k].DATE)];
+                               const previousDataDate = new Date(previousDataSplitDate.year, previousDataSplitDate.month, previousDataSplitDate.day, previousDataSplitDate.hour, previousDataSplitDate.min, previousDataSplitDate.sec);
+                               const newDataDate = new Date(newDataSplitDate.year, newDataSplitDate.month, newDataSplitDate.day, newDataSplitDate.hour, newDataSplitDate.min, newDataSplitDate.sec);
+                               
+                               if(previousDataDate.getTime() < newDataDate.getTime()) {
+                                   //새로운 데이터가 더 최신인 경우 업데이트
+                                   await updateAccountData(accounts[k], accountIdx); 
+                               }
                                //oauth계정 검사
                                for(let q = 0 ; q < oauthAccounts.length ; q++) {
                                    if (oauthAccounts[q] === undefined) continue; //delete된 요소라면 통과
 
                                    const oauthAccountIdx: number = await this.isExistOauthAccountName(oauthAccounts[q].ACCOUNT_NAME, serviceIdx, accountIdx);
                                    if(oauthAccountIdx > 0) {
-                                       updateOauthAccountData(oauthAccounts[q], serviceIdx, accountIdx); //date만 최신으로 업데이트
+                                       await updateOauthAccountData(oauthAccounts[q], serviceIdx, accountIdx); //date만 최신으로 업데이트
 
                                        delete oauthAccounts[q]; // 업데이트된 요소는 다시는 추가 안 되게 undefined 처리
                                    }
@@ -512,8 +542,11 @@ export class StrongboxDatabase{
            }
        }
        //중복된 것은 다 업데이트 되었고 아직도 남아있는 그룹, 서비스, 계정, oauth계정 요소들은 검사 없이 새로 추가해야할 데이터임
-       
-       //
+       for(let i = 0 ; i < groups.length; i++) {
+           if(groups[i] === undefined) continue;
+
+           const newGroupIdx = await addGroupData(groups[i]);
+       }
     }
     public async isExistGroupName(grpName: string) {
         const query = "SELECT * FROM GROUPS_TB "
