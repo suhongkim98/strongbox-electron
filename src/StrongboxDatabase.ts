@@ -454,23 +454,48 @@ export class StrongboxDatabase{
 
         const addGroupData = (group: any) => {
             //해당 그룹 추가
-            //하위에 있는 모든 데이터 추가
             //idx반환
             const userIdx = global.idx;
+            return new Promise((succ, fail) => {
+                this.addGroup(userIdx, group.GRP_NAME).then((result) => {
+                    succ(result.rowid);
+                }).catch((error) => {
+                    fail(error);
+                });
+            });
         }
         const addServiceData = (service: any, targetGroupIdx: number) => {
             //target그룹idx로 해당 서비스 추가
-            //하위에 있는 모든 데이터 추가
             //idx반환
+            return new Promise((succ, fail) => {
+                this.addService(targetGroupIdx, service.SERVICE_NAME).then((result) => {
+                    succ(result.rowid);
+                }).catch((error) => {
+                    fail(error);
+                });
+            });
         }
         const addAccountData = (account: any, targetServiceIdx: number) => {
             //target서비스idx로 해당 계정 추가
-            //하위에 있는 oauth계정 데이터 추가
             //idx반환
+            return new Promise((succ, fail) => {
+                this.addAccount(targetServiceIdx, account.ACCOUNT_NAME, {id: account.ID, password: account.PASSWORD}).then((result) => {
+                    succ(result);
+                }).catch((error) => {
+                    fail(error);
+                });
+            });
         }
         const addOauthAccountData = (oauthAccount: any, targetServiceIdx: number, targetAccountIdx: number) => {
             //target서비스idx, target계정idx로 해당 oauth계정 추가
             //idx반환
+            return new Promise((succ, fail) => {
+                this.addAccount(targetServiceIdx, oauthAccount.ACCOUNT_NAME, {OAuthAccountIDX: targetAccountIdx}).then((result) => {
+                    succ(result);
+                }).catch((error) => {
+                    fail(error);
+                });
+            });
         }
         const updateAccountData = (account: any, targetAccountIdx: number) => {
             // target서비스idx, target계정idx로 계정 업데이트
@@ -542,11 +567,43 @@ export class StrongboxDatabase{
            }
        }
        //중복된 것은 다 업데이트 되었고 아직도 남아있는 그룹, 서비스, 계정, oauth계정 요소들은 검사 없이 새로 추가해야할 데이터임
+       const addServiceKeyMap: any = {}; // keyIndex: newDataIndex
+       const addAccountKeyMap: any = {};
        for(let i = 0 ; i < groups.length; i++) {
            if(groups[i] === undefined) continue;
 
-           const newGroupIdx = await addGroupData(groups[i]);
+           const groupKey = groups[i].IDX;
+           const newGroupIdx: any = await addGroupData(groups[i]);
+           for(let j = 0 ; j < services.length ; j++) {
+               if(services[j] === undefined) continue;
+
+               if(services[j].GRP_IDX === groupKey) {
+                   const serviceKey = services[j].IDX;
+                   const newServiceIdx: any = await addServiceData(services[j], newGroupIdx);
+                   addServiceKeyMap['key' + serviceKey] = newServiceIdx;
+
+                   for(let k = 0 ; k < accounts.length ; k++) {
+                       if(accounts[k] === undefined) continue;
+
+                       if(accounts[k].SERVICE_IDX === serviceKey) {
+                           const accountKey = accounts[k].IDX;
+                           const newAccountIdx = await addAccountData(accounts[k], newServiceIdx);
+                           addAccountKeyMap['key' + accountKey] = newAccountIdx;
+
+                       }
+                   }
+               }
+           }
        }
+       ///keyMap 이용해 oauth 계정 추가
+       for(let i = 0 ; i < oauthAccounts.length ; i++) {
+           if(oauthAccounts[i] === undefined) continue;
+
+           const serviceKey = oauthAccounts[i].SERVICE_IDX;
+           const accountKey = oauthAccounts[i].ACCOUNT_IDX;
+           await addOauthAccountData(oauthAccounts[i], addServiceKeyMap['key' + serviceKey], addAccountKeyMap['key' + accountKey]);
+       }
+       //나중엔 업데이트, 추가 모두 위처럼 key value 형태로 알고리즘을 개선하자
     }
     public async isExistGroupName(grpName: string) {
         const query = "SELECT * FROM GROUPS_TB "
