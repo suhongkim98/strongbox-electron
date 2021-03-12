@@ -5,6 +5,7 @@ import {MdCached} from 'react-icons/md';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { SERVER_NAME } from '../../../environment';
 
 const TotalWrapper = styled.div`
     height: 100%;
@@ -35,7 +36,7 @@ const SyncRequestMain = ({history}: RequestMainProps) => {
     const onSubmitEvent = () => {
         const params = new URLSearchParams();
 		params.append('name', global.name);
-		axios.post('http://localhost:8080/sync/requestSync', params).then((response)=>{
+		axios.post(SERVER_NAME + '/sync/requestSync', params).then((response)=>{
             console.log(response.data);
             const roomId = response.data.data[0].roomId;
             const vertificationCode = response.data.data[0].vertificationCode;

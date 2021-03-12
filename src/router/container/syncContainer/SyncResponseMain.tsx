@@ -7,6 +7,7 @@ import {MdCached} from 'react-icons/md';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { SERVER_NAME } from '../../../environment';
 const TotalWrapper = styled.div`
     height: 100%;
     margin: 10px 0 0 0;
@@ -52,7 +53,7 @@ const SyncResponseMain = ({history}: RequestMainProps) => {
         params.append('name', global.name);
         params.append('vertificationCode', data.pinInput);
 
-		axios.post('http://localhost:8080/sync/responseSync', params).then((response)=>{
+		axios.post(SERVER_NAME + '/sync/responseSync', params).then((response)=>{
             console.log(response.data);
             const roomId = response.data.data[0].roomId;
             const vertificationCode = response.data.data[0].vertificationCode;
