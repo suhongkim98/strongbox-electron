@@ -56,10 +56,15 @@ const SyncRequestPin = ({history}: SyncRequestPinProps) => {
     const onResponseMessage = (response: any) => {
         // 구독 메시지가 도착했을 때 호출
         const message = JSON.parse(response.body);
+        if(message.senderToken === global.syncInfo.token) {
+            //내가 보낸 메시지는 무시
+            return;
+        }
+        
         console.log(message);
         if(message.type === "CONNECT_SUCCESS") {
             // 동기화 응답자가 핀번호를 제대로 입력했다는 메시지를 보내 올 경우
-            history.replace("/Setting/syncRequestPage/connectSuccess/" + message.sender + "/" + vertificationCode);
+            history.replace("/Setting/syncRequestPage/connectSuccess/" + message.message + "/" + vertificationCode);
         }
     }
     

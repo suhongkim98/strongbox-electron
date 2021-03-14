@@ -62,7 +62,7 @@ const SyncConnectSuccess = ({history}: SyncConnectSuccessProps) => {
     useEffect(() => {
         //stomp 구독하기
         stompConnect(onResponseMessage).then((result) => {
-            stompSendMessage("CONNECT_SUCCESS", "연결 성공");
+            stompSendMessage("CONNECT_SUCCESS", global.name);
         }).catch((error) => {
             console.log(error);
         });
