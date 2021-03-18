@@ -1,23 +1,25 @@
-import {DB_PATH} from './environment';
 import sha256 from 'crypto-js/sha256';
 import { AES } from 'crypto-js';
 const sqlite3 = window.require('sqlite3');
+const { ipcRenderer } = window.require('electron'); // window.require로 가져와야 하더라,, sqlite처럼
 
 // 이 클래스로만 db에 접근하도록 하자
 export class StrongboxDatabase{
     private static strongboxDatabase: StrongboxDatabase;
-
+    private dbPath: any;
 
     public static getInstance() {
         //싱글톤을 사용하자
         if(!StrongboxDatabase.strongboxDatabase){
             StrongboxDatabase.strongboxDatabase = new StrongboxDatabase();
+            StrongboxDatabase.strongboxDatabase.dbPath = ipcRenderer.sendSync('synchronous-message', 'plz show me the db path'); // 동기 방식으로 icpMain에게 경로요청 후 매핑
+            console.log('current path is ' + StrongboxDatabase.strongboxDatabase.dbPath);
         }
         return StrongboxDatabase.strongboxDatabase;
     }
 
     private connectDatabase = () =>{
-        const database = new sqlite3.Database(DB_PATH, (err:any) =>{
+        const database = new sqlite3.Database(this.dbPath, (err:any) =>{
             if(err){
                 console.error(err.message);
             }

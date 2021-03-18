@@ -1,13 +1,15 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow,ipcMain } from 'electron';
 import * as path from 'path';
 import * as isDev from 'electron-is-dev';
 import installExtension, { REACT_DEVELOPER_TOOLS } from "electron-devtools-installer";
-import {DB_PATH, SETTING_PATH} from '../src/environment';
+import {DB_NAME, SETTING_NAME} from '../src/environment';
 
 const sqlite3 = require('sqlite3');
 const fs = require('fs');
 
 let win: BrowserWindow | null = null;
+
+let dbPath: any, settingPath: any;
 
 function createWindow() {
   win = new BrowserWindow({
@@ -37,6 +39,24 @@ function createWindow() {
     });
   }
 
+  if  (isDev) {
+    // db경로 설정 개발자 모드면 ./accong.db 개발자모드가 아니면 appData경로
+    dbPath = path.join('.', DB_NAME);
+    settingPath = path.join('.', SETTING_NAME);
+    console.log(app.getPath('userData'));
+  } else {
+    dbPath = path.join(app.getPath('userData'), DB_NAME);
+    settingPath = path.join(app.getPath('userData'), SETTING_NAME);
+  }
+  // electron은 main프로세스, renderer 프로세스가 존재하며 ipcMain, ipcRenderer로 서로 통신함
+  // ipcMain은 Renderer 프로세스로부터 메시지를 전달 받고, 응답을 보낼 수 있습니다.
+  // ipcRenderer은 Main 프로세스로 메시지를 보내고, 응답받을 수 있습니다.
+
+  ipcMain.on('synchronous-message', (event, arg) => { // 동기방식으로 반환
+    console.log(arg);
+    event.returnValue = dbPath;
+  });
+
   // DevTools
   installExtension(REACT_DEVELOPER_TOOLS)
     .then((name) => console.log(`Added Extension:  ${name}`))
@@ -65,13 +85,13 @@ app.on('activate', () => {
     createWindow();
   }
 });
-
+  
 const environmentSettingInit = () =>{
   //환경설정 텍스트파일 없으면 파일 생성, 및 초기화
-  fs.readFile(SETTING_PATH,(err:any,data:any) => {
+  fs.readFile(settingPath,(err:any,data:any) => {
     if(err){
       if(err.code === 'ENOENT'){
-        fs.writeFile(SETTING_PATH, "keepLogin=false\nkeepLoginName=", (err:any) => { // 파일 생성하기
+        fs.writeFile(settingPath, "keepLogin=false\nkeepLoginName=", (err:any) => { // 파일 생성하기
           if(err) throw err;
           //파일 생성 성공
         });
@@ -85,7 +105,7 @@ const environmentSettingInit = () =>{
 
 const databaseInit = () =>{
   //db 있는지 검사하고 없으면 inittable 함수호출
-  fs.readFile(DB_PATH,(err:any,data:any) => {       //DB경로에 파일이 있는지 검사를 하는데
+  fs.readFile(dbPath,(err:any,data:any) => {       //DB경로에 파일이 있는지 검사를 하는데
       if(err){
           if(err.code === 'ENOENT'){          //DB 파일이 없다면
               tableInit(); //테이블 초기화
@@ -99,7 +119,7 @@ const databaseInit = () =>{
 const tableInit = () => {
   // db 초기 테이블 세팅 함수
       //USERS_TB GROUPS_TB SERVICES_TB ACCOUNTS_TB 생성
-      const db = new sqlite3.Database(DB_PATH, (err:any) =>{
+      const db = new sqlite3.Database(dbPath, (err:any) =>{
         if(err){
             console.log("에러발생: " + err);
             return false;
