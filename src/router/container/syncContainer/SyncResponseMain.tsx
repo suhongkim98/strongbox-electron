@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import Span from '../../../components/Span';
 import styled from '../../../styles/theme-components';
@@ -8,6 +8,7 @@ import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { SERVER_NAME } from '../../../environment';
+import { Redirect } from 'react-router';
 const TotalWrapper = styled.div`
     height: 100%;
     margin: 10px 0 0 0;
@@ -47,6 +48,7 @@ interface RequestMainProps {
 }
 const SyncResponseMain = ({history}: RequestMainProps) => {
     const { register, errors, handleSubmit } = useForm<FormProps>();
+    const [redirect, setRedirect] = useState('');
     const onSubmitEvent = (data:any) => {
         console.log(data.pinInput);
         const params = new URLSearchParams();
@@ -62,7 +64,7 @@ const SyncResponseMain = ({history}: RequestMainProps) => {
             
             global.syncInfo = {roomId: roomId, token: token};
 
-            history.push('/Setting/syncResponsePage/connectSuccess/' + requestorName + '/' +  + vertificationCode);
+            setRedirect('/Setting/syncResponsePage/connectSuccess/' + requestorName + '/' +  + vertificationCode);
 		}).catch((error)=>{
             console.log(error);
             // 방이 없다면 // 서버가 문제가 있다면
@@ -114,6 +116,7 @@ const SyncResponseMain = ({history}: RequestMainProps) => {
               }
 		});
     }
+    if(redirect !== '') return <Redirect to={redirect} />;
     return <TotalWrapper>
         <ToastContainer />
         <Span size="1.6rem" fontWeight="700">상대방이 제공한 인증 번호를 입력하세요</Span>

@@ -7,6 +7,8 @@ import { StrongboxDatabase } from '../StrongboxDatabase';
 import { Redirect } from 'react-router-dom';
 import Span from '../components/Span';
 import PinBox from '../components/PinBox';
+import { useDispatch } from 'react-redux';
+import { updateUserAsync } from '../modules/userList';
 
 const TotalWrapper = styled.div`
 height: 100vh;
@@ -56,12 +58,14 @@ const UserAddPage:React.FC = () =>{
     const { register, errors, handleSubmit,setError } = useForm<UserAddInput>();
     const [redirect,setRedirect] = useState(false);
     const [pin,setPin] = useState("");
+    const dispatch = useDispatch();
 
     const onSubmitEvent = (data:any) =>{
         const database = StrongboxDatabase.getInstance();
         database.addUser(data.nicknameInputBox, pin).then((result:any) =>{
             if(result === true){
                 // 등록 성공
+                dispatch(updateUserAsync());
                 setRedirect(true);
             }else{
                 // 등록 실패 닉네임 중복  /  패스워드 글자 수 문제

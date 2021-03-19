@@ -58,9 +58,9 @@ const SettingPage = () => {
             <Span fontWeight="700" size="2.5rem" textColor="white">설정</Span>
         </NavBarHeader>
         <NavBarBody>
-            <NavLink to="/Setting/syncRequestPage"><NavBarItem><Span size="1.6rem" textColor="white">계정 동기화 요청하기</Span></NavBarItem></NavLink>
-            <NavLink to="/Setting/syncResponsePage"><NavBarItem><Span size="1.6rem" textColor="white">계정 동기화 응답하기</Span></NavBarItem></NavLink>
-            <NavLink to="/Setting/deleteUserContainer"><NavBarItem><Span size="1.6rem" textColor="darkred">사용자 삭제</Span></NavBarItem></NavLink>
+            <NavLink replace to="/Setting/syncRequestPage"><NavBarItem><Span size="1.6rem" textColor="white">계정 동기화 요청하기</Span></NavBarItem></NavLink>
+            <NavLink replace to="/Setting/syncResponsePage"><NavBarItem><Span size="1.6rem" textColor="white">계정 동기화 응답하기</Span></NavBarItem></NavLink>
+            <NavLink replace to="/Setting/deleteUserContainer"><NavBarItem><Span size="1.6rem" textColor="darkred">사용자 삭제</Span></NavBarItem></NavLink>
         </NavBarBody>
     </NavBarWrapper>
     <MainWrapper>

@@ -27,7 +27,7 @@ const Img = styled.img`
 `;
 const SettingSyncResponse = () => {
     return (<TotalWrapper>
-        <HeaderWrapper><Span size="2.5rem" fontWeight="700">계정 동기화 응답하기</Span><NavLink to="/Main"><Img src={returnImg} alt="return"/></NavLink></HeaderWrapper>
+        <HeaderWrapper><Span size="2.5rem" fontWeight="700">계정 동기화 응답하기</Span><NavLink replace to="/Main"><Img src={returnImg} alt="return"/></NavLink></HeaderWrapper>
         <BodyWrapper>
             <HashRouter>
                 <Route path="/Setting/syncResponsePage" exact component={SyncResponseMain} />

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { Redirect, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import Span from '../../../components/Span';
 import { useInterval } from '../../../modules/customHook';
@@ -25,6 +25,7 @@ interface SyncRequestPinProps {
 }
 const SyncRequestPin = ({history}: SyncRequestPinProps) => {
     const {vertificationCode}: any = useParams();
+    const [redirect, setRedirect] = useState('');
     
     const [count, setCount] = useState(30);
 
@@ -35,7 +36,7 @@ const SyncRequestPin = ({history}: SyncRequestPinProps) => {
     useEffect(() => {
         if(count <= 0) {
             // 카운트 종료 시
-            history.push("/Setting/syncRequestPage");
+            setRedirect("/Setting/syncRequestPage");
         }
     }, [count, history]);
     
@@ -64,10 +65,11 @@ const SyncRequestPin = ({history}: SyncRequestPinProps) => {
         console.log(message);
         if(message.type === "CONNECT_SUCCESS") {
             // 동기화 응답자가 핀번호를 제대로 입력했다는 메시지를 보내 올 경우
-            history.replace("/Setting/syncRequestPage/connectSuccess/" + message.message + "/" + vertificationCode);
+            setRedirect("/Setting/syncRequestPage/connectSuccess/" + message.message + "/" + vertificationCode);
         }
     }
     
+    if(redirect !== '') return <Redirect to={redirect}/>;
     return (<TotalWrapper>
         <InnerWrapper>
             <div>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Span from '../../../components/Span';
 import styled from '../../../styles/theme-components';
 import {MdCached} from 'react-icons/md';
@@ -6,6 +6,7 @@ import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { SERVER_NAME } from '../../../environment';
+import { Redirect } from 'react-router';
 
 const TotalWrapper = styled.div`
     height: 100%;
@@ -33,6 +34,7 @@ interface RequestMainProps {
     history: any;
 }
 const SyncRequestMain = ({history}: RequestMainProps) => {
+    const [redirect, setRedirect] = useState('');
     const onSubmitEvent = () => {
         const params = new URLSearchParams();
 		params.append('name', global.name);
@@ -44,7 +46,7 @@ const SyncRequestMain = ({history}: RequestMainProps) => {
 
             global.syncInfo = {roomId: roomId, token: token};
 
-            history.push('/Setting/SyncRequestPage/pin/' + vertificationCode);
+            setRedirect('/Setting/SyncRequestPage/pin/' + vertificationCode);
 		}).catch((error)=>{
             console.log(error);
             if (error.response) {
@@ -92,6 +94,7 @@ const SyncRequestMain = ({history}: RequestMainProps) => {
               }
 		});
     }
+    if(redirect !== '') return <Redirect to={redirect} />;
     return <TotalWrapper>
             <ToastContainer />
             <TipWrapper>

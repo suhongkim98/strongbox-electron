@@ -25,7 +25,7 @@ const Img = styled.img`
 `;
 const DeleteUserContainer = () => {
     return (<TotalWrapper>
-        <HeaderWrapper><Span size="2.5rem" fontWeight="700">사용자 삭제</Span><NavLink to="/Main"><Img src={returnImg} alt="return"/></NavLink></HeaderWrapper>
+        <HeaderWrapper><Span size="2.5rem" fontWeight="700">사용자 삭제</Span><NavLink replace to="/Main"><Img src={returnImg} alt="return"/></NavLink></HeaderWrapper>
         <BodyWrapper>2
         </BodyWrapper>
     </TotalWrapper>);

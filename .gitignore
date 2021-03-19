@@ -13,7 +13,8 @@
 /dist
 
 # DB
-/db
+.accong.db
+.setting.txt 
 
 # misc
 .DS_Store

@@ -180,7 +180,7 @@ const MainPage:React.FC = () =>{
             addFolderPopup && <AddFolderPopup onBackgroundClicked={()=>{setAddFolderPopup(false)}} />
         }
         <ContextMenu id="profile">
-            <NavLink to ="/" onClick={onLogoutButtonClicked}><MenuItem>로그아웃</MenuItem></NavLink>
+            <NavLink replace to ="/" onClick={onLogoutButtonClicked}><MenuItem>로그아웃</MenuItem></NavLink>
         </ContextMenu>
         <NavBarWrapper>
             <SearchHeaderWrapper><ServiceSearchBar width="100%" height="40px" source={serviceList}/></SearchHeaderWrapper>
@@ -196,7 +196,7 @@ const MainPage:React.FC = () =>{
         <MainHeaderInnerWrapper>{selectedService['idx'] > 0 && <CenterContent><FolderSVG width="40px" height="40px"/><MainHeaderItem><Span textColor="black" size="4rem">{selectedService['name']}</Span></MainHeaderItem></CenterContent>}  </MainHeaderInnerWrapper>  
         <MainHeaderInnerWrapper>
         <MainHeaderProfile><ContextMenuTrigger id="profile" holdToDisplay={0}><Span textColor="black" size="2rem">{name}</Span></ContextMenuTrigger></MainHeaderProfile>
-        <MainHeaderItem><NavLink to="/Setting/syncRequestPage"><SettingSVG width="30px" height="30px" color="black"/></NavLink></MainHeaderItem></MainHeaderInnerWrapper></MainHeader>
+        <MainHeaderItem><NavLink replace to="/Setting/syncRequestPage"><SettingSVG width="30px" height="30px" color="black"/></NavLink></MainHeaderItem></MainHeaderInnerWrapper></MainHeader>
         <MainBody>
         {
         selectedService['idx'] > 0 ? <AccountView /> : <CenterContent><Span textColor="black" size="2rem" fontWeight="700" center>환영합니다!<br/>계정을 추가하거나 선택해주세요.</Span></CenterContent>
