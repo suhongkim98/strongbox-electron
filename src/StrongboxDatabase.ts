@@ -147,6 +147,11 @@ export class StrongboxDatabase{
             return false;
         }
     }
+    public async deleteUser(userIDX: number) {
+        const query = 'DELETE FROM USERS_TB WHERE IDX = ' + userIDX;
+        const result = await this.getQuery(query);
+        return result;
+    } 
     public async addGroup(userIDX:number, groupName:string){ // 동기식 위해 async 사용
         //매개변수로 유저idx, 그룹이름 받음
         //그룹이름 중복여부 확인필요X

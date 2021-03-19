@@ -99,7 +99,7 @@ const SyncRequestMain = ({history}: RequestMainProps) => {
             <ToastContainer />
             <TipWrapper>
                 <Span size="1.4rem"><br />상대방과 계정 정보를 동기화할 수 있습니다. 동기화 요청 버튼을 눌러주세요. <br /><br />
-                    아이디가 일치한데 비밀번호가 다른경우 <Span textColor="red" size="1.4rem">가장 최근에 추가된 계정 정보</Span>로 업데이트 되니 참고하시기 바랍니다.</Span>
+                    계정 이름이 같은 경우 <Span textColor="red" size="1.4rem">가장 최근에 추가된 계정 정보</Span>로 업데이트 되니 참고하시기 바랍니다.</Span>
             </TipWrapper>
             <SubmitBtn onClick={onSubmitEvent}><Icon size="2rem"><MdCached /></Icon><Span size="2rem" fontWeight="700">동기화 요청</Span></SubmitBtn>
     </TotalWrapper>
