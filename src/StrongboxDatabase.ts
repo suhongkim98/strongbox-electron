@@ -622,4 +622,25 @@ export class StrongboxDatabase{
         }
         return -1;
     }
+    public async resetCount(userIdx: number) {
+        const query = 'UPDATE USERS_TB SET COUNT = 0 WHERE IDX = ' + userIdx;
+        const result = await this.getQuery(query);
+        return result;
+    }
+    public async countUp(userIdx: number) {
+        const countQuery: any = await this.getQuery('SELECT COUNT FROM USERS_TB WHERE IDX = ' + userIdx);
+        const count = countQuery[0].COUNT + 1;
+        const query = 'UPDATE USERS_TB SET COUNT = ' + count + ' WHERE IDX = ' + userIdx;
+        const result = await this.getQuery(query);
+        return result;
+    }
+    public async banUser(userIdx: number) {
+        await this.resetCount(userIdx);
+        const banDate = new Date();
+        banDate.setMinutes(banDate.getMinutes() + 5); // 5분 밴
+        const toStringDate = banDate.getFullYear() + '-' + (banDate.getMonth() + 1) + '-' + banDate.getDate() + ' ' + banDate.getHours() + ':' + banDate.getMinutes() + ':' + banDate.getSeconds();
+        const query = "UPDATE USERS_TB SET BAN = '" + toStringDate + "' WHERE IDX = " + userIdx;
+        const result = await this.getQuery(query);
+        return result;
+    }
 }

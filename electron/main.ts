@@ -129,6 +129,8 @@ const tableInit = () => {
           '"IDX"	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,' +
           '"NAME"  TEXT NOT NULL DEFAULT "no name",' +
           '"PASSWORD"	TEXT NOT NULL,' +
+          '"BAN"	TEXT,' +
+          '"COUNT"	INTEGER DEFAULT "0",' +
           '"SALT"	TEXT NOT NULL' +
       ');';
       db.run(query,[], (arg:any) =>{

@@ -200,13 +200,12 @@ const AddAccountPopup = ({onBackgroundClicked}:AddAccountPopupProps) =>{
         <BodyWrapper>
         <div><label onClick={()=>{setOAuth(false)}}><input type="radio" name="oauthCheck" defaultChecked={true}/><Span size="1.5rem">일반 계정</Span></label><label onClick={()=>{setOAuth(true)}}><input type="radio" name="oauthCheck"/><Span size="1.5rem">SNS 연동 로그인</Span></label></div>
         {!isOAuth ? <Form onSubmit={handleSubmit(onSubmitIdPassword)}>
-            <AnimInputBox label="별명" inputType="text" name="accountName" hookFormRef={register}/>
             <AnimInputBox label="아이디" inputType="text" name="id" hookFormRef={register}/>
             <AnimInputBox label="비밀번호" inputType="text" name="pw" hookFormRef={register}/>
+            <AnimInputBox label="별명" inputType="text" name="accountName" hookFormRef={register}/>
             <SubmitBtn><Span size="1.5rem" fontWeight="700">등록</Span></SubmitBtn>
         </Form> :
         <Form onSubmit={handleSubmit(onSubmitOAuth)}>
-        <AnimInputBox label="별명" inputType="text" name="accountName" hookFormRef={register}/>
         <SelectLabel>
             <Span size="1.5rem">서비스 선택</Span>
             <Select name="serviceSelect" ref={register({required: true})} onChange={(e:any)=>{setDropboxSelectedService(e.target.value.split(",")[0])}}>
@@ -224,6 +223,7 @@ const AddAccountPopup = ({onBackgroundClicked}:AddAccountPopupProps) =>{
                 })}
             </Select>
         </SelectLabel>
+        <AnimInputBox label="별명" inputType="text" name="accountName" hookFormRef={register}/>
         <SubmitBtn><Span size="1.5rem" fontWeight="700">등록</Span></SubmitBtn>
         </Form>
         }
