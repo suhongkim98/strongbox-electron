@@ -65,7 +65,7 @@ const GroupFolderItem = ({serviceIDX,serviceName}:GroupFolderItemProps) =>{
     </ContextMenu>
     <ContextMenuTrigger id={CONTEXT_ID}>
         <GroupFolderItemWrapper onClick={() => { updateSelectedItem({idx:serviceIDX,name:serviceName})}} >
-            <Span textColor="white" size="2rem">{serviceName}</Span>
+            <Span textColor="white" size="1.6rem">{serviceName}</Span>
         </GroupFolderItemWrapper>
     </ContextMenuTrigger>
 </div>

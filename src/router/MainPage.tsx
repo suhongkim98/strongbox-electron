@@ -193,7 +193,7 @@ const MainPage:React.FC = () =>{
         </NavBarWrapper>
         <MainWrapper>
         <MainHeader>
-        <MainHeaderInnerWrapper>{selectedService['idx'] > 0 && <CenterContent><FolderSVG width="40px" height="40px"/><MainHeaderItem><Span textColor="black" size="4rem">{selectedService['name']}</Span></MainHeaderItem></CenterContent>}  </MainHeaderInnerWrapper>  
+        <MainHeaderInnerWrapper>{selectedService['idx'] > 0 && <CenterContent><FolderSVG width="40px" height="40px"/><MainHeaderItem><Span textColor="black" size="2rem">{selectedService['name']}</Span></MainHeaderItem></CenterContent>}  </MainHeaderInnerWrapper>  
         <MainHeaderInnerWrapper>
         <MainHeaderProfile><ContextMenuTrigger id="profile" holdToDisplay={0}><Span textColor="black" size="2rem">{name}</Span></ContextMenuTrigger></MainHeaderProfile>
         <MainHeaderItem><NavLink replace to="/Setting/syncRequestPage"><SettingSVG width="30px" height="30px" color="black"/></NavLink></MainHeaderItem></MainHeaderInnerWrapper></MainHeader>
