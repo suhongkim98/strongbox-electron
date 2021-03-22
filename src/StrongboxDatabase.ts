@@ -504,13 +504,6 @@ export class StrongboxDatabase{
             + "WHERE ACCOUNT_IDX = " + targetAccountIdx + " AND SERVICE_IDX = " + targetServiceIdx;
             return this.getQuery(query);
         }
-
-        const splitDate = (date: string) => {
-            //문자열 가져와 잘라 json 반환
-            const split = date.split(' ');
-            const [calendar, time] = [split[0].split('-'), split[1].split(':')];
-            return {year: parseInt(calendar[0]), month: parseInt(calendar[1]), day: parseInt(calendar[2]), hour: parseInt(time[0]), min: parseInt(time[1]), sec: parseInt(time[2])};
-        }
         const getAccountDateQuery = (accountIdx: any) => {
             const query = 'SELECT DATE FROM ACCOUNTS_TB WHERE IDX = ' + accountIdx;
             return this.getQuery(query);
@@ -553,9 +546,8 @@ export class StrongboxDatabase{
                 // 해당 서비스에 계정이 이미 존재하는 경우
                 // date 비교 후 동기화 하고자 하는 계정이 최신인 경우 교체 아니면 냅두기
                 const select: any = await getAccountDateQuery(accountIdx);
-                const [previousDataSplitDate, newDataSplitDate] = [splitDate(select[0].DATE), splitDate(account.DATE)];
-                const previousDataDate = new Date(previousDataSplitDate.year, previousDataSplitDate.month, previousDataSplitDate.day, previousDataSplitDate.hour, previousDataSplitDate.min, previousDataSplitDate.sec);
-                const newDataDate = new Date(newDataSplitDate.year, newDataSplitDate.month, newDataSplitDate.day, newDataSplitDate.hour, newDataSplitDate.min, newDataSplitDate.sec);
+                const previousDataDate = new Date(select[0].DATE);
+                const newDataDate = new Date(account.DATE);
                                
                 if(previousDataDate.getTime() < newDataDate.getTime()) {
                     //새로운 데이터가 더 최신인 경우
