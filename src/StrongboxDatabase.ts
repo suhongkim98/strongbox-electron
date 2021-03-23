@@ -583,8 +583,7 @@ export class StrongboxDatabase{
     }
     public async isExistGroupName(grpName: string) {
         const query = "SELECT * FROM GROUPS_TB "
-        + "JOIN USERS_TB ON GROUPS_TB.OWNER_IDX = USERS_TB.IDX "
-        + "WHERE USERS_TB.IDX = " + global.idx + " AND GROUPS_TB.GRP_NAME = '" + grpName + "'";
+        + "WHERE OWNER_IDX = " + global.idx + " AND GRP_NAME = '" + grpName + "'";
         const select: any = await this.getQuery(query);
         if(select.length > 0) {
             return select[0].IDX;
@@ -592,9 +591,8 @@ export class StrongboxDatabase{
         return -1;
     }
     public async isExistServiceName(serviceName: string, groupIndex: number) {
-        const query = "SELECT * FROM SERVICES_TB STB "
-        + "JOIN GROUPS_TB GTB ON STB.GRP_IDX = GTB.IDX "
-        + "WHERE GTB.IDX = " + groupIndex + " AND STB.SERVICE_NAME = '" + serviceName + "'";
+        const query = "SELECT * FROM SERVICES_TB "
+        + "WHERE GRP_IDX = " + groupIndex + " AND SERVICE_NAME = '" + serviceName + "'";
         const select: any = await this.getQuery(query);
         if(select.length > 0) {
             return select[0].IDX;
@@ -602,9 +600,8 @@ export class StrongboxDatabase{
         return -1;
     }
     public async isExistAccountName(accountName: string, serviceIndex: number) {
-        const query = "SELECT * FROM ACCOUNTS_TB ATB "
-        + "JOIN SERVICES_TB STB ON STB.IDX = ATB.SERVICE_IDX "
-        + "WHERE STB.IDX = " + serviceIndex + " AND ATB.ACCOUNT_NAME = '" + accountName + "'";
+        const query = "SELECT * FROM ACCOUNTS_TB "
+        + "WHERE SERVICE_IDX = " + serviceIndex + " AND ACCOUNT_NAME = '" + accountName + "'";
         const select: any = await this.getQuery(query);
         if(select.length > 0) {
             return select[0].IDX;
@@ -613,9 +610,8 @@ export class StrongboxDatabase{
     }
     public async isExistOauthAccountName(oauthAccountName: string, serviceIndex: number, accountIndex: number) {
         //해당 서비스에 특정 계정idx를 참조하는 중복된 이름이 있는지 검사
-        const query = "SELECT * FROM OAUTH_ACCOUNTS_TB OTB "
-        + "JOIN SERVICES_TB STB ON STB.IDX = OTB.SERVICE_IDX "
-        + "WHERE STB.IDX = " + serviceIndex + " AND OTB.ACCOUNT_NAME = '" + oauthAccountName + "' AND OTB.ACCOUNT_IDX = " + accountIndex;
+        const query = "SELECT * FROM OAUTH_ACCOUNTS_TB "
+        + "WHERE SERVICE_IDX = " + serviceIndex + " AND ACCOUNT_NAME = '" + oauthAccountName + "' AND ACCOUNT_IDX = " + accountIndex;
         const select: any = await this.getQuery(query);
         if(select.length > 0) {
             return select[0].IDX;
