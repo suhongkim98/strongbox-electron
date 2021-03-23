@@ -10,7 +10,7 @@ import {StrongboxDatabase} from '../../../StrongboxDatabase';
 import { AES, enc } from "crypto-js";
 import { updateGroupAsync } from '../../../modules/groupList';
 import { updateServiceAsync } from '../../../modules/serviceList';
-
+import AnimationLoading from '../../../images/AnimationLoading';
 const TotalWrapper = styled.div`
     height: 100%;
     display: flex;
@@ -50,6 +50,26 @@ const Icon = styled(Span)`
     justify-content: center;
     align-items: center;
 `;
+const LoadingWrapper = styled.div`
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+`;
+const LoadingBackground = styled.div`
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: black;
+    opacity: 0.1;
+`;
 interface SyncConnectSuccessProps {
     history: any;
 }
@@ -61,6 +81,7 @@ const SyncConnectSuccess = ({history}: SyncConnectSuccessProps) => {
     const [receiveFlag, setReceiveFlag] = useState(false);
     const [redirect, setRedirect] = useState('');
     const syncData = useRef();
+    const [isLoading, setLoading] = useState(false);
 
     useEffect(() => {
         //stomp 구독하기
@@ -106,10 +127,12 @@ const SyncConnectSuccess = ({history}: SyncConnectSuccessProps) => {
     useEffect(() => {
         if(dataSendFlag && receiveFlag) {
             //내 로컬db에 동기화하기
+            setLoading(true);
             stompDisconnect();
 
             const database = StrongboxDatabase.getInstance();
             database.syncData(syncData.current).then((result) => {
+                setLoading(false);
                 updateGroupAsync();
                 updateServiceAsync();
                 onRedirect();
@@ -158,6 +181,11 @@ const SyncConnectSuccess = ({history}: SyncConnectSuccessProps) => {
 
     if(redirect !== '') return <Redirect to={redirect} />;
     return (<TotalWrapper>
+            {isLoading && <LoadingWrapper>
+                <LoadingBackground />
+                <Span size="1.6rem" fontWeight="700">동기화 진행 중.. 잠시만 기다려 주세요!</Span>
+                <AnimationLoading width="20px" height="20px" />
+            </LoadingWrapper>}
             <ProfileWrapper>
                 <Span size="2.5rem" fontWeight="700">연결 성공!</Span>
                 <Span size="5rem"><IoMdPerson /></Span>
