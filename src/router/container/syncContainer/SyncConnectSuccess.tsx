@@ -198,10 +198,9 @@ const SyncConnectSuccess = ({history}: SyncConnectSuccessProps) => {
                 </Span>
                 <Span size="1.4rem" textColor={theme.colors.backgroundMainColor}>이 단계에서 동기화를 하는 순간 상대방에게 계정정보가 보내집니다.</Span>
                 <ButtonWrapper>
-                    {!agreeFlag ? 
-                    <SubmitBtn onClick={onAgreeSync}><Icon size="2rem"><MdCached /></Icon><Span size="2rem" fontWeight="700">동기화하기</Span></SubmitBtn>
-                    : <Span size="2rem" fontWeight="700">상대방 동의 대기 중</Span>
-                    }
+                    <SubmitBtn onClick={onAgreeSync}><Icon size="2rem"><MdCached /></Icon>
+                        {agreeFlag ? <Span size="2rem" fontWeight="700">동의</Span> : <Span size="2rem" fontWeight="700">동의완료</Span>}
+                    </SubmitBtn>
                     <SubmitBtn onClick={onRedirect}><Span size="2rem" fontWeight="700">취소</Span></SubmitBtn>
                 </ButtonWrapper>
             </TipWrapper>
