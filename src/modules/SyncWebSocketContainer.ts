@@ -2,7 +2,7 @@ import SockJS from 'sockjs-client';
 import Stomp from 'stompjs';
 import { SERVER_NAME } from '../environment';
 
-let stompClient :Stomp.Client;
+let stompClient :any = null;
 
 export const stompConnect = (onResponseMessage: (response: any) => any) => {
     return new Promise((succ, fail) => {
@@ -13,11 +13,11 @@ export const stompConnect = (onResponseMessage: (response: any) => any) => {
         'token': global.syncInfo.token, 
     };
 
-    stompClient.connect(headers, function(frame) {  // 토큰 집어넣고
+    stompClient.connect(headers, function(frame: any) {  // 토큰 집어넣고
 		console.log('connected: ' + frame);
 		stompSubscribe('/topic/' + global.syncInfo.roomId, onResponseMessage); // 해당 방으로 구독
         succ(true);
-	}, function(error){
+	}, function(error: any){
         fail(error);
 	});
     });
@@ -28,7 +28,7 @@ export const stompSubscribe = (path: string, onResponseMessage: (response: any) 
         'token': global.syncInfo.token, 
     };
 
-    stompClient.subscribe(path, function(response) {
+    stompClient.subscribe(path, function(response: any) {
         //전달받은 메시지
 		console.log('응답: ' + response);
         //const message = JSON.parse(response.body);
@@ -37,9 +37,13 @@ export const stompSubscribe = (path: string, onResponseMessage: (response: any) 
 }
 
 export const stompDisconnect = () => {
-    if (stompClient.connected) {
-        stompClient.disconnect(()=>{});
+    if(stompClient != null) {
+        if (stompClient.connected) {
+            stompClient.disconnect(()=>{});
+        }
+        stompClient = null;
     }
+    
 }
 
 export const stompSendMessage = (type: string, message: string) => {
@@ -51,4 +55,8 @@ export const stompSendMessage = (type: string, message: string) => {
         message: message,
     };
 	stompClient.send("/app/syncPub",{'token': global.syncInfo.token}, JSON.stringify(body)); 
+}
+
+export const isWebsocketConnected = () => {
+    return stompClient != null;
 }

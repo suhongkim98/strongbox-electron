@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { MdCached } from 'react-icons/md';
 import { IoMdPerson } from 'react-icons/io';
 import styled from 'styled-components';
 import Span from '../../../components/Span';
 import theme from '../../../styles/theme';
-import { useParams } from 'react-router-dom';
-import {stompConnect, stompDisconnect, stompSendMessage} from '../../../modules/SyncWebSocketContainer';
+import { Redirect, useParams } from 'react-router-dom';
+import {isWebsocketConnected, stompConnect, stompDisconnect, stompSendMessage} from '../../../modules/SyncWebSocketContainer';
 import {StrongboxDatabase} from '../../../StrongboxDatabase';
 import { AES, enc } from "crypto-js";
 import { updateGroupAsync } from '../../../modules/groupList';
@@ -55,9 +55,12 @@ interface SyncConnectSuccessProps {
 }
 const SyncConnectSuccess = ({history}: SyncConnectSuccessProps) => {
     const {otherPartName, vertificationCode}: any = useParams();
-    const [isSyncAgree, setSyncAgree] = useState(false);
-    const [isOtherPartAgree, setOtherPartAgree] = useState(false); // 상대방 동의 여부
-    const [isFinish, setFinish] = useState(false);
+    const [agreeFlag, setAgreeFlag] = useState(false);
+    const [counterPartAgree, setCounterPartAgree] = useState(false); // 상대방 동의 여부
+    const [dataSendFlag, setDataSendFlag] = useState(false);
+    const [receiveFlag, setReceiveFlag] = useState(false);
+    const [redirect, setRedirect] = useState('');
+    const syncData = useRef();
 
     useEffect(() => {
         //stomp 구독하기
@@ -70,17 +73,15 @@ const SyncConnectSuccess = ({history}: SyncConnectSuccessProps) => {
 
         return () => {
             console.log("동기화 이탈");
-            if(isFinish){
-                stompSendMessage("SYNC_FINISH", "동기화 종료"); //데이터를 잘 받았고 나는 나가겠다는 의미
-            } else {
+            if(isWebsocketConnected()) {
                 stompSendMessage("SYNC_DENY", "동기화 거부");
+                stompDisconnect();
             }
-            stompDisconnect();
         }
     }, []);
 
     useEffect(() => {
-        if(isOtherPartAgree && isSyncAgree) {
+        if(counterPartAgree && agreeFlag) {
             //둘 다 동의한 경우
             const database = StrongboxDatabase.getInstance();
             database.getAllSyncData().then((result) => {
@@ -98,16 +99,26 @@ const SyncConnectSuccess = ({history}: SyncConnectSuccessProps) => {
                 console.error(error);
                 onRedirect();
             });
-            setSyncAgree(false); // 나는 동의여부 false로 바꾸어주고
+            setAgreeFlag(false); // 나는 동의여부 false로 바꾸어주고
         }
-    }, [isOtherPartAgree, isSyncAgree]);
+    }, [counterPartAgree, agreeFlag]);
 
     useEffect(() => {
-        // 동기화 완료 시
-        if(isFinish){
-            onRedirect();
+        if(dataSendFlag && receiveFlag) {
+            //내 로컬db에 동기화하기
+            stompDisconnect();
+
+            const database = StrongboxDatabase.getInstance();
+            database.syncData(syncData.current).then((result) => {
+                updateGroupAsync();
+                updateServiceAsync();
+                onRedirect();
+            }).catch((error) => {
+                console.error(error);
+            });
         }
-    }, [isFinish]);
+    }, [dataSendFlag, receiveFlag]);
+
 
     const onResponseMessage = (response: any) => {
         // 구독 메시지가 도착했을 때 호출
@@ -120,35 +131,32 @@ const SyncConnectSuccess = ({history}: SyncConnectSuccessProps) => {
 
 
         if(message.type === "SYNC_DENY") {
-            //동기화 거부를 한다면
+            //상대방이 동기화 거부를 한다면
             onRedirect(); // 나도 나갈랭
         } else if(message.type === "SYNC_AGREE") {
             //상대방이 동기화 동의를 한다면
-            setOtherPartAgree(true);
+            setCounterPartAgree(true);
         } else if(message.type === "DATA") {
             //상대방이 건내준 계정 정보
             const data = JSON.parse(message.message);
-            //내 로컬db에 동기화하기
-            console.log(data);
-            const database = StrongboxDatabase.getInstance();
-            database.syncData(data).then((result) => {
-                updateGroupAsync();
-                updateServiceAsync();
-                console.log('aa');
-                setFinish(true);
-            }).catch((error) => {
-                console.error(error);
-            });
+            syncData.current = data;
+            
+            stompSendMessage("SYNC_RECEIVE", "데이터 받기 성공"); // 상대방에게 알림
+            setReceiveFlag(true);
+
+        } else if(message.type === 'SYNC_RECEIVE') {
+            setDataSendFlag(true);
         }
     }
     const onAgreeSync = () => {
         stompSendMessage("SYNC_AGREE", "동기화 찬성");
-        setSyncAgree(true);
+        setAgreeFlag(true);
     }
     const onRedirect = () => {
-        history.replace("/Setting/syncRequestPage");
+        setRedirect("/Setting/syncRequestPage");
     }
 
+    if(redirect !== '') return <Redirect to={redirect} />;
     return (<TotalWrapper>
             <ProfileWrapper>
                 <Span size="2.5rem" fontWeight="700">연결 성공!</Span>
@@ -162,7 +170,7 @@ const SyncConnectSuccess = ({history}: SyncConnectSuccessProps) => {
                 </Span>
                 <Span size="1.4rem" textColor={theme.colors.backgroundMainColor}>이 단계에서 동기화를 하는 순간 상대방에게 계정정보가 보내집니다.</Span>
                 <ButtonWrapper>
-                    {!isSyncAgree ? 
+                    {!agreeFlag ? 
                     <SubmitBtn onClick={onAgreeSync}><Icon size="2rem"><MdCached /></Icon><Span size="2rem" fontWeight="700">동기화하기</Span></SubmitBtn>
                     : <Span size="2rem" fontWeight="700">상대방 동의 대기 중</Span>
                     }

@@ -513,63 +513,71 @@ export class StrongboxDatabase{
         const serviceKeyMap: any ={};
         const accountKeyMap: any = {};
         const oauthAccountKeyMap: any = {};
-        /* 그룹 동기화 */
-        for(let i = 0 ; i < groups.length ; i++){
-            const group = groups[i];
-            const groupIdx = await this.isExistGroupName(group.GRP_NAME);
-            if(groupIdx > 0) {
-                // 그룹이 존재하다면
-                groupKeyMap['key' + group.IDX] = groupIdx;
-            } else {
-                // 그룹이 존재하지 않다면 새로 생성하고 키 지정
-                const newGroupIdx = await addGroupData(group);
-                groupKeyMap['key' + group.IDX] = newGroupIdx;
-            }
-        }
-        /* 서비스 동기화 */
-        for(let i = 0 ; i < services.length ; i++) {
-            const service = services[i];
-            const serviceIdx = await this.isExistServiceName(service.SERVICE_NAME, groupKeyMap['key' + service.GRP_IDX]);
-            if(serviceIdx > 0) {
-                // 해당 key에 동기화 하고자 하는 서비스가 존재하는 경우
-                serviceKeyMap['key' + service.IDX] = serviceIdx;
-            } else {
-                const newServiceIdx = await addServiceData(service, groupKeyMap['key' + service.GRP_IDX]);
-                serviceKeyMap['key' + service.IDX] = newServiceIdx;
-            }
-        }
-        /* 계정 동기화 */
-        for(let i = 0 ; i < accounts.length ; i++) {
-            const account = accounts[i];
-            const accountIdx = await this.isExistAccountName(account.ACCOUNT_NAME, serviceKeyMap['key' + account.SERVICE_IDX]);
-            if(accountIdx > 0) {
-                // 해당 서비스에 계정이 이미 존재하는 경우
-                // date 비교 후 동기화 하고자 하는 계정이 최신인 경우 교체 아니면 냅두기
-                const select: any = await getAccountDateQuery(accountIdx);
-                const previousDataDate = new Date(select[0].DATE);
-                const newDataDate = new Date(account.DATE);
-                               
-                if(previousDataDate.getTime() < newDataDate.getTime()) {
-                    //새로운 데이터가 더 최신인 경우
-                    await updateAccountData(account, accountIdx); 
+        if(groups != null) {
+            /* 그룹 동기화 */
+            for(let i = 0 ; i < groups.length ; i++){
+                const group = groups[i];
+                const groupIdx = await this.isExistGroupName(group.GRP_NAME);
+                if(groupIdx > 0) {
+                    // 그룹이 존재하다면
+                    groupKeyMap['key' + group.IDX] = groupIdx;
+                } else {
+                    // 그룹이 존재하지 않다면 새로 생성하고 키 지정
+                    const newGroupIdx = await addGroupData(group);
+                    groupKeyMap['key' + group.IDX] = newGroupIdx;
                 }
-                accountKeyMap['key' + account.IDX] = accountIdx;
-            } else {
-                const newAccountIdx = await addAccountData(account, serviceKeyMap['key' + account.SERVICE_IDX]);
-                accountKeyMap['key' + account.IDX] = newAccountIdx;
             }
         }
-        /* oauth계정 동기화 */
-        for(let i = 0 ; i < oauthAccounts.length ; i++) {
-            const oauthAccount = oauthAccounts[i];
-            const oauthAccountIdx = await this.isExistOauthAccountName(oauthAccount.ACCOUNT_NAME, serviceKeyMap['key' + oauthAccount.SERVICE_IDX], accountKeyMap['key' + oauthAccount.ACCOUNT_IDX]);
-            if(oauthAccountIdx > 0) {
-                // 이미 존재하면 date를 오늘 날짜로 변경
-                await updateOauthAccountData(oauthAccount, serviceKeyMap['key' + oauthAccount.SERVICE_IDX], accountKeyMap['key' + oauthAccount.ACCOUNT_IDX]); //date만 최신으로 업데이트
-                oauthAccountKeyMap['key' + oauthAccount.IDX] = oauthAccountIdx;
-            } else {
-                const newOauthAccountIdx = await addOauthAccountData(oauthAccount, serviceKeyMap['key' + oauthAccount.SERVICE_IDX], accountKeyMap['key' + oauthAccount.ACCOUNT_IDX]);
-                oauthAccountKeyMap['key' + oauthAccount.IDX] = newOauthAccountIdx;
+        if(services != null) {
+            /* 서비스 동기화 */
+            for(let i = 0 ; i < services.length ; i++) {
+                const service = services[i];
+                const serviceIdx = await this.isExistServiceName(service.SERVICE_NAME, groupKeyMap['key' + service.GRP_IDX]);
+                if(serviceIdx > 0) {
+                    // 해당 key에 동기화 하고자 하는 서비스가 존재하는 경우
+                    serviceKeyMap['key' + service.IDX] = serviceIdx;
+                } else {
+                    const newServiceIdx = await addServiceData(service, groupKeyMap['key' + service.GRP_IDX]);
+                    serviceKeyMap['key' + service.IDX] = newServiceIdx;
+                }
+            }
+        }
+        if(accounts != null) {
+            /* 계정 동기화 */
+            for(let i = 0 ; i < accounts.length ; i++) {
+                const account = accounts[i];
+                const accountIdx = await this.isExistAccountName(account.ACCOUNT_NAME, serviceKeyMap['key' + account.SERVICE_IDX]);
+                if(accountIdx > 0) {
+                    // 해당 서비스에 계정이 이미 존재하는 경우
+                    // date 비교 후 동기화 하고자 하는 계정이 최신인 경우 교체 아니면 냅두기
+                    const select: any = await getAccountDateQuery(accountIdx);
+                    const previousDataDate = new Date(select[0].DATE);
+                    const newDataDate = new Date(account.DATE);
+                                
+                    if(previousDataDate.getTime() < newDataDate.getTime()) {
+                        //새로운 데이터가 더 최신인 경우
+                        await updateAccountData(account, accountIdx); 
+                    }
+                    accountKeyMap['key' + account.IDX] = accountIdx;
+                } else {
+                    const newAccountIdx = await addAccountData(account, serviceKeyMap['key' + account.SERVICE_IDX]);
+                    accountKeyMap['key' + account.IDX] = newAccountIdx;
+                }
+            }
+        }
+        if(oauthAccounts != null) {
+            /* oauth계정 동기화 */
+            for(let i = 0 ; i < oauthAccounts.length ; i++) {
+                const oauthAccount = oauthAccounts[i];
+                const oauthAccountIdx = await this.isExistOauthAccountName(oauthAccount.ACCOUNT_NAME, serviceKeyMap['key' + oauthAccount.SERVICE_IDX], accountKeyMap['key' + oauthAccount.ACCOUNT_IDX]);
+                if(oauthAccountIdx > 0) {
+                    // 이미 존재하면 date를 오늘 날짜로 변경
+                    await updateOauthAccountData(oauthAccount, serviceKeyMap['key' + oauthAccount.SERVICE_IDX], accountKeyMap['key' + oauthAccount.ACCOUNT_IDX]); //date만 최신으로 업데이트
+                    oauthAccountKeyMap['key' + oauthAccount.IDX] = oauthAccountIdx;
+                } else {
+                    const newOauthAccountIdx = await addOauthAccountData(oauthAccount, serviceKeyMap['key' + oauthAccount.SERVICE_IDX], accountKeyMap['key' + oauthAccount.ACCOUNT_IDX]);
+                    oauthAccountKeyMap['key' + oauthAccount.IDX] = newOauthAccountIdx;
+                }
             }
         }
     }
