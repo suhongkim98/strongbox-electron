@@ -194,12 +194,12 @@ const SyncConnectSuccess = ({history}: SyncConnectSuccessProps) => {
             </ProfileWrapper>
             <TipWrapper>
                 <Span size="1.4rem" textColor={theme.colors.backgroundMainColor}>
-                    상대방의 이름과 인증 번호를 <Span size="1.4rem" textColor="darkred">꼭</Span> 확인하신 후<br />동기화 버튼을 눌러주세요.
+                    상대방의 이름과 인증 번호를 <Span size="1.4rem" textColor="darkred">꼭</Span> 확인하신 후<br />동의 버튼을 눌러주세요.
                 </Span>
-                <Span size="1.4rem" textColor={theme.colors.backgroundMainColor}>이 단계에서 동기화를 하는 순간 상대방에게 계정정보가 보내집니다.</Span>
+                <Span size="1.4rem" textColor={theme.colors.backgroundMainColor}>이 단계에서 동기화를 하는 순간 계정정보가 보내집니다.</Span>
                 <ButtonWrapper>
                     <SubmitBtn onClick={onAgreeSync}><Icon size="2rem"><MdCached /></Icon>
-                        {agreeFlag ? <Span size="2rem" fontWeight="700">동의</Span> : <Span size="2rem" fontWeight="700">동의완료</Span>}
+                        {!agreeFlag ? <Span size="2rem" fontWeight="700">동의</Span> : <Span size="2rem" fontWeight="700">동의완료</Span>}
                     </SubmitBtn>
                     <SubmitBtn onClick={onRedirect}><Span size="2rem" fontWeight="700">취소</Span></SubmitBtn>
                 </ButtonWrapper>
