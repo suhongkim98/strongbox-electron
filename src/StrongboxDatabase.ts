@@ -500,7 +500,7 @@ export class StrongboxDatabase{
         }
         const updateOauthAccountData = (oauthAccount: any, targetServiceIdx: number, targetAccountIdx: number) => {
             //target서비스idx, target계정idx로 oauth 계정 업데이트
-            const query = "UPDATE OAUTH_ACCOUNTS_TB SET (ACCOUNT_NAME, DATE) = (" + oauthAccount.ACCOUNT_NAME + ", datetime('now', 'localtime')) "
+            const query = "UPDATE OAUTH_ACCOUNTS_TB SET (ACCOUNT_NAME, DATE) = ('" + oauthAccount.ACCOUNT_NAME + "', datetime('now', 'localtime')) "
             + "WHERE ACCOUNT_IDX = " + targetAccountIdx + " AND SERVICE_IDX = " + targetServiceIdx;
             return this.getQuery(query);
         }
