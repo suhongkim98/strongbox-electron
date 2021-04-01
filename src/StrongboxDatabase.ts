@@ -1,5 +1,6 @@
 import sha256 from 'crypto-js/sha256';
 import { AES } from 'crypto-js';
+import { result } from 'lodash';
 const sqlite3 = window.require('sqlite3');
 const { ipcRenderer } = window.require('electron'); // window.require로 가져와야 하더라,, sqlite처럼
 
@@ -637,6 +638,15 @@ export class StrongboxDatabase{
         const toStringDate = banDate.getFullYear() + '-' + (banDate.getMonth() + 1) + '-' + banDate.getDate() + ' ' + banDate.getHours() + ':' + banDate.getMinutes() + ':' + banDate.getSeconds();
         const query = "UPDATE USERS_TB SET BAN = '" + toStringDate + "' WHERE IDX = " + userIdx;
         const result = await this.getQuery(query);
+        return result;
+    }
+    public async changeGroupName(groupIdx:number, text:string) {
+        const isExist = await this.isExistGroupName(text);
+        if(isExist > 0) {
+            return false;
+        }
+        const query = "UPDATE GROUPS_TB SET(GRP_NAME) = ('" + text + "') WHERE IDX = " + groupIdx;
+        await this.getQuery(query);
         return result;
     }
 }

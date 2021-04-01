@@ -58,10 +58,10 @@ const GroupFolderItem = ({serviceIDX,serviceName}:GroupFolderItemProps) =>{
 
     return <div>
     {
-        deleteServicePopup === true && <PopupWarning message="정말 해당 계정을 삭제하시겠습니까?" onAgree={deleteServiceByIDX} onDeny={()=>{setDeleteServicePopup(false)}} onBackgroundClicked={()=>{setDeleteServicePopup(false)}} />
+        deleteServicePopup === true && <PopupWarning message="정말 해당 서비스를 삭제하시겠습니까?" onAgree={deleteServiceByIDX} onDeny={()=>{setDeleteServicePopup(false)}} onBackgroundClicked={()=>{setDeleteServicePopup(false)}} />
     }
     <ContextMenu id={CONTEXT_ID}>
-        <MenuItem onClick={onClickMenu} data={{ action: 'deleteService', idx: serviceIDX }}>'{serviceName}' 계정 삭제</MenuItem>
+        <MenuItem onClick={onClickMenu} data={{ action: 'deleteService', idx: serviceIDX }}>'{serviceName}' 서비스 삭제</MenuItem>
     </ContextMenu>
     <ContextMenuTrigger id={CONTEXT_ID}>
         <GroupFolderItemWrapper onClick={() => { updateSelectedItem({idx:serviceIDX,name:serviceName})}} >

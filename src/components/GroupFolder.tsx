@@ -15,6 +15,7 @@ import { StrongboxDatabase } from '../StrongboxDatabase';
 import PopupWarning from './PopupWarning';
 import GroupFolderItem from './GroupFolderItem';
 import { updateGroupAsync } from '../modules/groupList';
+import EditGroupPopup from './EditGroupPopup';
 
 interface GroupFolderProps{
     groupIdx:number;
@@ -55,6 +56,7 @@ const GroupFolder = ({groupIdx,groupName}:GroupFolderProps) =>{
     const CONTEXT_ID = "context" + groupIdx; // 마우스 우클릭 통일아이디
     const [addServicePopupIDX,setAddServicePopupIDX] = useState(-1);
     const [deleteGroupPopup, setDeleteGroupPopup] = useState(false);
+    const [editGroupPopup, setEditGroupPopup] = useState(false);
 
     const dispatch = useDispatch(); 
     useEffect(()=>{
@@ -97,6 +99,7 @@ const GroupFolder = ({groupIdx,groupName}:GroupFolderProps) =>{
                 setAddServicePopupIDX(data.idx);
                 break;
             case 'editFolder':
+                setEditGroupPopup(true);
                 break;
             case 'deleteGroup':
                 setDeleteGroupPopup(true);
@@ -129,6 +132,9 @@ const GroupFolder = ({groupIdx,groupName}:GroupFolderProps) =>{
         }
         {
             deleteGroupPopup === true && <PopupWarning message="정말 폴더를 삭제하시겠습니까?" onAgree={deleteGroupByIDX} onDeny={()=>{setDeleteGroupPopup(false)}} onBackgroundClicked={()=>{setDeleteGroupPopup(false)}} />
+        }
+        {
+            editGroupPopup === true && <EditGroupPopup groupIdx={groupIdx} onBackgroundClicked={()=>{setEditGroupPopup(false);}} />
         }
         <ContextMenu id={CONTEXT_ID}>
             <MenuItem onClick={onClickMenu} data={{ action: 'deleteGroup', idx: groupIdx }}>'{groupName}' 폴더 삭제</MenuItem>

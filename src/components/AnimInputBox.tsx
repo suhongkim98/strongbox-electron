@@ -7,6 +7,7 @@ label:string;
 inputType:string;
 name?:any;
 hookFormRef?:any;
+onChange?: (e: any) => any;
 }
 const InputBox = styled.div`
 position: relative;
@@ -41,8 +42,8 @@ input:focus ~ label, input:valid ~ label{
 `;
 
 //쓸떈 form 태그 안에 넣자
-const AnimInputBox = ({label,inputType,name,hookFormRef}:InputBoxProps) =>{
-    return <InputBox><input type={inputType} name={name} required ref={hookFormRef}/><label>{label}</label></InputBox>
+const AnimInputBox = ({label,inputType,name,hookFormRef, onChange}:InputBoxProps) =>{
+    return <InputBox><input type={inputType} name={name} required ref={hookFormRef} onChange={onChange}/><label>{label}</label></InputBox>
 }
 
 export default AnimInputBox;
