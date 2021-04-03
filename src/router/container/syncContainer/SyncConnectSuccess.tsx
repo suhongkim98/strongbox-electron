@@ -110,6 +110,7 @@ const SyncConnectSuccess = ({history}: SyncConnectSuccessProps) => {
                 const data = result;
                 const accounts: any = result.accounts;
                 for(let i = 0 ; i < accounts.length ; i++) {
+                    console.log(accounts[i].PASSWORD);
                     const decrypted = (AES.decrypt(accounts[i].PASSWORD, global.key)).toString(enc.Utf8);
                     accounts[i].PASSWORD = decrypted; // 복호화
                 }

@@ -94,10 +94,10 @@ const AddServcePopup = ({onBackgroundClicked,groupIdx}:AddServcePopupProps) =>{
     return (<TotalWrapper>
         <ToastContainer />
         <PopupFloatDiv 
-    title="폴더에 계정 추가"
+    title="폴더에 서비스 추가"
     onBackgroundClicked={onBackgroundClicked}>
         <form onSubmit={handleSubmit(onButtonClicked)}>
-            <AnimInputBox label="계정 이름" inputType="text" name="serviceInputBox" hookFormRef={register({required: true, maxLength: 10})}/>
+            <AnimInputBox label="서비스 이름" inputType="text" name="serviceInputBox" hookFormRef={register({required: true, maxLength: 10})}/>
             {errors.serviceInputBox?.type === "required" && <Span size="1.5rem" textColor="red" fontWeight={600}>이름을 입력해주세요</Span>}
             {errors.serviceInputBox?.type === "maxLength" && <Span size="1.5rem" textColor="red" fontWeight={600}>10글자 이내로 작성해주세요</Span>}
             <FooterWrapper><Button>저장</Button></FooterWrapper>

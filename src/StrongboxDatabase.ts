@@ -266,7 +266,7 @@ export class StrongboxDatabase{
     public async addAccount(serviceIdx: number, accountName: string, account: {OAuthAccountIDX?:number, id?:string, password?:string}) {
         const insertAccount = (db:any, count: number) => {
             const key = global.key;
-            const encrypedPassword = AES.encrypt(account.password as string, key);
+            const encrypedPassword = AES.encrypt(JSON.stringify(account.password), key).toString();
             const query =
             'INSERT INTO ACCOUNTS_TB(SERVICE_IDX,ACCOUNT_NAME,ID,PASSWORD, SORT_ORDER, DATE) ' +
             "VALUES(" + serviceIdx + ",'" + accountName + "','" + account.id + "','" + encrypedPassword + "'," + count + ",datetime('now', 'localtime'))";
