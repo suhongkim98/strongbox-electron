@@ -7,6 +7,7 @@ import { RootState } from "../modules";
 import { updateSelectedItemIndex } from "../modules/selectedService";
 import { updateServiceAsync } from '../modules/serviceList';
 import { StrongboxDatabase } from "../StrongboxDatabase";
+import EditServicePopup from './EditServicePopup';
 import PopupWarning from "./PopupWarning";
 import Span from "./Span";
 
@@ -25,6 +26,7 @@ margin-bottom:5px;
 `;
 const GroupFolderItem = ({serviceIDX,serviceName}:GroupFolderItemProps) =>{
     const [deleteServicePopup, setDeleteServicePopup] = useState(false);
+    const [editServicePopupIdx, setEditServicePopupIdx] = useState(-1);
     const dispatch = useDispatch(); 
     const CONTEXT_ID = "GroupFolderItemContext" + serviceIDX;
     const selectedService = useSelector((state: RootState)=>state.selectedService.itemIndex);
@@ -38,6 +40,9 @@ const GroupFolderItem = ({serviceIDX,serviceName}:GroupFolderItemProps) =>{
             case 'deleteService':
                 setDeleteServicePopup(true);
                 break;
+            case 'editService':
+                setEditServicePopupIdx(data.idx);
+                break;    
             default:
                 break;
         }
@@ -60,7 +65,12 @@ const GroupFolderItem = ({serviceIDX,serviceName}:GroupFolderItemProps) =>{
     {
         deleteServicePopup === true && <PopupWarning message="정말 해당 서비스를 삭제하시겠습니까?" onAgree={deleteServiceByIDX} onDeny={()=>{setDeleteServicePopup(false)}} onBackgroundClicked={()=>{setDeleteServicePopup(false)}} />
     }
+    {
+        editServicePopupIdx !== -1 && <EditServicePopup onBackgroundClicked={() => setEditServicePopupIdx(-1)} serviceIdx={editServicePopupIdx} />
+    }
     <ContextMenu id={CONTEXT_ID}>
+        <MenuItem onClick={onClickMenu} data={{ action: 'editService', idx: serviceIDX }}>'{serviceName}' 서비스 편집</MenuItem>
+        <MenuItem divider />
         <MenuItem onClick={onClickMenu} data={{ action: 'deleteService', idx: serviceIDX }}>'{serviceName}' 서비스 삭제</MenuItem>
     </ContextMenu>
     <ContextMenuTrigger id={CONTEXT_ID}>

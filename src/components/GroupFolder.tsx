@@ -140,7 +140,7 @@ const GroupFolder = ({groupIdx,groupName}:GroupFolderProps) =>{
             <MenuItem onClick={onClickMenu} data={{ action: 'deleteGroup', idx: groupIdx }}>'{groupName}' 폴더 삭제</MenuItem>
             <MenuItem divider />
             <MenuItem onClick={onClickMenu} data={{ action: 'addAccount', idx: groupIdx }}>'{groupName}' 폴더에 서비스 추가</MenuItem>
-            <MenuItem onClick={onClickMenu} data={{ action: 'editFolder' }}>편집</MenuItem>
+            <MenuItem onClick={onClickMenu} data={{ action: 'editFolder' }}>이름 변경</MenuItem>
         </ContextMenu>
             <ContextMenuTrigger id={CONTEXT_ID}>
         <HeaderWrapper onClick={onClickToggleBtn}>

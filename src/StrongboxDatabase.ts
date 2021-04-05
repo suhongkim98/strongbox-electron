@@ -75,10 +75,10 @@ export class StrongboxDatabase{
         });
     }
 
-    private getQuery(query: string){
+    private getQuery(query: string, params?: []){
         return new Promise((succ, fail) =>{
             const db = this.connectDatabase();
-            db.all(query, [], (err: any, arg: any) =>{
+            db.all(query, params, (err: any, arg: any) =>{
                 if (err) {
                     fail(err);
                 } else {
@@ -266,7 +266,7 @@ export class StrongboxDatabase{
     public async addAccount(serviceIdx: number, accountName: string, account: {OAuthAccountIDX?:number, id?:string, password?:string}) {
         const insertAccount = (db:any, count: number) => {
             const key = global.key;
-            const encrypedPassword = AES.encrypt(JSON.stringify(account.password), key).toString();
+            let encrypedPassword = AES.encrypt(account.password as string, key).toString();
             const query =
             'INSERT INTO ACCOUNTS_TB(SERVICE_IDX,ACCOUNT_NAME,ID,PASSWORD, SORT_ORDER, DATE) ' +
             "VALUES(" + serviceIdx + ",'" + accountName + "','" + account.id + "','" + encrypedPassword + "'," + count + ",datetime('now', 'localtime'))";
@@ -646,6 +646,22 @@ export class StrongboxDatabase{
             return false;
         }
         const query = "UPDATE GROUPS_TB SET(GRP_NAME) = ('" + text + "') WHERE IDX = " + groupIdx;
+        await this.getQuery(query);
+        return result;
+    }
+    public async changeServiceName(serviceIdx:number, text?:string, groupIdx?: number) {
+        const service: any = await this.getQuery("SELECT GRP_IDX, SERVICE_NAME FROM SERVICES_TB WHERE IDX = " + serviceIdx);
+        if(groupIdx == null) {
+            groupIdx = service[0].GRP_IDX as number;
+        }
+        if(text == null) {
+            text = service[0].SERVICE_NAME as string;
+        }
+        const isExist = await this.isExistServiceName(text, groupIdx);
+        if(isExist > 0) {
+            return false;
+        }
+        const query = "UPDATE SERVICES_TB SET(SERVICE_NAME, GRP_IDX) = ('" + text + "', " + groupIdx + ") WHERE IDX = " + serviceIdx;
         await this.getQuery(query);
         return result;
     }
