@@ -16,7 +16,8 @@ function createWindow() {
     width: 800,
     height: 600,
     webPreferences: {
-      nodeIntegration: true
+      nodeIntegration: true,
+      contextIsolation: false // electron 12 들어오며 기본값이 true됨
     }
   })
 

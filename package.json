@@ -44,7 +44,7 @@
     "semantic-ui-css": "^2.4.1",
     "semantic-ui-react": "^1.2.1",
     "sockjs-client": "^1.5.0",
-    "sqlite3": "^5.0.0",
+    "sqlite3": "^5.0.2",
     "stompjs": "^2.3.3",
     "styled-components": "^5.2.0",
     "styled-reset": "^4.2.2",
@@ -52,7 +52,6 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "rebuild": "electron-rebuild -w sqlite3 -p",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "postinstall": "electron-builder install-app-deps",
@@ -107,10 +106,9 @@
     ]
   },
   "devDependencies": {
-    "concurrently": "^5.3.0",
-    "electron": "^11.2.3",
-    "electron-builder": "^22.8.0",
-    "electron-rebuild": "^2.0.2",
-    "wait-on": "^5.2.1"
+    "concurrently": "^6.0.0",
+    "electron": "^12.0.2",
+    "electron-builder": "^22.10.5",
+    "wait-on": "^5.3.0"
   }
 }
