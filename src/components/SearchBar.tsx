@@ -60,7 +60,7 @@ const SearchBar = ({width,height,source,filterFunc,resultPrintFunc}:SearchBarPro
     const [isLoading,setLoading] = useState(false);
     const [isFocus,setFocus] = useState(false);
     const [result,setResult] = useState([]);
-    const loadingTimerID = useRef<number>(-1);
+    const loadingTimerID: any = useRef<number>(-1);
     const inputValue = useRef<string>('');
     
     const resultBoxRef = useRef<HTMLDivElement>(null);
