@@ -7,6 +7,7 @@ import { RootState } from '../modules';
 import { updateAccountAsync } from '../modules/accountList';
 import { StrongboxDatabase } from '../StrongboxDatabase';
 import AddAccountPopup from './AddAccountPopup';
+import EditAccountPopup from './EditAccountPopup';
 import PopupWarning from './PopupWarning';
 import Span from './Span';
 
@@ -113,6 +114,7 @@ export default AccountView;
 
 const Account = ({idx,accountName,date,OAuthServiceName,accountID,accountPassword}:AccountProps) => {
     const [deleteAccountPopup,setDeleteAccountPopup] = useState(false);
+    const [editAccountPopup, setEditAccountPopup] = useState(-1);
     const dispatch = useDispatch();
     const CONTEXT_ID = "contextAccount" + idx;
     const selectedService = useSelector((state: RootState) => state.selectedService.itemIndex);
@@ -128,13 +130,23 @@ const Account = ({idx,accountName,date,OAuthServiceName,accountID,accountPasswor
             case 'deleteAccount':
                 setDeleteAccountPopup(true);
                 break;
+            case 'editAccount':
+                if(OAuthServiceName) {
+
+                } else {
+                    setEditAccountPopup(data.idx);
+                }
+                break;
             default:
                 break;
         }
     }
     return <ContextMenuTrigger id={CONTEXT_ID}><ViewCard>
         { deleteAccountPopup === true && <PopupWarning message={"정말 " + accountName + "계정을 삭제하시겠습니까?"} onAgree={deleteAccountByIDX} onDeny={()=>{setDeleteAccountPopup(false)}} onBackgroundClicked={()=>{setDeleteAccountPopup(false)}} /> }
+        { editAccountPopup !== -1 && <EditAccountPopup onBackgroundClicked={()=>{setEditAccountPopup(-1);}} accountIdx={editAccountPopup} /> }
         <ContextMenu id={CONTEXT_ID}>
+            <MenuItem onClick={onClickMenu} data={{ action: 'editAccount', idx: idx }}>'{accountName}' 계정 편집</MenuItem>
+            <MenuItem divider />
             <MenuItem onClick={onClickMenu} data={{ action: 'deleteAccount', idx: idx }}>'{accountName}' 계정 삭제</MenuItem>
         </ContextMenu>
         

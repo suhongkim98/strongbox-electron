@@ -27,10 +27,11 @@ interface DropboxProps {
     defaultOptionName?:string;
     children: any;
     setSelectedFunc: (value: any) => any;
+    onClick?:any;
 }
-const Dropbox = ({children, name, setSelectedFunc, defaultOptionName}: DropboxProps) => {
-    return <Select name={name} onChange={(e:any)=>{setSelectedFunc(e.target.value)}}>
-        <option>{defaultOptionName ? defaultOptionName : "선택"}</option>
+const Dropbox = ({children, name, setSelectedFunc, defaultOptionName, onClick}: DropboxProps) => {
+    return <Select name={name} onChange={(e:any)=>{setSelectedFunc(e.target.value)}} onClick={onClick}>
+        <option value={-1}>{defaultOptionName ? defaultOptionName : "선택"}</option>
         {children}
     </Select>;
 };

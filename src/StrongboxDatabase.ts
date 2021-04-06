@@ -1,5 +1,5 @@
 import sha256 from 'crypto-js/sha256';
-import { AES } from 'crypto-js';
+import { AES, enc } from 'crypto-js';
 import { result } from 'lodash';
 const sqlite3 = window.require('sqlite3');
 const { ipcRenderer } = window.require('electron'); // window.require로 가져와야 하더라,, sqlite처럼
@@ -75,7 +75,7 @@ export class StrongboxDatabase{
         });
     }
 
-    private getQuery(query: string, params?: []){
+    private getQuery(query: string, params?: any[]){
         return new Promise((succ, fail) =>{
             const db = this.connectDatabase();
             db.all(query, params, (err: any, arg: any) =>{
@@ -664,5 +664,77 @@ export class StrongboxDatabase{
         const query = "UPDATE SERVICES_TB SET(SERVICE_NAME, GRP_IDX) = ('" + text + "', " + groupIdx + ") WHERE IDX = " + serviceIdx;
         await this.getQuery(query);
         return result;
+    }
+    public async getAccountInfo(accountIdx: number, isOauth: boolean) {
+        // 그룹idx, 서비스 idx, 별명, 아이디, 비번
+        let query = null;
+        let result = null;
+        if(isOauth) {
+            query = 
+            "SELECT OTB.ACCOUNT_NAME, OTB.SERVICE_IDX AS SERVICE_IDX, STB.GRP_IDX AS GRP_IDX  FROM OAUTH_ACCOUNTS_TB AS OTB "
+            + "JOIN SERVICES_TB AS STB ON STB.IDX = OTB.SERVICE_IDX "
+            + "WHERE  OTB.IDX = " + accountIdx;
+            const execute: any = await this.getQuery(query);
+            result = {
+                ACCOUNT_NAME: execute[0].ACCOUNT_NAME,
+                SERVICE_IDX: execute[0].SERVICE_IDX,
+                GRP_IDX: execute[0].GRP_IDX,
+            };
+            
+        } else {
+            query = "SELECT ATB.ACCOUNT_NAME, ATB.ID, ATB.PASSWORD, ATB.SERVICE_IDX AS SERVICE_IDX, STB.GRP_IDX AS GRP_IDX FROM ACCOUNTS_TB AS ATB "
+            + "JOIN SERVICES_TB AS STB ON STB.IDX = ATB.SERVICE_IDX "
+            + "WHERE ATB.IDX = " + accountIdx;
+            const execute: any = await this.getQuery(query);
+
+            const decrypted = (AES.decrypt(execute[0].PASSWORD, global.key)).toString(enc.Utf8);
+
+            result = {
+                ACCOUNT_NAME: execute[0].ACCOUNT_NAME,
+                ID: execute[0].ID,
+                PASSWORD: decrypted,
+                SERVICE_IDX: execute[0].SERVICE_IDX,
+                GRP_IDX: execute[0].GRP_IDX,
+            };
+        }
+        return result;
+    }
+    public async changeAccountInfo(accountIdx: number, isOauth: boolean, serviceIdx:number, id?:string, password?:string, accountName?: string) {
+        if(isOauth) {
+            if(accountName != null) {
+                const select: any = await this.getQuery("SELECT ACCOUNT_IDX FROM OAUTH_ACCOUNTS_TB WHERE IDX = " + accountIdx);
+                const idx = select[0].ACCOUNT_IDX;
+                const isExist = await this.isExistOauthAccountName(accountName, serviceIdx, idx);
+                if(isExist > 0) {
+                    return false;
+                }
+
+                const query = 
+                "UPDATE OAUTH_ACCOUNTS_TB SET(ACCOUNT_NAME, SERVICE_IDX, DATE) = (?,?,datetime('now', 'localtime')) WHERE IDX = " + accountIdx;
+                await this.getQuery(query, [accountName, serviceIdx]);
+            } else {
+                const query =
+                "UPDATE OAUTH_ACCOUNTS_TB SET(SERVICE_IDX, DATE) = (?,datetime('now', 'localtime')) WHERE IDX = " + accountIdx;
+                await this.getQuery(query, [serviceIdx]);
+            }
+        } else {
+            const key = global.key;
+            let encrypedPassword = AES.encrypt(password as string, key).toString();
+
+            if(accountName != null) {
+                const isExist = await this.isExistAccountName(accountName, serviceIdx);
+                if(isExist > 0) {
+                    return false;
+                }
+                const query =
+                "UPDATE ACCOUNTS_TB SET(ACCOUNT_NAME,SERVICE_IDX,ID,PASSWORD,DATE) = (?,?,?,?,datetime('now', 'localtime')) WHERE IDX = " + accountIdx;
+                await this.getQuery(query,[accountName,serviceIdx,id,encrypedPassword]);
+            } else {
+                const query = 
+                "UPDATE ACCOUNTS_TB SET(SERVICE_IDX,ID,PASSWORD,DATE) = (?,?,?,datetime('now', 'localtime')) WHERE IDX = " + accountIdx;
+                await this.getQuery(query,[serviceIdx,id,encrypedPassword]);
+            }
+        }
+        return true;
     }
 }
