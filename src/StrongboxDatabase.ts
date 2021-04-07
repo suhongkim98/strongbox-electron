@@ -699,7 +699,7 @@ export class StrongboxDatabase{
         }
         return result;
     }
-    public async changeAccountInfo(accountIdx: number, isOauth: boolean, serviceIdx:number, id?:string, password?:string, accountName?: string) {
+    public async changeAccountInfo(accountIdx: number, isOauth: boolean, serviceIdx:number, accountName?: string, id?:string, password?:string) {
         if(isOauth) {
             if(accountName != null) {
                 const select: any = await this.getQuery("SELECT ACCOUNT_IDX FROM OAUTH_ACCOUNTS_TB WHERE IDX = " + accountIdx);

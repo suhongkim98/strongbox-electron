@@ -8,6 +8,7 @@ import { updateAccountAsync } from '../modules/accountList';
 import { StrongboxDatabase } from '../StrongboxDatabase';
 import AddAccountPopup from './AddAccountPopup';
 import EditAccountPopup from './EditAccountPopup';
+import EditOauthAccountPopup from './EditOauthAccountPopup';
 import PopupWarning from './PopupWarning';
 import Span from './Span';
 
@@ -115,6 +116,7 @@ export default AccountView;
 const Account = ({idx,accountName,date,OAuthServiceName,accountID,accountPassword}:AccountProps) => {
     const [deleteAccountPopup,setDeleteAccountPopup] = useState(false);
     const [editAccountPopup, setEditAccountPopup] = useState(-1);
+    const [editOauthAccountPopup, setEditOauthAccountPopup] = useState(-1);
     const dispatch = useDispatch();
     const CONTEXT_ID = "contextAccount" + idx;
     const selectedService = useSelector((state: RootState) => state.selectedService.itemIndex);
@@ -132,7 +134,7 @@ const Account = ({idx,accountName,date,OAuthServiceName,accountID,accountPasswor
                 break;
             case 'editAccount':
                 if(OAuthServiceName) {
-
+                    setEditOauthAccountPopup(data.idx);
                 } else {
                     setEditAccountPopup(data.idx);
                 }
@@ -144,6 +146,7 @@ const Account = ({idx,accountName,date,OAuthServiceName,accountID,accountPasswor
     return <ContextMenuTrigger id={CONTEXT_ID}><ViewCard>
         { deleteAccountPopup === true && <PopupWarning message={"정말 " + accountName + "계정을 삭제하시겠습니까?"} onAgree={deleteAccountByIDX} onDeny={()=>{setDeleteAccountPopup(false)}} onBackgroundClicked={()=>{setDeleteAccountPopup(false)}} /> }
         { editAccountPopup !== -1 && <EditAccountPopup onBackgroundClicked={()=>{setEditAccountPopup(-1);}} accountIdx={editAccountPopup} /> }
+        { editOauthAccountPopup !== -1 && <EditOauthAccountPopup onBackgroundClicked={()=>{setEditOauthAccountPopup(-1);}} accountIdx={editOauthAccountPopup} /> }
         <ContextMenu id={CONTEXT_ID}>
             <MenuItem onClick={onClickMenu} data={{ action: 'editAccount', idx: idx }}>'{accountName}' 계정 편집</MenuItem>
             <MenuItem divider />

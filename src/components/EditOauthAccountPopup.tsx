@@ -36,10 +36,8 @@ const BodyWrapper = styled.div`
 const BodyItem = styled.div`
     margin: 0 0 20px 0;
 `;
-const EditAccountPopup = ({ onBackgroundClicked, accountIdx }: PopupProps) => {
+const EditOauthAccountPopup = ({ onBackgroundClicked, accountIdx }: PopupProps) => {
     const [nickname, setNickname] = useState('');
-    const [id, setId] = useState('');
-    const [password, setPassword] = useState('');
     const [selectedGroupIdx, setSelectedGroupIdx] = useState(-1);
     const [selectedServiceIdx, setSelectedServiceIdx] = useState(-1);
     const [targetServiceList, setTargetServiceList] = useState([]);
@@ -49,17 +47,13 @@ const EditAccountPopup = ({ onBackgroundClicked, accountIdx }: PopupProps) => {
     const dispatch = useDispatch();
 
     const [originalServiceIdx, setOriginalServiceIdx] = useState(-1);
-    const [originalPlaceholderId, setOriginalPlaceholderId] = useState('');
-    const [originalPlaceholderPassword, setOriginalPlaceholderPassword] = useState('');
     const [originalAccountName, setOriginalAccountName] = useState('');
 
 
     useEffect(() => {
         const db = StrongboxDatabase.getInstance();
-        db.getAccountInfo(accountIdx, false).then((result: any) => {
+        db.getAccountInfo(accountIdx, true).then((result: any) => {
             setOriginalServiceIdx(result.SERVICE_IDX);
-            setOriginalPlaceholderId(result.ID);
-            setOriginalPlaceholderPassword(result.PASSWORD);
             setOriginalAccountName(result.ACCOUNT_NAME);
         }).catch((error) => {
             console.error(error);
@@ -76,11 +70,9 @@ const EditAccountPopup = ({ onBackgroundClicked, accountIdx }: PopupProps) => {
     const onSubmit = () => {
         const db = StrongboxDatabase.getInstance();
         const inputServiceIdx = selectedServiceIdx !== -1 ? selectedServiceIdx : originalServiceIdx;
-        const inputId = id !== '' ? id : originalPlaceholderId;
-        const inputPassword = password !== '' ? password : originalPlaceholderPassword;
         const inputNickname = nickname !== '' ? nickname : undefined;
 
-        db.changeAccountInfo(accountIdx, false, inputServiceIdx,inputNickname, inputId, inputPassword).then((result) => {
+        db.changeAccountInfo(accountIdx, true, inputServiceIdx,inputNickname).then((result) => {
             if(result) {
                 // 성공
                 dispatch(updateAccountAsync(selectedService.idx));
@@ -118,10 +110,6 @@ const EditAccountPopup = ({ onBackgroundClicked, accountIdx }: PopupProps) => {
                 </Dropbox>
             </BodyItem>
             <BodyItem>
-                <StaticInputBox placeholder={originalPlaceholderId} label="아이디" inputType="text" onChange={(e) => setId(e.target.value)} />
-                <SubmitBtn onClick={onSubmit}><Span size="1.5rem" fontWeight="700">변경하기</Span></SubmitBtn>
-                <StaticInputBox placeholder={originalPlaceholderPassword} label="비밀번호" inputType="text" onChange={(e) => setPassword(e.target.value)} />
-                <SubmitBtn onClick={onSubmit}><Span size="1.5rem" fontWeight="700">변경하기</Span></SubmitBtn>
                 <StaticInputBox placeholder={originalAccountName} label="별명" inputType="text" onChange={(e) => setNickname(e.target.value)} />
                 <SubmitBtn onClick={onSubmit}><Span size="1.5rem" fontWeight="700">변경하기</Span></SubmitBtn>
             </BodyItem>
@@ -129,4 +117,4 @@ const EditAccountPopup = ({ onBackgroundClicked, accountIdx }: PopupProps) => {
     </PopupFloatDiv>
 }
 
-export default EditAccountPopup;
+export default EditOauthAccountPopup;
