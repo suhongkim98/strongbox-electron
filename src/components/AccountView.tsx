@@ -24,9 +24,13 @@ width:100%;
 height: 100%;
 
 display:grid;
-grid-template-columns: repeat(2, 1fr);
+grid-template-columns: 1fr;
 grid-auto-rows: 160px;
 grid-gap: 10px;
+
+${({theme}) => theme.media.desktopL`
+grid-template-columns: 1fr 1fr;
+`}
 
 overflow-y:scroll;
 ::-webkit-scrollbar{

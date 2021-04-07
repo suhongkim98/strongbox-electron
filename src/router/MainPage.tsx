@@ -23,7 +23,7 @@ const TotalWrapper = styled.div `
 width:100%;
 height:100vh;
 display: grid;
-grid-template-columns: 300px 1fr;
+grid-template-columns: 250px 1fr;
 `;
 const SearchHeaderWrapper = styled.div `
 width:100%;

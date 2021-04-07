@@ -13,7 +13,8 @@ let dbPath: any, settingPath: any;
 
 function createWindow() {
   win = new BrowserWindow({
-    width: 800,
+    width: 1000,
+    minWidth: 780,
     height: 600,
     webPreferences: {
       nodeIntegration: true,
