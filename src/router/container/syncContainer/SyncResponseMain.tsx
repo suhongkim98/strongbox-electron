@@ -119,12 +119,12 @@ const SyncResponseMain = ({history}: RequestMainProps) => {
     if(redirect !== '') return <Redirect to={redirect} />;
     return <TotalWrapper>
         <ToastContainer />
-        <Span size="1.6rem" fontWeight="700">상대방이 제공한 인증 번호를 입력하세요</Span>
+        <Span size="1.6rem" fontWeight="700">다른 기기가 제공한 인증 번호를 입력하세요</Span>
             <Form onSubmit={handleSubmit(onSubmitEvent)} noValidate>
                 <PinInput type="text" name="pinInput" ref={register({ required: true })} />
                 {errors.pinInput?.type === "required" && <Span size="1.4rem" textColor="red" fontWeight={600}><br/><br/>인증번호를 입력해주세요.</Span>}
                 <TipWrapper>
-                    <Span size="1.4rem"><br />상대방과 계정 정보를 동기화할 수 있습니다. 핀번호를 확인한 후 동기화버튼을 눌러주세요. <br /><br />
+                    <Span size="1.4rem"><br />다른 기기와 계정 정보를 동기화할 수 있습니다. 핀번호를 확인한 후 동기화버튼을 눌러주세요. <br /><br />
                         계정 이름이 같은 경우 <Span textColor="red" size="1.4rem">가장 최근에 추가된 계정 정보</Span>로 업데이트 되니 참고하시기 바랍니다.</Span>
                 </TipWrapper>
                 <SubmitBtn><Icon size="2rem"><MdCached /></Icon><Span size="2rem" fontWeight="700">동기화하기</Span></SubmitBtn>

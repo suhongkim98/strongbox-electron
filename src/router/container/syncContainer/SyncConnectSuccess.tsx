@@ -10,7 +10,7 @@ import {StrongboxDatabase} from '../../../StrongboxDatabase';
 import { AES, enc } from "crypto-js";
 import { updateGroupAsync } from '../../../modules/groupList';
 import { updateServiceAsync } from '../../../modules/serviceList';
-import AnimationLoading from '../../../images/AnimationLoading';
+import Loading from '../../../components/Loading';
 const TotalWrapper = styled.div`
     height: 100%;
     display: flex;
@@ -49,26 +49,6 @@ const Icon = styled(Span)`
     display: flex;
     justify-content: center;
     align-items: center;
-`;
-const LoadingWrapper = styled.div`
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-`;
-const LoadingBackground = styled.div`
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    background-color: black;
-    opacity: 0.1;
 `;
 interface SyncConnectSuccessProps {
     history: any;
@@ -182,22 +162,18 @@ const SyncConnectSuccess = ({history}: SyncConnectSuccessProps) => {
 
     if(redirect !== '') return <Redirect to={redirect} />;
     return (<TotalWrapper>
-            {isLoading && <LoadingWrapper>
-                <LoadingBackground />
-                <Span size="1.6rem" fontWeight="700">동기화 진행 중.. 잠시만 기다려 주세요!</Span>
-                <AnimationLoading width="20px" height="20px" />
-            </LoadingWrapper>}
+            {isLoading && <Loading text="동기화 진행 중.. 잠시만 기다려 주세요!" />}
             <ProfileWrapper>
                 <Span size="2.5rem" fontWeight="700">연결 성공!</Span>
                 <Span size="5rem"><IoMdPerson /></Span>
-                <Span size="2rem" fontWeight="700">상대방 이름: {otherPartName}</Span>
+                <Span size="2rem" fontWeight="700">다른 기기 이름: {otherPartName}</Span>
                 <Span size="2rem" fontWeight="700">인증 번호: {vertificationCode}</Span>
             </ProfileWrapper>
             <TipWrapper>
                 <Span size="1.4rem" textColor={theme.colors.backgroundMainColor}>
-                    상대방의 이름과 인증 번호를 <Span size="1.4rem" textColor="darkred">꼭</Span> 확인하신 후<br />동의 버튼을 눌러주세요.
+                    다른 기기의 이름과 인증 번호를 <Span size="1.4rem" textColor="darkred">꼭</Span> 확인하신 후<br />동의 버튼을 눌러주세요.
                 </Span>
-                <Span size="1.4rem" textColor={theme.colors.backgroundMainColor}>이 단계에서 동기화를 하는 순간 계정정보가 보내집니다.</Span>
+                <Span size="1.4rem" textColor={theme.colors.backgroundMainColor}>이 단계에서 동기화를 하는 순간 다른 기기에게 계정정보가 보내집니다.</Span>
                 <ButtonWrapper>
                     <SubmitBtn onClick={onAgreeSync}><Icon size="2rem"><MdCached /></Icon>
                         {!agreeFlag ? <Span size="2rem" fontWeight="700">동의</Span> : <Span size="2rem" fontWeight="700">동의완료</Span>}
