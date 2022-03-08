@@ -12,7 +12,7 @@ export const updateGroup = (newList: any) => ({
 export const updateGroupAsync = () => (dispatch: any) => {
   const database = StrongboxDatabase.getInstance();
   
-  database.getGroupList(global.idx).then((result)=>{
+  database.getGroupList(global.idx).then((result: any)=>{
     dispatch(updateGroup(result.map((data:any)=>{
       const group: GroupType = {
           GRP_IDX: data.IDX, 

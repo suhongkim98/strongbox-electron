@@ -52,7 +52,7 @@ const SyncResponseMain = ({history}: RequestMainProps) => {
     const onSubmitEvent = (data:any) => {
         console.log(data.pinInput);
         const params = new URLSearchParams();
-        params.append('name', global.name);
+        params.append('name', global.nickName);
         params.append('vertificationCode', data.pinInput);
 
 		axios.post(SERVER_NAME + '/sync/responseSync', params).then((response)=>{

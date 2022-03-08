@@ -48,7 +48,7 @@ const DeleteUserContainer = () => {
             dispatch(updateUserAsync());
             global.key = '';
             global.idx = -1;
-            global.name = '';
+            global.nickName = '';
             setRedirect('/');
         });
     }

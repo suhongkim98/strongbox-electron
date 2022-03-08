@@ -76,7 +76,7 @@ const SyncRequestPin = ({history}: SyncRequestPinProps) => {
                 <Span size="2.5rem" fontWeight="700">ACCONG BOX</Span>
             </div>
             <div>
-                <Span size="2rem">{global.name}</Span>
+                <Span size="2rem">{global.nickName}</Span>
             </div>
         </InnerWrapper>
         <InnerWrapper>

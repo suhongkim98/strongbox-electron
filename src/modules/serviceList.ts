@@ -10,7 +10,7 @@ export const updateService = (newList: any) => ({
 });
 export const updateServiceAsync = () => (dispatch: any) => {
   const database = StrongboxDatabase.getInstance();
-  database.getServiceListByUserIDX(global.idx).then((result)=>{
+  database.getServiceListByUserIDX(global.idx).then((result: any)=>{
     dispatch(updateService(result.map((data:any) => 
     {
         const service: ServiceType = {

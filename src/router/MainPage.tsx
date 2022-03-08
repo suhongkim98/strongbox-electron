@@ -147,7 +147,7 @@ const MainPage:React.FC = () =>{
     useEffect(() =>{
         const database = StrongboxDatabase.getInstance();
         database.select("NAME","USERS_TB","IDX = " + global.idx).then((result:any) =>{
-            global.name = result[0].NAME;
+            global.nickName = result[0].NAME;
             setName(result[0].NAME);
         }).catch((error)=>{
             console.log(error);
@@ -168,7 +168,7 @@ const MainPage:React.FC = () =>{
         dispatch(updateSelectedItemIndex({idx:-1,name:"no-name"}));
         global.idx = -1;
         global.key = "";
-        global.name = "";
+        global.nickName = "";
     }
 
     const onLogoutButtonClicked = () =>{

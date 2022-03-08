@@ -41,7 +41,7 @@ const SyncRequestMain = ({history}: RequestMainProps) => {
     const onSubmitEvent = () => {
         setLoading(true);
         const params = new URLSearchParams();
-		params.append('name', global.name);
+		params.append('name', global.nickName);
 		axios.post(SERVER_NAME + '/sync/requestSync', params).then((response)=>{
             setLoading(false);
             const roomId = response.data.data[0].roomId;

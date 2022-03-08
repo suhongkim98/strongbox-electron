@@ -9,7 +9,7 @@ import rootReducer from './modules';
 import { createStore, applyMiddleware } from 'redux';
 import { Provider } from 'react-redux';
 import { HashRouter } from 'react-router-dom';
-import { composeWithDevTools } from 'redux-devtools-extension';
+import {composeWithDevTools} from '@redux-devtools/extension';
 import ReduxThunk from 'redux-thunk';
 
 
