@@ -1,18 +1,26 @@
 ## Accong Box 크로스플랫폼 계정 관리 애플리케이션
+
 ![image](https://user-images.githubusercontent.com/35598710/149459547-b9fea366-e34c-4a78-bc13-6a379d3b6293.png)
-                                                                                                                                         
-### 프로젝트 기간 
+
+### environment
+
+- node `14.15.0`
+
+```
+npm install --target_arch=arm64
+```
+
+### 프로젝트 기간
 
 2020.08. ~ 2021.02.
 
 ### Github Link
 
 [Accong Box 계정 동기화 서버 Link](https://github.com/suhongkim98/strongbox-sync-server)<br>
-[Accong Box 크로스플랫폼 React Native 모바일 애플리케이션 Link](https://github.com/suhongkim98/StrongboxReactNative)<br>
+[Accong Box 크로스플랫폼 React Native 모바일 애플리케이션 Link](https://github.com/suhongkim98/StrongboxReactNative)<br
 [Accong Box 크로스플랫폼 Electron 데스크톱 애플리케이션 Link](https://github.com/suhongkim98/strongbox-electron)<br>
 [Accong Box HAProxy 설정파일 Link](https://github.com/suhongkim98/accongbox-haproxy)<br>
 [Accong Box React 홍보 웹사이트 Link](https://github.com/suhongkim98/strongbox-front-end)<br>
-
 
 ### 상세내용
 
@@ -22,12 +30,13 @@
 ### 성과
 
 21-1 소프트웨어응용학부 학술제에서 최우수상을 수상하였습니다.
-플레이스토어에 애플리케이션을 배포하였습니다. 
+플레이스토어에 애플리케이션을 배포하였습니다.
 
 사이트를 통해 데스크톱 앱 다운로드가 가능합니다.
-Link:  https://accongbox.com
+Link: https://accongbox.com
 
 ### 사용 기술 및 라이브러리
+
 - `Spring framework`
 - `React`
 - `Electron Framework`
